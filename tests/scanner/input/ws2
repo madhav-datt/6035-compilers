@@ -1,0 +1,11 @@
+#include <stdio.h>
+// hashtag # should be treated as comment in Decaf, and it is reserved for internal use.
+#
+##//
+
+aaa
+#typedef int int
+
+bbb
+ c # Note that it doesn't have to be the first token in the line, even though it is illegal in C.
+d

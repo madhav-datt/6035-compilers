@@ -1,0 +1,2 @@
+extern printf;
+// wrong extern syntax
