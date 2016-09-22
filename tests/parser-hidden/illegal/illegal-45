@@ -1,0 +1,3 @@
+void main() {
+  a =  sizeof(1); // sizeof cannot be applied to literals
+}

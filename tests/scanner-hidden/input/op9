@@ -1,0 +1,5 @@
+// sizeof should be a keyword, and @ ? : should be illegal
+sizeof
+@
+?
+:
