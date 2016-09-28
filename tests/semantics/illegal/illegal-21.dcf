@@ -1,0 +1,4 @@
+extern f();
+int f;
+void main() {
+}
