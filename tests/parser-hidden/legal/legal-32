@@ -1,5 +1,5 @@
 void main() {
-  boolean b;
+  bool b;
   int i;
   b = !!!!!!!!!!!!!!!!!true;
   // Bang bang bang!
