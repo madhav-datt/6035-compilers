@@ -1,0 +1,2 @@
+callout printf; 
+// we changed callout to extern
