@@ -1,4 +1,4 @@
-// Generated from /Users/devinmorgan/Documents/Java_Workspace_6035/6035-compilers/src/edu/mit/compilers/grammar/DecafScanner.g by ANTLR 4.5.3
+// Generated from /home/madhav/6035-compilers/src/edu/mit/compilers/grammar/DecafScanner.g4 by ANTLR 4.5.3
 
     package edu.mit.compilers.grammar;
 
@@ -98,7 +98,7 @@ public class DecafScanner extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "DecafScanner.g"; }
+	public String getGrammarFileName() { return "DecafScanner.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

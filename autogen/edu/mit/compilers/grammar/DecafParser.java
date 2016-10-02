@@ -1,4 +1,4 @@
-// Generated from /Users/devinmorgan/Documents/Java_Workspace_6035/6035-compilers/src/edu/mit/compilers/grammar/DecafParser.g by ANTLR 4.5.3
+// Generated from /home/madhav/6035-compilers/src/edu/mit/compilers/grammar/DecafParser.g4 by ANTLR 4.5.3
 
     package edu.mit.compilers.grammar;
 
@@ -90,7 +90,7 @@ public class DecafParser extends Parser {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "DecafParser.g"; }
+	public String getGrammarFileName() { return "DecafParser.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

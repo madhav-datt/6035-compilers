@@ -58,7 +58,7 @@
     <echo>Generating the scanner...</echo>
     <!-- Replaces <antlr> element -->
     <java classname="org.antlr.v4.Tool" fork="true" failonerror="true">
-      <arg value="${src}/${base_package_dir}/grammar/DecafScanner.g"/>
+      <arg value="${src}/${base_package_dir}/grammar/DecafScanner.g4"/>
       <arg value="-o"/>
       <arg value="${autogen}/${base_package_dir}/grammar"/>
       <classpath>
@@ -72,7 +72,7 @@
     <echo>Generating the parser...</echo>
     <!-- Replaces <antlr> element -->
     <java classname="org.antlr.v4.Tool" fork="true" failonerror="true">
-      <arg value="${src}/${base_package_dir}/grammar/DecafParser.g"/>
+      <arg value="${src}/${base_package_dir}/grammar/DecafParser.g4"/>
       <arg value="-o"/>
       <arg value="${autogen}/${base_package_dir}/grammar"/>
       <classpath>

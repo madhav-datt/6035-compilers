@@ -1,0 +1,6 @@
+// sizeof is a keyword
+extern sizeof(); 
+void main() {
+  int a;
+  sizeof(a);
+}
