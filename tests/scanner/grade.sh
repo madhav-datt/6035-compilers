@@ -11,20 +11,12 @@ fail=0
 failedFiles=""
 
 for file in `dirname $0`/input/*; do
-  output=`tempfile`
+  output=`mktemp`
   runscanner $file > $output 2>&1;
   if ! diff -u $output `dirname $0`/output/`basename $file`.out; then
     let "fail += 1"
-
     printf "Failed test $file \n\n\n\n\n\n"
     failedFiles="$failedFiles$file\n"
-
-for file in `dirname $0`/input/*; do
-  output=`tempfile`
-  runscanner $file > $output 2>&1;
-  if ! diff -u $output `dirname $0`/output/`basename $file`.out; then
-    let "fail += 1"
-    echo "Failed test $file"
   fi
   rm $output;
 done
@@ -40,4 +32,3 @@ numfiles=${#numfiles[@]}
 printf "Failed $fail/$numfiles tests:\n"
 printf "$failedFiles"
 exit $fail;
-
