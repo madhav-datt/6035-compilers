@@ -59,15 +59,31 @@ options
 
 program :
     extern_decl* field_decl* method_decl*;
+catch [RecognitionException ex] {
+   System.out.println("Program parsing failed");
+   System.exit(1);
+}
 
 extern_decl :
     RES_EXTERN ID L_PAREN R_PAREN SEMI_COL;
+catch [RecognitionException ex] {
+   System.out.println("Extern declaration parsing failed");
+   System.exit(1);
+}
 
 field_decl :
     type (ID | ID L_SQUARE INT R_SQUARE) (COMMA (ID | ID L_SQUARE INT R_SQUARE))* SEMI_COL;
+catch [RecognitionException ex] {
+   System.out.println("Field declaration parsing failed");
+   System.exit(1);
+}
 
 method_decl :
     (type | RES_VOID) ID L_PAREN ((type ID) (COMMA (type ID))* )? R_PAREN block;
+catch [RecognitionException ex] {
+   System.out.println("Method parsing failed");
+   System.exit(1);
+}
 
 block :
     L_CURL field_decl* statement* R_CURL;
@@ -79,12 +95,16 @@ statement :
     location assign_op expr SEMI_COL
     | method_call SEMI_COL
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr L_PAREN block
+    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
     | RES_WHILE L_PAREN expr R_PAREN block
     | RES_RETURN (expr)? SEMI_COL
     | RES_BREAK SEMI_COL
     | RES_CONTINUE SEMI_COL
     ;
+catch [RecognitionException ex] {
+   System.out.println("Statement parsing failed");
+   System.exit(1);
+}
 
 assign_op :
     AS_OP | compound_assign_op;
@@ -96,6 +116,10 @@ method_call :
     method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
     | method_name L_PAREN (extern_arg (COMMA extern_arg)*)? R_PAREN
     ;
+catch [RecognitionException ex] {
+   System.out.println("Method-call parsing failed");
+   System.exit(1);
+}
 
 method_name : ID;
 
@@ -107,13 +131,23 @@ expr :
     | method_call
     | literal
     | RES_SIZEOF L_PAREN ID R_PAREN
+    | RES_SIZEOF L_PAREN type R_PAREN
     | SUB_OP expr
-    | NOT_OP
+    | expr bin_op expr
+    | NOT_OP expr
     | L_PAREN expr R_PAREN
     ;
+catch [RecognitionException ex] {
+   System.out.println("Expression parsing failed");
+   System.exit(1);
+}
 
 extern_arg :
     expr | STRING;
+catch [RecognitionException ex] {
+   System.out.println("Argument parsing failed");
+   System.exit(1);
+}
 
 bin_op :
     arith_op | rel_op | eq_op | cond_op;
@@ -132,18 +166,3 @@ cond_op :
 
 literal :
     INT | CHAR | BOOL;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
