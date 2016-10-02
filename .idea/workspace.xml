@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9ce9549f-7f51-4bbe-8c15-dbf9b841b110" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g4" afterPath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g4" />
     </list>
     <ignored path="6035-compilers.iws" />
@@ -26,42 +27,12 @@
       <file leaf-file-name="DecafParser.g4" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g4">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="120" column="40" selection-start-line="120" selection-start-column="40" selection-end-line="120" selection-end-column="40" />
+            <state relative-caret-position="598">
+              <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
               <folding>
                 <element signature="e#184#242#1" expanded="true" />
                 <element signature="e#368#1396#1" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="legal-25" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/parser/legal/legal-25">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="27" selection-start-line="5" selection-start-column="27" selection-end-line="5" selection-end-column="27" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="legal-08" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/parser/legal/legal-08">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="legal-04" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/parser/legal/legal-04">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -784,12 +755,12 @@
       <option name="presentableId" value="Default" />
       <updated>1475261045123</updated>
       <workItem from="1475261046526" duration="221000" />
-      <workItem from="1475417211556" duration="7414000" />
+      <workItem from="1475417211556" duration="9100000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7635000" />
+    <option name="totallyTimeSpent" value="9321000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
@@ -1187,6 +1158,54 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-21">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-22">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-29">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-44">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-45">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/parser-hidden/illegal/illegal-47">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests/parser/legal/legal-25">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -1197,8 +1216,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g4">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="373">
-          <caret line="120" column="40" selection-start-line="120" selection-start-column="40" selection-end-line="120" selection-end-column="40" />
+        <state relative-caret-position="598">
+          <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
           <folding>
             <element signature="e#184#242#1" expanded="true" />
             <element signature="e#368#1396#1" expanded="true" />
