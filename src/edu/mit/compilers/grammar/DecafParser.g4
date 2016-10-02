@@ -79,7 +79,7 @@ statement :
     location assign_op expr SEMI_COL
     | method_call SEMI_COL
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr L_PAREN block
+    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
     | RES_WHILE L_PAREN expr R_PAREN block
     | RES_RETURN (expr)? SEMI_COL
     | RES_BREAK SEMI_COL
@@ -107,8 +107,10 @@ expr :
     | method_call
     | literal
     | RES_SIZEOF L_PAREN ID R_PAREN
+    | RES_SIZEOF L_PAREN type R_PAREN
     | SUB_OP expr
-    | NOT_OP
+    | expr bin_op expr
+    | NOT_OP expr
     | L_PAREN expr R_PAREN
     ;
 
@@ -132,18 +134,3 @@ cond_op :
 
 literal :
     INT | CHAR | BOOL;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
