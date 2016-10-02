@@ -2,138 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9ce9549f-7f51-4bbe-8c15-dbf9b841b110" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g" afterPath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafParser.g4" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafScanner.g" afterPath="$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafScanner.g4" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParser.java" afterPath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParser.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParserBaseListener.java" afterPath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParserBaseListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParserListener.java" afterPath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafParserListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafScanner.java" afterPath="$PROJECT_DIR$/autogen/edu/mit/compilers/grammar/DecafScanner.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-01" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-01" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-02" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-02" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-03" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-03" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-04" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-04" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-05" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-05" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-06" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-06" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-07" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-07" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-08" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-08" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-09" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-09" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-10" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-10" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-11" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-11" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-12" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-12" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-13" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-13" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-14" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-14" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-15" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-15" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-16" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-16" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-17" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-17" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-18" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-18" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-19" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-19" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-20" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-20" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-21" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-21" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-22" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-22" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-23" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-23" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-24" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-24" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-25" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-25" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-26" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-26" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-27" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-27" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-28" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-28" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-29" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-29" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-30" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-30" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-31" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-31" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-32" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-32" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-33" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-33" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-34" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-34" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-35" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-35" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-36" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-36" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-37" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-37" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-38" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-38" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/illegal/illegal-39" afterPath="$PROJECT_DIR$/tests/parser/illegal/illegal-39" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-01" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-01" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-02" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-02" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-03" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-03" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-04" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-04" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-05" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-05" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-06" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-06" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-07" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-07" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-08" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-08" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-09" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-09" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-10" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-10" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-11" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-11" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-12" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-12" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-13" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-13" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-14" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-14" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-15" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-15" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-16" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-16" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-17" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-17" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-18" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-18" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-19" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-19" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-20" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-20" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-21" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-21" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-22" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-22" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-23" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-23" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-24" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-24" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/parser/legal/legal-25" afterPath="$PROJECT_DIR$/tests/parser/legal/legal-25" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/grade.sh" afterPath="$PROJECT_DIR$/tests/scanner/grade.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char1" afterPath="$PROJECT_DIR$/tests/scanner/input/char1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char2" afterPath="$PROJECT_DIR$/tests/scanner/input/char2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char3" afterPath="$PROJECT_DIR$/tests/scanner/input/char3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char4" afterPath="$PROJECT_DIR$/tests/scanner/input/char4" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char5" afterPath="$PROJECT_DIR$/tests/scanner/input/char5" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char6" afterPath="$PROJECT_DIR$/tests/scanner/input/char6" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char7" afterPath="$PROJECT_DIR$/tests/scanner/input/char7" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char8" afterPath="$PROJECT_DIR$/tests/scanner/input/char8" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/char9" afterPath="$PROJECT_DIR$/tests/scanner/input/char9" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/hexlit1" afterPath="$PROJECT_DIR$/tests/scanner/input/hexlit1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/hexlit2" afterPath="$PROJECT_DIR$/tests/scanner/input/hexlit2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/hexlit3" afterPath="$PROJECT_DIR$/tests/scanner/input/hexlit3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/id1" afterPath="$PROJECT_DIR$/tests/scanner/input/id1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/id2" afterPath="$PROJECT_DIR$/tests/scanner/input/id2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/id3" afterPath="$PROJECT_DIR$/tests/scanner/input/id3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/number1" afterPath="$PROJECT_DIR$/tests/scanner/input/number1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/number2" afterPath="$PROJECT_DIR$/tests/scanner/input/number2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/number3" afterPath="$PROJECT_DIR$/tests/scanner/input/number3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/op1" afterPath="$PROJECT_DIR$/tests/scanner/input/op1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/op2" afterPath="$PROJECT_DIR$/tests/scanner/input/op2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/string1" afterPath="$PROJECT_DIR$/tests/scanner/input/string1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/string2" afterPath="$PROJECT_DIR$/tests/scanner/input/string2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/string3" afterPath="$PROJECT_DIR$/tests/scanner/input/string3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/tokens1" afterPath="$PROJECT_DIR$/tests/scanner/input/tokens1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/tokens2" afterPath="$PROJECT_DIR$/tests/scanner/input/tokens2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/tokens3" afterPath="$PROJECT_DIR$/tests/scanner/input/tokens3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/tokens4" afterPath="$PROJECT_DIR$/tests/scanner/input/tokens4" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/ws1" afterPath="$PROJECT_DIR$/tests/scanner/input/ws1" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/input/ws2" afterPath="$PROJECT_DIR$/tests/scanner/input/ws2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char4.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char4.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char5.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char5.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char6.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char6.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char7.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char7.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char8.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char8.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/char9.out" afterPath="$PROJECT_DIR$/tests/scanner/output/char9.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/hexlit1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/hexlit1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/hexlit2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/hexlit2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/hexlit3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/hexlit3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/id1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/id1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/id2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/id2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/id3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/id3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/number1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/number1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/number2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/number2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/number3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/number3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/op1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/op1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/op2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/op2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/string1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/string1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/string2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/string2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/string3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/string3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/tokens1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/tokens1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/tokens2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/tokens2.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/tokens3.out" afterPath="$PROJECT_DIR$/tests/scanner/output/tokens3.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/tokens4.out" afterPath="$PROJECT_DIR$/tests/scanner/output/tokens4.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/ws1.out" afterPath="$PROJECT_DIR$/tests/scanner/output/ws1.out" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/scanner/output/ws2.out" afterPath="$PROJECT_DIR$/tests/scanner/output/ws2.out" />
     </list>
     <ignored path="6035-compilers.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -154,26 +23,102 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DecafScanner.g4" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafScanner.g4">
+      <file leaf-file-name="id1.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/id1.out">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="17" column="24" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
-              <folding>
-                <element signature="e#123#180#1" expanded="true" />
-              </folding>
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/edu/mit/compilers/Main.java">
+      <file leaf-file-name="id2.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/id2.out">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="42" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="id3.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/id3.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="number1.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/number1.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="number2.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/number2.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="op1.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/op1.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="string1.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/string1.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ws2.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/ws2.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ws1.out" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/ws1.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tokens3.out" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/scanner/output/tokens3.out">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="72" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -438,6 +383,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="6035-compilers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="6035-compilers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -883,16 +842,16 @@
       <option name="presentableId" value="Default" />
       <updated>1475261045123</updated>
       <workItem from="1475261046526" duration="221000" />
-      <workItem from="1475417211556" duration="3911000" />
+      <workItem from="1475417211556" duration="4249000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4132000" />
+    <option name="totallyTimeSpent" value="4470000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -903,7 +862,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44572026" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44572026" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2172471" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -987,14 +946,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/scanner/grade.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/scanner/output/ws1.out">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1129,11 +1080,91 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/mit/compilers/grammar/DecafScanner.g4">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
+        <state relative-caret-position="-1029">
           <caret line="17" column="24" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
           <folding>
             <element signature="e#123#180#1" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/id1.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/id2.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/id3.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/number1.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/number2.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/op1.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/string1.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/ws2.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/ws1.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/scanner/output/tokens3.out">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="72" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
+          <folding />
         </state>
       </provider>
     </entry>
