@@ -1,0 +1,7 @@
+// redeclaration of extern
+
+extern main();
+
+void main() {
+
+}

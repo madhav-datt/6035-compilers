@@ -8,6 +8,7 @@ runscanner() {
 }
 
 fail=0
+<<<<<<< HEAD
 failedFiles=""
 
 for file in `dirname $0`/input/*; do
@@ -17,10 +18,20 @@ for file in `dirname $0`/input/*; do
     let "fail += 1"
     printf "Failed test $file \n\n\n\n\n\n"
     failedFiles="$failedFiles$file\n"
+=======
+
+for file in `dirname $0`/input/*; do
+  output=`tempfile`
+  runscanner $file > $output 2>&1;
+  if ! diff -u $output `dirname $0`/output/`basename $file`.out; then
+    let "fail += 1"
+    echo "Failed test $file"
+>>>>>>> 422974b0b2bfbe29bfadd6995d6eeba9ac4c3e6f
   fi
   rm $output;
 done
 
+<<<<<<< HEAD
 #clean up the screen since there
 #is a lot of output
 clear
@@ -32,3 +43,6 @@ numfiles=${#numfiles[@]}
 printf "Failed $fail/$numfiles tests:\n"
 printf "$failedFiles"
 exit $fail;
+=======
+exit $fail;
+>>>>>>> 422974b0b2bfbe29bfadd6995d6eeba9ac4c3e6f
