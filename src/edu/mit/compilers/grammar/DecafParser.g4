@@ -132,9 +132,8 @@ expr :
     | literal
     | RES_SIZEOF L_PAREN ID R_PAREN
     | RES_SIZEOF L_PAREN type R_PAREN
-    | SUB_OP expr
+    | uni_op expr
     | expr bin_op expr
-    | NOT_OP expr
     | L_PAREN expr R_PAREN
     ;
 catch [RecognitionException ex] {
@@ -148,6 +147,9 @@ catch [RecognitionException ex] {
    System.out.println("Argument parsing failed");
    System.exit(1);
 }
+
+uni_op :
+    SUB_OP | NOT_OP;
 
 bin_op :
     arith_op | rel_op | eq_op | cond_op;
