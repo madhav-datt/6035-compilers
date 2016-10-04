@@ -79,11 +79,13 @@ catch [RecognitionException ex] {
 }
 
 method_decl :
-    (type | RES_VOID) ID L_PAREN ((type ID) (COMMA (type ID))* )? R_PAREN block;
+    (type | RES_VOID) ID L_PAREN (param_decl (COMMA param_decl)* )? R_PAREN block;
 catch [RecognitionException ex] {
    System.out.println("Method parsing failed");
    System.exit(1);
 }
+
+param_decl : type ID;
 
 block :
     L_CURL field_decl* statement* R_CURL;
