@@ -1,6 +1,6 @@
 package edu.mit.compilers.ir;
 
-class IrIdent extends Ir {
+public class IrIdent extends Ir {
 
     private final String name;
 

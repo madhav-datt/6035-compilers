@@ -1,6 +1,6 @@
 package edu.mit.compilers.ir;
 
-class IrExternDecl extends Ir{
+public class IrExternDecl extends IrMemberDecl {
     private final IrIdent name;
 
     public IrExternDecl(IrIdent name) {
