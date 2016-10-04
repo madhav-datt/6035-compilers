@@ -1,13 +1,10 @@
 package edu.mit.compilers.ir;
 
 public class IrArrayFieldDecl extends IrFieldDecl {
-    private final IrIdent varName;
-    private final IrType arrayType;
     private final int arraySize;
 
-    public IrArrayFieldDecl(IrIdent varName, IrType arrayType, int arraySize) {
-        this.varName = varName;
-        this.arrayType = arrayType;
+    public IrArrayFieldDecl(int arraySize, IrType fieldType, IrIdent fieldName, int lineNumber, int colNumber) {
+        super(fieldType, fieldName, lineNumber, colNumber);
         this.arraySize = arraySize;
     }
 
