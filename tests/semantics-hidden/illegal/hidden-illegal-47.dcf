@@ -1,0 +1,6 @@
+// 15. <location> += <expr> must have type int on both sides
+void main ( ) {
+  bool b;
+  b = true;
+  b += 3;
+}

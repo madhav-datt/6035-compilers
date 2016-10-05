@@ -1,0 +1,9 @@
+// Must return value from a non-void method.
+// 14. The <location> and <expr> in an assignment, <location> == <expr>, 
+// must have the same type.
+int foo ( ) {
+}
+void main ( ) {
+  bool b;
+  b = foo ( );
+}

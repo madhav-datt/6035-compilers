@@ -1,0 +1,5 @@
+// 15. <location> = <expr> must have the same type
+bool a[10];
+void main ( ) {
+  a[0] = 1 + 1;
+}

@@ -1,0 +1,7 @@
+void foo ( ) {
+}
+void main ( ) {
+  int foo;
+  foo ( );
+  // variable declaration should shadow method call
+}
