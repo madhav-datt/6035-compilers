@@ -10,7 +10,7 @@ public abstract class IrMethodDecl extends IrMemberDecl {
     public IrMethodDecl(IrType returnType, IrIdent methodName, List<IrParamDecl> parameters,
                        IrCodeBlock methodBody, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
-        this.methodType = returnType;
+        this.returnType = returnType;
         this.methodName = methodName;
         this.parameters = parameters;
         this.methodBody = methodBody;
