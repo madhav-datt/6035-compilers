@@ -3,9 +3,9 @@ import java.util.*;
 
 public class IrIntMethodDecl extends IrMethodDecl {
 
-    public IrIntMethodDecl(IrType returnType, IrIdent methodName, List<IrParamDecl> parameters,
-                           IrCodeBlock methodBody, int lineNumber, int colNumber) {
-        super(returnType, methodName, parameters, methodBody, lineNumber, colNumber);
+    public IrIntMethodDecl(IrType returnType, List<IrParamDecl> parameters,
+                           IrCodeBlock methodBody, IrIdent name, int lineNumber, int colNumber) {
+        super(returnType, parameters, methodBody, name, lineNumber, colNumber);
     }
 
 }
