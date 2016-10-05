@@ -132,8 +132,7 @@ expr :
     location
     | method_call
     | literal
-    | RES_SIZEOF L_PAREN ID R_PAREN
-    | RES_SIZEOF L_PAREN type R_PAREN
+    | sizeof_call
     | uni_op expr
     | expr bin_op expr
     | L_PAREN expr R_PAREN
@@ -142,6 +141,9 @@ catch [RecognitionException ex] {
    System.out.println("Expression parsing failed");
    System.exit(1);
 }
+
+sizeof_call :
+    RES_SIZEOF L_PAREN (ID | type) R_PAREN;
 
 extern_arg :
     expr | STRING;
