@@ -57,7 +57,7 @@ options
   }
 }
 
-program : extern_decl* field_decl* method_decl* EOF;
+program : extern_decl* field_decl* method_decl*;
 catch [RecognitionException ex] {
    System.out.println("Program parsing failed");
    System.exit(1);
