@@ -94,10 +94,10 @@ type :
     RES_INT | RES_BOOL;
 
 statement :
-    location assign_op expr SEMI_COL
+    assign_stmt
     | method_call SEMI_COL
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
+    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL increment_stmt R_PAREN block
     | RES_WHILE L_PAREN expr R_PAREN block
     | RES_RETURN (expr)? SEMI_COL
     | RES_BREAK SEMI_COL
@@ -113,6 +113,12 @@ assign_op :
 
 compound_assign_op :
     ADD_AS_OP | SUB_AS_OP;
+
+assign_stmt :
+    location assign_op expr SEMI_COL;
+
+increment_stmt :
+    ID compound_assign_op expr;
 
 method_call :
     method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
