@@ -1,6 +1,4 @@
-package edu.mit.compilers.ir.MethodCall.MethodArg;
-
-import edu.mit.compilers.ir.*;
+package edu.mit.compilers.ir;
 
 public class IrArgExpr extends IrArg {
     private final IrExpr content;

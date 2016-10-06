@@ -1,6 +1,7 @@
-package edu.mit.compilers.ir.MethodCall;
+package edu.mit.compilers.ir;
+
 import java.util.*;
-import edu.mit.compilers.ir.*;
+
 public class IrMethodCall extends Ir {
     private final IrIdent methodName;
     private final List<IrArg> argsList;

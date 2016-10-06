@@ -1,6 +1,4 @@
-package edu.mit.compilers.ir.MethodCall.MethodArg;
-
-import edu.mit.compilers.ir.*;
+package edu.mit.compilers.ir;
 
 public class IrArgString extends IrArg{
     private final String content;

@@ -1,6 +1,4 @@
-package edu.mit.compilers.ir.MemberDecl.MethodDecl;
-
-import edu.mit.compilers.ir.Type;
+package edu.mit.compilers.ir;
 
 public class IrMethodDeclParamDecl extends Ir {
     private final IrType paramType;

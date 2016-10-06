@@ -1,7 +1,6 @@
-package edu.mit.compilers.ir.MemberDecl.MethodDecl;
-import java.util.*;
+package edu.mit.compilers.ir;
 
-import edu.mit.compilers.ir.*;
+import java.util.*;
 
 public class IrMethodDeclInt extends IrMethodDecl {
 

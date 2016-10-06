@@ -1,7 +1,4 @@
-package edu.mit.compilers.ir.MemberDecl.FieldDecl;
-
-import edu.mit.compilers.ir.*;
-
+package edu.mit.compilers.ir;
 
 public class IrFieldDeclArray extends IrFieldDecl {
     private final int arraySize;

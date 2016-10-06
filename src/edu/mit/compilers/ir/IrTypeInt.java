@@ -1,4 +1,4 @@
-package edu.mit.compilers.ir.Type;
+package edu.mit.compilers.ir;
 
 public class IrTypeInt extends IrType {
     public IrTypeInt(int lineNumber, int colNumber) {
