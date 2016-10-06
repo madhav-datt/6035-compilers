@@ -10,5 +10,4 @@ public abstract class Ir {
         this.lineNumber = lineNumber;
         this.colNumber = colNumber;
     }
-
 }

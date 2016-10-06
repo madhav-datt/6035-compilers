@@ -1,14 +1,9 @@
-package edu.mit.compilers.ir.MemberDecl.MethodDecl;
+package edu.mit.compilers.ir;
 import java.util.*;
 
-import edu.mit.compilers.ir.*;
-
-
 public class IrMethodDeclBool extends IrMethodDecl {
-
-    public IrMethodDeclBool(IrType returnType, List<IrMethodDeclParamDecl> paramsList,
+    public IrMethodDeclBool(IrType returnType, List<IrParamDecl> paramsList,
                             IrCodeBlock methodBody, IrIdent name, int lineNumber, int colNumber) {
         super(returnType, paramsList, methodBody, name, lineNumber, colNumber);
     }
-
 }
