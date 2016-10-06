@@ -99,7 +99,7 @@ statement :
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
     | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
     | RES_WHILE L_PAREN expr R_PAREN block
-    | RES_RETURN (expr)? SEMI_COL
+    | return_stmt
     | RES_BREAK SEMI_COL
     | RES_CONTINUE SEMI_COL
     ;
@@ -116,6 +116,9 @@ compound_assign_op :
 
 assign_stmt :
     location assign_op expr SEMI_COL;
+
+return_stmt :
+    RES_RETURN (expr)? SEMI_COL;
 
 method_call :
     method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
