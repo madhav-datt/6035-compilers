@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-public class IrTypeSizeOf extends IrSizeOf {
+public class IrSizeOfType extends IrSizeOf {
     private final IrType type;
 
-    public IrTypeSizeOf(IrType type, int lineNumber, int colNumber) {
+    public IrSizeOfType(IrType type, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.type = type;
     }

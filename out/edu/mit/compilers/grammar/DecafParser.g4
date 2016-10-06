@@ -57,7 +57,7 @@ options
   }
 }
 
-program : extern_decl* field_decl* method_decl* EOF;
+program : extern_decl* field_decl* method_decl*;
 catch [RecognitionException ex] {
    System.out.println("Program parsing failed");
    System.exit(1);
@@ -93,10 +93,10 @@ type :
     RES_INT | RES_BOOL;
 
 statement :
-    assign_stmt
+    location assign_op expr SEMI_COL
     | method_call SEMI_COL
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL increment_stmt R_PAREN block
+    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
     | RES_WHILE L_PAREN expr R_PAREN block
     | RES_RETURN (expr)? SEMI_COL
     | RES_BREAK SEMI_COL
@@ -112,12 +112,6 @@ assign_op :
 
 compound_assign_op :
     ADD_AS_OP | SUB_AS_OP;
-
-assign_stmt :
-    location assign_op expr SEMI_COL;
-
-increment_stmt :
-    ID compound_assign_op expr;
 
 method_call :
     method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
@@ -137,7 +131,8 @@ expr :
     location
     | method_call
     | literal
-    | sizeof_call
+    | RES_SIZEOF L_PAREN ID R_PAREN
+    | RES_SIZEOF L_PAREN type R_PAREN
     | uni_op expr
     | expr bin_op expr
     | L_PAREN expr R_PAREN
@@ -146,9 +141,6 @@ catch [RecognitionException ex] {
    System.out.println("Expression parsing failed");
    System.exit(1);
 }
-
-sizeof_call :
-    RES_SIZEOF L_PAREN (ID | type) R_PAREN;
 
 extern_arg :
     expr | STRING;

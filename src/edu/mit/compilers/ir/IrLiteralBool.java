@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-public class IrBoolLiteral extends IrLiteral {
+public class IrLiteralBool extends IrLiteral {
     private final boolean value;
 
-    public IrBoolLiteral(boolean value, int lineNumber, int colNumber) {
+    public IrLiteralBool(boolean value, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.value = value;
     }

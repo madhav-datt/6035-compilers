@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-public class IrLocationSizeOf extends IrSizeOf {
+public class IrSizeOfLocation extends IrSizeOf {
     private final IrIdent varName;
 
-    public IrLocationSizeOf(IrIdent varName, int lineNumber, int colNumber) {
+    public IrSizeOfLocation(IrIdent varName, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.varName = varName;
     }

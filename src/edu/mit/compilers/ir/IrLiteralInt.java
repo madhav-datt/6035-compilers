@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-public class IrIntLiteral extends IrLiteral {
+public class IrLiteralInt extends IrLiteral {
     private final int value;
 
-    public IrIntLiteral(int value, int lineNumber, int colNumber) {
+    public IrLiteralInt(int value, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.value = value;
     }

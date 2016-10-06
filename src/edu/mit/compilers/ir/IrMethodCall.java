@@ -1,4 +1,5 @@
 package edu.mit.compilers.ir;
+
 import java.util.*;
 
 public class IrMethodCall extends Ir {
