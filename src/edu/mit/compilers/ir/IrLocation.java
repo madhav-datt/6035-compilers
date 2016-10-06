@@ -1,4 +1,4 @@
-package edu.mit.compilers.ir.Location;
+package edu.mit.compilers.ir;
 
 import edu.mit.compilers.ir.Ir;
 import edu.mit.compilers.ir.IrIdent;

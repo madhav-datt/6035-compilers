@@ -4,7 +4,6 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
-import edu.mit.compilers.ir.MethodCall.IrMethodCall;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -16,7 +15,7 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> stack = new Stack<>();
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        IrMethodCall
+
     }
     /**
      * {@inheritDoc}
