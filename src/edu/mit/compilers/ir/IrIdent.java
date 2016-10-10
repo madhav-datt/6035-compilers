@@ -8,4 +8,8 @@ public class IrIdent extends Ir {
         super(lineNumber, colNumber);
         this.name = name;
     }
+
+    public String getValue(){
+        return this.name;
+    }
 }
