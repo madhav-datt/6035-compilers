@@ -16,10 +16,13 @@ import java.util.Stack;
 
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> stack = new Stack<>();
+    private SymbolTable global = new SymbolTable();
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        IrProgram program = new IrProgram();
-
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        IrProgram program = new IrProgram(line, col);
+        stack.push(program);
     }
     /**
      * {@inheritDoc}
@@ -27,26 +30,93 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitProgram(DecafParser.ProgramContext ctx) {
-
+        Ir program = this.stack.pop();
+        if (!(program instanceof IrProgram)) {
+            System.err.print("Error in exitProgram");
+        }
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) { }
+    @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String id = ctx.ID().toString();
+        IrIdent newIdent = new IrIdent(id, col, line);
+
+        IrExternDecl externDecl = new IrExternDecl(newIdent, col, line);
+        this.stack.push(externDecl);
+        this.global.put(id, externDecl);
+
+        // consider case where person creates the same extern_decl 2+
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) { }
+    @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
+        Ir externDecl = this.stack.pop();
+        if (externDecl instanceof IrExternDecl) {
+            Ir program = this.stack.pop();
+            if (program instanceof IrProgram) {
+                ((IrProgram) program).addExternDecl((IrExternDecl) externDecl);
+            }
+            else {
+                System.err.print("Error in exitExtern (1)");
+            }
+
+        }
+        else {
+            System.err.print("Error in exitExtern (2)");
+        }
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        IrIdent fieldName = new IrIdent(ctx.ID().toString(), line, col);
+        boolean isArray = ctx.L_SQUARE() != null && ctx.R_SQUARE() != null;
+
+        if (isArray) {
+            int size = Integer.getInteger(ctx.INT().toString());
+            IrFieldDeclArray array;
+
+            if (ctx.type().RES_INT() != null) {
+                array = new IrFieldDeclArray(size, new IrTypeInt(line, col), fieldName, line, col);
+                this.stack.push(array);
+
+            }
+            else if (ctx.type().RES_BOOL() != null) {
+                array = new IrFieldDeclArray(size, new IrTypeBool(line, col), fieldName, line, col);
+                this.stack.push(array);
+            }
+            else {
+                System.err.print("Error in enterField_decl: unknown Type");
+            }
+
+        }
+        else {
+
+            if (ctx.type().RES_INT() != null) {
+                IrFieldDeclInt fieldDeclInt = new IrFieldDeclInt(new IrTypeInt(line, col), fieldName, col, line);
+                this.stack.push(fieldDeclInt);
+            }
+            else if (ctx.type().RES_BOOL() != null) {
+                IrFieldDeclBool fieldDeclBool = new IrFieldDeclBool(new IrTypeBool(line, col), fieldName, col, line);
+                this.stack.push(fieldDeclBool);
+            }
+            else {
+                System.err.print("Error in enterField_decl: unknown Type");
+            }
+
+        }
 
     }
     /**
@@ -286,4 +356,5 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void visitErrorNode(ErrorNode node) { }
+
 }

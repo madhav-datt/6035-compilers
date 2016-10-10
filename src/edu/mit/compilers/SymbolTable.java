@@ -5,7 +5,7 @@ import edu.mit.compilers.ir.Ir;
 import java.util.*;
 
 public class SymbolTable {
-    private Hashtable<String, Ir> symbolTable = new Hashtable<String, Ir>();
+    private Hashtable<String, Ir> symbolTable;
     protected SymbolTable prev;
 
     public SymbolTable(){
