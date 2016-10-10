@@ -2,7 +2,7 @@ package edu.mit.compilers.ir;
 
 import java.util.*;
 
-public abstract class IrMethodDecl extends IrMemberDecl {
+public class IrMethodDecl extends IrMemberDecl {
     private final IrType returnType;
     private final List<IrMethodDeclParamDecl> paramsList;
     private final IrCodeBlock methodBody;

@@ -9,4 +9,7 @@ public class IrMethodDeclParamDecl extends Ir {
         this.paramType = paramType;
         this.paramName = paramName;
     }
+    public String toString(){
+        return paramType.toString() + " " + paramName.toString();
+    }
 }

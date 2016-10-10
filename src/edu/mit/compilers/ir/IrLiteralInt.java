@@ -7,4 +7,5 @@ public class IrLiteralInt extends IrLiteral {
         super(lineNumber, colNumber);
         this.value = value;
     }
+
 }

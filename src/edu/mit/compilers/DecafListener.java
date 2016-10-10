@@ -4,11 +4,13 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
-import edu.mit.compilers.ir.MethodCall.IrMethodCall;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 
 
@@ -16,7 +18,29 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> stack = new Stack<>();
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        IrMethodCall
+        IrProgram program = new IrProgram();
+        //Find a way to add the method declarations to the program.
+        //ArrayList<Ir> methodDecls, externDecls, fieldDecls;
+
+        if(!ctx.method_decl().isEmpty()){
+            ArrayList<Ir> methodDecls = new ArrayList<Ir>();
+            for(DecafParser.Method_declContext cont : ctx.method_decl()){
+//                methodDecls.add(new IrMethodDecl(new IrIdent(cont.ID().toString(), 0, 1), 0, 1));
+            }
+        }
+        if(!ctx.extern_decl().isEmpty()){
+            ArrayList<Ir> externDecls = new ArrayList<Ir>();
+            for(DecafParser.Extern_declContext cont : ctx.extern_decl()){
+                externDecls.add(new IrExternDecl(new IrIdent(cont.ID().toString(), 0, 1), 0, 1));
+            }
+        }
+        if(!ctx.field_decl().isEmpty()){
+            ArrayList<Ir> externDecls = new ArrayList<Ir>();
+            for(DecafParser.Extern_declContext cont : ctx.extern_decl()){
+                externDecls.add(new IrExternDecl(new IrIdent(cont.ID().toString(), 0, 1), 0, 1));
+            }
+        }
+
     }
     /**
      * {@inheritDoc}

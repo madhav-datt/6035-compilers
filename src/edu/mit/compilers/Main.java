@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 class Main {
   public static void main(String[] args) {
     try{
-        CharStream stream = new ANTLRInputStream("int i;");
+        CharStream stream = new ANTLRInputStream("extern symbol();");
         DecafScanner lexer = new DecafScanner(stream);
         TokenStream tokens = new CommonTokenStream(lexer);
         DecafParser parser = new DecafParser(tokens);

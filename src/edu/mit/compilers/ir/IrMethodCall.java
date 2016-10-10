@@ -2,7 +2,7 @@ package edu.mit.compilers.ir;
 
 import java.util.*;
 
-public class IrMethodCall extends Ir {
+public class IrMethodCall extends Ir{
     private final IrIdent methodName;
     private final List<IrArg> argsList;
 
@@ -11,4 +11,8 @@ public class IrMethodCall extends Ir {
         this.methodName = methodName;
         this.argsList = argsList;
     }
+    public String toString(){
+        return this.methodName + "(" +this.argsList.toString()+ ")";
+    }
+
 }
