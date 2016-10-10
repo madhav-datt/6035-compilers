@@ -4,29 +4,25 @@ import java.util.ArrayList;
 
 public class IrProgram{
 //    public Ir
-   private ArrayList<Ir> fieldDecls;
-   private ArrayList<Ir> methodDecls;
-   private ArrayList<Ir> externDecls;
+   private ArrayList<IrFieldDecl> fieldDecls;
+   private ArrayList<IrMethodDecl> methodDecls;
+   private ArrayList<IrExternDecl> externDecls;
 
-   public ArrayList<Ir> getFieldDecls(){
-      return this.fieldDecls;
-   }
-   public void setFieldDecls(ArrayList<Ir> fieldDecls){
-      this.fieldDecls = fieldDecls;
-   }
-   public ArrayList<Ir> getMethodDecls(){
-      return this.methodDecls;
-   }
-   public void setMethodDecls(ArrayList<Ir> methodDecls){
-      this.methodDecls = methodDecls;
-   }
-   public ArrayList<Ir> getExternDecls(){
-      return this.externDecls;
-   }
-   public void setExternDecls(ArrayList<Ir> externDecls){
-      this.externDecls = externDecls;
-   }
+    public void addFieldDecl(IrFieldDecl field) {
+        this.fieldDecls.add(field);
+    }
+
+    public void addMethodDecl(IrMethodDecl method) {
+        this.methodDecls.add(method);
+    }
+
+    public void addFieldDecl(IrExternDecl extern) {
+        this.externDecls.add(extern);
+    }
+
    public IrProgram() {
-
+       this.fieldDecls = new ArrayList<IrFieldDecl>();
+       this.methodDecls = new ArrayList<IrMethodDecl>();
+       this.externDecls = new ArrayList<IrExternDecl>();
    }
 }

@@ -19,6 +19,7 @@ public class DecafListener extends DecafParserBaseListener {
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
         IrProgram program = new IrProgram();
+
     }
     /**
      * {@inheritDoc}
