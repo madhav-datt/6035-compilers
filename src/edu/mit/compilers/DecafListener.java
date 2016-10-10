@@ -18,6 +18,7 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> stack = new Stack<>();
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
+
         IrProgram program = new IrProgram();
         //Find a way to add the method declarations to the program.
         //ArrayList<Ir> methodDecls, externDecls, fieldDecls;
@@ -40,6 +41,7 @@ public class DecafListener extends DecafParserBaseListener {
                 externDecls.add(new IrExternDecl(new IrIdent(cont.ID().toString(), 0, 1), 0, 1));
             }
         }
+
 
     }
     /**
