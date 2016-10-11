@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 
@@ -80,6 +81,53 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
+        // the way we know we there are no more new variables to declare
+        // is by observing the IrType object in the irStack
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrType fieldsType;
+        if (ctx.type().RES_BOOL().getText().equals("bool")) {
+            fieldsType = new IrTypeBool(l.line, l.col);
+        }
+        else {
+            fieldsType = new IrTypeInt(l.line, l.col);
+        }
+        this.irStack.push(fieldsType);
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
+        ArrayList<IrFieldDecl> fieldsList = new ArrayList<>();
+
+        // Get each field from the irStack. When we reach the IrType
+        // object in the stack, we have collected all of the fields
+        Ir topOfStack = this.irStack.peek();
+        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
+            IrFieldDecl newField = (IrFieldDecl) this.irStack.pop();
+            fieldsList.add(newField);
+            topOfStack = this.irStack.peek();
+        }
+
+        // the object on the stack should be a IrType object
+        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+            IrType fieldsType = (IrType) this.irStack.pop();
+
+            // loop through list in reverse to maintain original push()
+            // each field back to irStack. add() each field to scopeStack
+            for (int i = fieldsList.size()-1; i >= 0; i--) {
+                IrFieldDecl field = fieldsList.get(i);
+                declareInCurrentScopeOrReportDuplicateDecl(
+                        field.getName(),
+                        field,
+                        "exitField_decl: duplicate field declared in same scope"
+                );
+            }
+        }
+        else {
+            System.err.print("exitField_decl: missing IrType of newFields");
+        }
 
     }
     /**
@@ -87,52 +135,31 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitField_decl(DecafParser.Field_declContext ctx) { }
+    @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
-        ProgramLocation l = new ProgramLocation(ctx);
-        String methodName = ctx.ID().toString();
-        IrIdent nameIdent = new IrIdent(methodName, l.line, l.col);
-//        IrCodeBlock methodBody = ctx.block().
-
-        if (ctx.RES_VOID().getText().equals("void")) {
-//            IrMethodDeclParamDecl test = new IrMethodDeclParamDecl();
-        }
-        else if (ctx.type().RES_BOOL().equals("bool")) {
-
-        }
-        else if (ctx.type().RES_INT().equals("int")) {
-
-        }
-
-    }
     @Override public void enterVarDecl(DecafParser.VarDeclContext ctx) { }
     /**
-     * Exit a parse tree produced by the {@code VarDecl}
-     * labeled alternative in {@link DecafParser#field}.
-     * @param ctx the parse tree
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
      */
     @Override public void exitVarDecl(DecafParser.VarDeclContext ctx) { }
     /**
-     * Enter a parse tree produced by the {@code ArrayDecl}
-     * labeled alternative in {@link DecafParser#field}.
-     * @param ctx the parse tree
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
      */
     @Override public void enterArrayDecl(DecafParser.ArrayDeclContext ctx) { }
     /**
-     * Exit a parse tree produced by the {@code ArrayDecl}
-     * labeled alternative in {@link DecafParser#field}.
-     * @param ctx the parse tree
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArrayDecl(DecafParser.ArrayDeclContext ctx){ }
-    /**
-     * Enter a parse tree produced by {@link DecafParser#method_decl}.
-     * @param ctx the parse tree
-     */
+    @Override public void exitArrayDecl(DecafParser.ArrayDeclContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -357,13 +384,14 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void visitErrorNode(ErrorNode node) { }
 
+    class ProgramLocation {
+        public final int line;
+        public final int col;
+        public ProgramLocation(ParserRuleContext ctx) {
+            this.line = ctx.getStart().getLine();
+            this.col = ctx.getStart().getCharPositionInLine();
+        }
+    }
+
 }
 
-class ProgramLocation {
-    public final int line;
-    public final int col;
-    public ProgramLocation(ParserRuleContext ctx) {
-        this.line = ctx.getStart().getLine();
-        this.col = ctx.getStart().getCharPositionInLine();
-    }
-}

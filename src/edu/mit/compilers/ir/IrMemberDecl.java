@@ -7,4 +7,8 @@ public abstract class IrMemberDecl extends Ir {
         super(lineNumber, colNumber);
         this.name = name;
     }
+
+    public String getName() {
+        return this.name.getValue();
+    }
 }
