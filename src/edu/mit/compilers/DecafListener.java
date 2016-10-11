@@ -50,15 +50,22 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) {
-        ProgramLocation l = new ProgramLocation(ctx);
-        String id = ctx.ID().toString();
-        IrIdent newIdent = new IrIdent(id, l.line, l.col);
-        IrExternDecl externDecl = new IrExternDecl(newIdent);
-        declareInCurrentScopeOrReportDuplicateDecl(
-                id,
-                externDecl,
-                "enterExtern_decl: same extern declared twice"
-        );
+        Ir irObject = this.irStack.pop();
+
+        if (irObject instanceof IrIdent) {
+            IrIdent irIdent = (IrIdent) irObject;
+            IrExternDecl externDecl = new IrExternDecl(irIdent);
+            declareInCurrentScopeOrReportDuplicateDecl(
+                    irIdent.getValue(),
+                    externDecl,
+                    "enterExtern_decl: same extern declared twice"
+            );
+        }
+        else {
+            System.err.print(
+                    "enterExtern_decl: popped object of wrong type"
+            );
+        }
 
     }
     /**
