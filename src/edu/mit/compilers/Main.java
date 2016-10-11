@@ -104,7 +104,7 @@ class Main {
 
     public static void main(String[] args) {
 
-        Main.testParserCode(args);
-//        Main.testDecafListner();
+//        Main.testParserCode(args);
+        Main.testDecafListner();
     }
 }
