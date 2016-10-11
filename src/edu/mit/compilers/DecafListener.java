@@ -18,8 +18,8 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private ScopeStack scopeStack = new ScopeStack();
 
-    public boolean declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-        if (this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
+    public void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
             this.scopeStack.addObjectToCurrentScope(id, object);
             this.irStack.push(object);
         }
@@ -78,7 +78,7 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
         ProgramLocation l = new ProgramLocation(ctx);
         String fieldName = ctx.ID().toString();
-        IrIdent nameIdent = new IrIdent(ctx.ID().toString(), l.line, l.col);
+        IrIdent nameIdent = new IrIdent(fieldName, l.line, l.col);
         boolean isArray = !ctx.L_SQUARE().isEmpty() && !ctx.R_SQUARE().isEmpty();
 
         if (isArray) {
@@ -121,24 +121,33 @@ public class DecafListener extends DecafParserBaseListener {
                 System.err.print("Error in enterField_decl: unknown Type");
             }
         }
-
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
-        /*
-            TODO: doesn't handle nested scopes with field declarations
-         */
-    }
+    @Override public void exitField_decl(DecafParser.Field_declContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
+        ProgramLocation l = new ProgramLocation(ctx);
+        String methodName = ctx.ID().toString();
+        IrIdent nameIdent = new IrIdent(methodName, l.line, l.col);
+        IrCodeBlock methodBody = ctx.block().
+
+        if (ctx.RES_VOID().getText().equals("void")) {
+            IrMethodDeclParamDecl test = new IrMethodDeclParamDecl()
+        }
+        else if (ctx.type().RES_BOOL().equals("bool")) {
+
+        }
+        else if (ctx.type().RES_INT().equals("int")) {
+
+        }
 
     }
     /**
