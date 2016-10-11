@@ -85,13 +85,14 @@ public class DecafListener extends DecafParserBaseListener {
         // is by observing the IrType object in the irStack
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrType fieldsType;
-        if (ctx.type().RES_BOOL().getText().equals("bool")) {
+        if (ctx.type().RES_BOOL() != null) {
             fieldsType = new IrTypeBool(l.line, l.col);
+            this.irStack.push(fieldsType);
         }
-        else {
+        else if (ctx.type().RES_INT() != null) {
             fieldsType = new IrTypeInt(l.line, l.col);
+            this.irStack.push(fieldsType);
         }
-        this.irStack.push(fieldsType);
     }
     /**
      * {@inheritDoc}
@@ -135,19 +136,19 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override public void enterVarDecl(DecafParser.VarDeclContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitVarDecl(DecafParser.VarDeclContext ctx) { }
+    @Override public void exitVarDecl(DecafParser.VarDeclContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+
+        IrFieldDeclVar var = new IrFieldDeclVar(varName);
+        this.irStack.push(var);
+    }
     /**
      * {@inheritDoc}
      *
@@ -159,12 +160,40 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArrayDecl(DecafParser.ArrayDeclContext ctx) { }
+    @Override public void exitArrayDecl(DecafParser.ArrayDeclContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent arrayName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+        int arraySize = Integer.getInteger(ctx.INT().getText());
+
+        IrFieldDeclArray array = new IrFieldDeclArray(arraySize, arrayName);
+        this.irStack.push(array);
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
+    @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        // push type or RES_VOID onto the stack
+        IrType methodType;
+        if (ctx.RES_VOID() != null) {
+            methodType = new IrTypeVoid(l.line, l.col);
+            this.irStack.push(methodType);
+        }
+        else if (ctx.type().RES_INT() != null){
+            methodType = new IrTypeInt(l.line, l.col);
+            this.irStack.push(methodType);
+        }
+        else if (ctx.type().RES_BOOL() != null) {
+            methodType = new IrTypeBool(l.line, l.col);
+            this.irStack.push(methodType);
+        }
+
+        // push the IrIdent onto the stack
+        IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+        this.irStack.push(methodName);
+    }
     @Override public void exitMethod_decl(DecafParser.Method_declContext ctx) { }
     /**
      * {@inheritDoc}

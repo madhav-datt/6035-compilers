@@ -1,4 +1,4 @@
 void main ( ) {
-    int i;
+    int i, j, k;
     i = 0;
 }
