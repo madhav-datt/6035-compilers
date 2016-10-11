@@ -6,8 +6,8 @@ public class IrMethodCall extends IrExpr{
     private final IrIdent methodName;
     private final List<IrArg> argsList;
 
-    public IrMethodCall(IrIdent methodName, List<IrArg> argsList, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
+    public IrMethodCall(IrIdent methodName, List<IrArg> argsList) {
+        super(methodName.getLineNumber(), methodName.getColNumber());
         this.methodName = methodName;
         this.argsList = argsList;
     }

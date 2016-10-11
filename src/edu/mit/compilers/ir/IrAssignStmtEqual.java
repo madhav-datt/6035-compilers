@@ -6,8 +6,8 @@ package edu.mit.compilers.ir;
 public class IrAssignStmtEqual extends IrAssignStmt {
     private final IrExpr newValue;
 
-    public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue, int lineNumber, int colNumber) {
-        super(storeLocation, lineNumber, colNumber);
+    public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue) {
+        super(storeLocation);
         this.newValue = newValue;
     }
 }

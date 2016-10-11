@@ -6,8 +6,8 @@ package edu.mit.compilers.ir;
 public abstract class IrAssignStmt extends Ir{
     private final IrLocation storeLocation;
 
-    public IrAssignStmt(IrLocation storeLocation, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
+    public IrAssignStmt(IrLocation storeLocation) {
+        super(storeLocation.getLineNumber(), storeLocation.getColNumber());
         this.storeLocation = storeLocation;
     }
 }

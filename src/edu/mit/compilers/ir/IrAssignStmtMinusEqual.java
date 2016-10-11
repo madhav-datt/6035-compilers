@@ -6,8 +6,8 @@ package edu.mit.compilers.ir;
 public class IrAssignStmtMinusEqual extends IrAssignStmt {
     private final IrExpr decrementBy;
 
-    public IrAssignStmtMinusEqual(IrLocation storeLocation, IrExpr decrementBy, int lineNumber, int colNumber) {
-        super(storeLocation, lineNumber, colNumber);
+    public IrAssignStmtMinusEqual(IrLocation storeLocation, IrExpr decrementBy) {
+        super(storeLocation);
         this.decrementBy = decrementBy;
     }
 }

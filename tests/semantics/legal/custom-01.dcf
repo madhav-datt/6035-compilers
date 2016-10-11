@@ -1,4 +1,4 @@
 void main ( ) {
-    int i[16];
+    int i;
     i = 0;
 }

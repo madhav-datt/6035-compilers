@@ -4,8 +4,8 @@ public class IrMethodDeclParamDecl extends Ir {
     private final IrType paramType;
     private final IrIdent paramName;
 
-    public IrMethodDeclParamDecl(IrType paramType, IrIdent paramName, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
+    public IrMethodDeclParamDecl(IrType paramType, IrIdent paramName) {
+        super(paramName.getLineNumber(), paramName.getColNumber());
         this.paramType = paramType;
         this.paramName = paramName;
     }

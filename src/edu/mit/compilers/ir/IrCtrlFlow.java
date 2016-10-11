@@ -7,8 +7,8 @@ public abstract class IrCtrlFlow extends IrStatement {
     final private IrExpr condExpr;
     final private IrCodeBlock stmtBody;
 
-    public IrCtrlFlow(IrExpr condExpr, IrCodeBlock stmtBody, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
+    public IrCtrlFlow(IrExpr condExpr, IrCodeBlock stmtBody) {
+        super(condExpr.getLineNumber(), condExpr.getColNumber());
         this.condExpr = condExpr;
         this.stmtBody = stmtBody;
     }

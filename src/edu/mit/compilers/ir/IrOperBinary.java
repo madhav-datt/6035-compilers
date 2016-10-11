@@ -7,8 +7,8 @@ public class IrOperBinary extends  IrOper {
     public String operation;
     public IrExpr leftOperand;
     public IrExpr rightOperand;
-    public IrOperBinary(String operation, IrExpr leftOperand, IrExpr rightOperand, int lineNumber, int colNumber){
-        super(lineNumber, colNumber);
+    public IrOperBinary(String operation, IrExpr leftOperand, IrExpr rightOperand){
+        super(leftOperand.getLineNumber(), leftOperand.getColNumber());
         this.operation = operation;
         this.leftOperand = leftOperand;
         this.rightOperand = rightOperand;

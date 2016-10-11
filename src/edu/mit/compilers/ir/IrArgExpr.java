@@ -3,8 +3,8 @@ package edu.mit.compilers.ir;
 public class IrArgExpr extends IrArg {
     private final IrExpr content;
 
-    public IrArgExpr(IrExpr content, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
+    public IrArgExpr(IrExpr content) {
+        super(content.getLineNumber(), content.getColNumber());
         this.content = content;
     }
 }

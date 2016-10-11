@@ -3,8 +3,8 @@ package edu.mit.compilers.ir;
 public class IrOperUnary extends IrOper{
     public String operation;
     public IrExpr operand;
-    public IrOperUnary(String operation, IrExpr operand, int lineNum, int colNum){
-        super(lineNum, colNum);
+    public IrOperUnary(String operation, IrExpr operand){
+        super(operand.getLineNumber(), operand.getColNumber());
         this.operation = operation;
         this.operand = operand;
     }

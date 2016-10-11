@@ -8,8 +8,8 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
     private final IrAssignStmt updateCounterStmt;
 
     public IrCtrlFlowFor(IrIdent counter, IrAssignStmt updateCounterStmt,
-                      IrExpr condExpr, IrCodeBlock stmtBody, int lineNumber, int colNumber) {
-        super(condExpr, stmtBody, lineNumber, colNumber);
+                      IrExpr condExpr, IrCodeBlock stmtBody) {
+        super(condExpr, stmtBody);
         this.counter = counter;
         this.updateCounterStmt = updateCounterStmt;
     }

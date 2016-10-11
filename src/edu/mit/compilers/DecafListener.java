@@ -11,22 +11,23 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.Stack;
 
 
+
+
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
-    private Stack<SymbolTable> symbolTableStack = new Stack<>();
+    private Stack<SymbolTable> scopeStack = new Stack<>();
 
     public void addToCurrentScope(String id, Ir object) {
-        this.symbolTableStack.peek().put(id, object);
+        this.scopeStack.peek().put(id, object);
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
-        IrProgram program = new IrProgram(line, col);
-
-        // create the global irStack
-        this.symbolTableStack.push(new SymbolTable());
+        ProgramLocation l = new ProgramLocation(ctx);
+        IrProgram program = new IrProgram(l.line, l.col);
         this.irStack.push(program);
+
+        SymbolTable globalStack = new SymbolTable();
+        this.scopeStack.push(globalStack);
     }
     /**
      * {@inheritDoc}
@@ -35,6 +36,7 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitProgram(DecafParser.ProgramContext ctx) {
         Ir program = this.irStack.pop();
+
         if (!(program instanceof IrProgram)) {
             System.err.print("Error in exitProgram");
         }
@@ -45,12 +47,11 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        ProgramLocation l = new ProgramLocation(ctx);
         String id = ctx.ID().toString();
-        IrIdent newIdent = new IrIdent(id, col, line);
+        IrIdent newIdent = new IrIdent(id, l.line, l.col);
 
-        IrExternDecl externDecl = new IrExternDecl(newIdent, col, line);
+        IrExternDecl externDecl = new IrExternDecl(newIdent, l.line, l.col);
         this.irStack.push(externDecl);
         this.addToCurrentScope(id, externDecl);
 
@@ -83,9 +84,8 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
-        IrIdent fieldName = new IrIdent(ctx.ID().toString(), line, col);
+        ProgramLocation l = new ProgramLocation(ctx);
+        IrIdent fieldName = new IrIdent(ctx.ID().toString(), l.line, l.col);
         boolean isArray = ctx.L_SQUARE().size() > 0 && ctx.R_SQUARE().size() > 0;
 
 
@@ -95,12 +95,12 @@ public class DecafListener extends DecafParserBaseListener {
             IrFieldDeclArray array;
 
             if (ctx.type().RES_INT() != null) {
-                array = new IrFieldDeclArray(size, new IrTypeInt(line, col), fieldName, line, col);
+                array = new IrFieldDeclArray(size, new IrTypeInt(l.line, l.col), fieldName, l.line, l.col);
                 this.irStack.push(array);
                 this.addToCurrentScope(fieldName.getValue(), array);
             }
             else if (ctx.type().RES_BOOL() != null) {
-                array = new IrFieldDeclArray(size, new IrTypeBool(line, col), fieldName, line, col);
+                array = new IrFieldDeclArray(size, new IrTypeBool(l.line, l.col), fieldName, l.line, l.col);
                 this.irStack.push(array);
                 this.addToCurrentScope(fieldName.getValue(), array);
             }
@@ -111,12 +111,12 @@ public class DecafListener extends DecafParserBaseListener {
         }
         else {
             if (ctx.type().RES_INT() != null) {
-                IrFieldDeclInt fieldDeclInt = new IrFieldDeclInt(new IrTypeInt(line, col), fieldName, col, line);
+                IrFieldDeclInt fieldDeclInt = new IrFieldDeclInt(new IrTypeInt(l.line, l.col), fieldName, l.line, l.col);
                 this.irStack.push(fieldDeclInt);
                 this.addToCurrentScope(fieldName.getValue(), fieldDeclInt);
             }
             else if (ctx.type().RES_BOOL() != null) {
-                IrFieldDeclBool fieldDeclBool = new IrFieldDeclBool(new IrTypeBool(line, col), fieldName, col, line);
+                IrFieldDeclBool fieldDeclBool = new IrFieldDeclBool(new IrTypeBool(l.line, l.col), fieldName, l.line, l.col);
                 this.irStack.push(fieldDeclBool);
                 this.addToCurrentScope(fieldName.getValue(), fieldDeclBool);
             }
@@ -133,23 +133,23 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
-        /*
-            TODO: doesn't handle nested scopes with field declarations
-         */
-
-        Ir fieldDecl = this.irStack.pop();
-        if (fieldDecl instanceof IrFieldDecl) {
-            Ir program = this.irStack.pop();
-            if(program instanceof IrProgram){
-                ((IrProgram) program).addFieldDecl((IrFieldDecl) fieldDecl);
-            }
-            else{
-                System.err.print("Error in exitField_decl");
-            }
-        }
-        else {
-            System.err.print("Error in exitExtern (2)");
-        }
+//        /*
+//            TODO: doesn't handle nested scopes with field declarations
+//         */
+//
+//        Ir fieldDecl = this.irStack.pop();
+//        if (fieldDecl instanceof IrFieldDecl) {
+//            Ir program = this.irStack.pop();
+//            if(program instanceof IrProgram){
+//                ((IrProgram) program).addFieldDecl((IrFieldDecl) fieldDecl);
+//            }
+//            else{
+//                System.err.print("Error in exitField_decl");
+//            }
+//        }
+//        else {
+//            System.err.print("Error in exitExtern (2)");
+//        }
     }
     /**
      * {@inheritDoc}
@@ -383,4 +383,13 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void visitErrorNode(ErrorNode node) { }
 
+}
+
+class ProgramLocation {
+    public final int line;
+    public final int col;
+    public ProgramLocation(ParserRuleContext ctx) {
+        this.line = ctx.getStart().getLine();
+        this.col = ctx.getStart().getCharPositionInLine();
+    }
 }
