@@ -29,11 +29,6 @@ public class DecafListener extends DecafParserBaseListener {
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        ProgramLocation l = new ProgramLocation(ctx);
-        IrProgram program = new IrProgram(l.line, l.col);
-        this.irStack.push(program);
-
-        // actually create the ScopeStack when you enter the Program
         this.scopeStack.createNewScope();
     }
     /**
@@ -60,6 +55,7 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
         Ir irObject = this.irStack.pop();
 
+        // assumes an instance of IrIdent is on the stack
         if (irObject instanceof IrIdent) {
             IrIdent irIdent = (IrIdent) irObject;
             IrExternDecl externDecl = new IrExternDecl(irIdent);
@@ -84,51 +80,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
-        ProgramLocation l = new ProgramLocation(ctx);
-        String fieldName = ctx.ID().toString();
-        IrIdent nameIdent = new IrIdent(fieldName, l.line, l.col);
-        boolean isArray = !ctx.L_SQUARE().isEmpty() && !ctx.R_SQUARE().isEmpty();
 
-        if (isArray) {
-            int size = Integer.getInteger(ctx.INT().get(0).toString());
-
-            if (ctx.type().RES_INT() != null) {
-                declareInCurrentScopeOrReportDuplicateDecl(
-                        fieldName,
-                        new IrFieldDeclArray(size, new IrTypeInt(l.line, l.col), nameIdent),
-                        "enterField_decl: same array declared twice"
-                );
-            }
-            else if (ctx.type().RES_BOOL() != null) {
-                declareInCurrentScopeOrReportDuplicateDecl(
-                        fieldName,
-                        new IrFieldDeclArray(size, new IrTypeBool(l.line, l.col), nameIdent),
-                        "enterField_decl: same array declared twice"
-                );
-            }
-            else {
-                System.err.print("Error in enterField_decl: unknown Type");
-            }
-        }
-        else {
-            if (ctx.type().RES_INT() != null) {
-                declareInCurrentScopeOrReportDuplicateDecl(
-                        fieldName,
-                        new IrFieldDeclInt(new IrTypeInt(l.line, l.col), nameIdent),
-                        "enterField_decl: same int declared twice"
-                );
-            }
-            else if (ctx.type().RES_BOOL() != null) {
-                declareInCurrentScopeOrReportDuplicateDecl(
-                        fieldName,
-                        new IrFieldDeclBool(new IrTypeBool(l.line, l.col), nameIdent),
-                        "enterField_decl: same bool declared twice"
-                );
-            }
-            else {
-                System.err.print("Error in enterField_decl: unknown Type");
-            }
-        }
     }
     /**
      * {@inheritDoc}
@@ -145,10 +97,10 @@ public class DecafListener extends DecafParserBaseListener {
         ProgramLocation l = new ProgramLocation(ctx);
         String methodName = ctx.ID().toString();
         IrIdent nameIdent = new IrIdent(methodName, l.line, l.col);
-        IrCodeBlock methodBody = ctx.block().
+//        IrCodeBlock methodBody = ctx.block().
 
         if (ctx.RES_VOID().getText().equals("void")) {
-            IrMethodDeclParamDecl test = new IrMethodDeclParamDecl()
+//            IrMethodDeclParamDecl test = new IrMethodDeclParamDecl();
         }
         else if (ctx.type().RES_BOOL().equals("bool")) {
 
@@ -158,6 +110,29 @@ public class DecafListener extends DecafParserBaseListener {
         }
 
     }
+    @Override public void enterVarDecl(DecafParser.VarDeclContext ctx) { }
+    /**
+     * Exit a parse tree produced by the {@code VarDecl}
+     * labeled alternative in {@link DecafParser#field}.
+     * @param ctx the parse tree
+     */
+    @Override public void exitVarDecl(DecafParser.VarDeclContext ctx) { }
+    /**
+     * Enter a parse tree produced by the {@code ArrayDecl}
+     * labeled alternative in {@link DecafParser#field}.
+     * @param ctx the parse tree
+     */
+    @Override public void enterArrayDecl(DecafParser.ArrayDeclContext ctx) { }
+    /**
+     * Exit a parse tree produced by the {@code ArrayDecl}
+     * labeled alternative in {@link DecafParser#field}.
+     * @param ctx the parse tree
+     */
+    @Override public void exitArrayDecl(DecafParser.ArrayDeclContext ctx){ }
+    /**
+     * Enter a parse tree produced by {@link DecafParser#method_decl}.
+     * @param ctx the parse tree
+     */
     /**
      * {@inheritDoc}
      *
