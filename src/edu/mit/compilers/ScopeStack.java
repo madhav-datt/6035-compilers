@@ -19,14 +19,18 @@ public class ScopeStack {
         this.stack.peek().hashtable.put(id,object);
     }
 
-    public boolean checkIfItemExists(String id) {
+    public boolean checkIfSymbolExistsAtAnyScope(String id) {
         for( SymbolTable e = this.stack.peek(); e != null; e = e.parentScope ) {
-            Ir found = (e.hashtable.get(id));
+            Ir found = e.hashtable.get(id);
             if (found != null) {
                 return true;
             }
         }
         return false;
+    }
+    
+    public boolean checkIfSymbolExistsAtCurrentScope(String id) {
+        return this.stack.peek().hashtable.contains(id);
     }
 
     public Ir getSymbol(String id) {

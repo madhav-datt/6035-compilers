@@ -4,6 +4,7 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -15,10 +16,16 @@ import java.util.Stack;
 
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
-    private Stack<SymbolTable> scopeStack = new Stack<>();
+    private ScopeStack scopeStack = new ScopeStack();
 
-    public void addToCurrentScope(String id, Ir object) {
-        this.scopeStack.peek().put(id, object);
+    public boolean declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+        if (this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
+            this.scopeStack.addObjectToCurrentScope(id, object);
+            this.irStack.push(object);
+        }
+        else {
+            System.err.print(errorMsg);
+        }
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
@@ -26,8 +33,8 @@ public class DecafListener extends DecafParserBaseListener {
         IrProgram program = new IrProgram(l.line, l.col);
         this.irStack.push(program);
 
-        SymbolTable globalStack = new SymbolTable();
-        this.scopeStack.push(globalStack);
+        // actually create the ScopeStack when you enter the Program
+        this.scopeStack.createNewScope();
     }
     /**
      * {@inheritDoc}
@@ -35,11 +42,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitProgram(DecafParser.ProgramContext ctx) {
-        Ir program = this.irStack.pop();
-
-        if (!(program instanceof IrProgram)) {
-            System.err.print("Error in exitProgram");
-        }
+        // TODO: collect all of the extern_decl, field_decl, and method_decl
     }
     /**
      * {@inheritDoc}
@@ -50,12 +53,13 @@ public class DecafListener extends DecafParserBaseListener {
         ProgramLocation l = new ProgramLocation(ctx);
         String id = ctx.ID().toString();
         IrIdent newIdent = new IrIdent(id, l.line, l.col);
+        IrExternDecl externDecl = new IrExternDecl(newIdent);
+        declareInCurrentScopeOrReportDuplicateDecl(
+                id,
+                externDecl,
+                "enterExtern_decl: same extern declared twice"
+        );
 
-        IrExternDecl externDecl = new IrExternDecl(newIdent, l.line, l.col);
-        this.irStack.push(externDecl);
-        this.addToCurrentScope(id, externDecl);
-
-        // consider case where person creates the same extern_decl 2+
     }
     /**
      * {@inheritDoc}
@@ -63,20 +67,8 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
-        Ir externDecl = this.irStack.pop();
-        if (externDecl instanceof IrExternDecl) {
-            Ir program = this.irStack.pop();
-            if (program instanceof IrProgram) {
-                ((IrProgram) program).addExternDecl((IrExternDecl) externDecl);
-            }
-            else {
-                System.err.print("Error in exitExtern (1)");
-            }
-
-        }
-        else {
-            System.err.print("Error in exitExtern (2)");
-        }
+        // Leave on the exitExtern on the stack.
+        // We will collect when exitProgram is called
     }
     /**
      * {@inheritDoc}
@@ -85,45 +77,49 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
         ProgramLocation l = new ProgramLocation(ctx);
-        IrIdent fieldName = new IrIdent(ctx.ID().toString(), l.line, l.col);
-        boolean isArray = ctx.L_SQUARE().size() > 0 && ctx.R_SQUARE().size() > 0;
-
+        String fieldName = ctx.ID().toString();
+        IrIdent nameIdent = new IrIdent(ctx.ID().toString(), l.line, l.col);
+        boolean isArray = !ctx.L_SQUARE().isEmpty() && !ctx.R_SQUARE().isEmpty();
 
         if (isArray) {
             int size = Integer.getInteger(ctx.INT().get(0).toString());
-//            System.out.println(ctx.I);
-            IrFieldDeclArray array;
 
             if (ctx.type().RES_INT() != null) {
-                array = new IrFieldDeclArray(size, new IrTypeInt(l.line, l.col), fieldName, l.line, l.col);
-                this.irStack.push(array);
-                this.addToCurrentScope(fieldName.getValue(), array);
+                declareInCurrentScopeOrReportDuplicateDecl(
+                        fieldName,
+                        new IrFieldDeclArray(size, new IrTypeInt(l.line, l.col), nameIdent),
+                        "enterField_decl: same array declared twice"
+                );
             }
             else if (ctx.type().RES_BOOL() != null) {
-                array = new IrFieldDeclArray(size, new IrTypeBool(l.line, l.col), fieldName, l.line, l.col);
-                this.irStack.push(array);
-                this.addToCurrentScope(fieldName.getValue(), array);
+                declareInCurrentScopeOrReportDuplicateDecl(
+                        fieldName,
+                        new IrFieldDeclArray(size, new IrTypeBool(l.line, l.col), nameIdent),
+                        "enterField_decl: same array declared twice"
+                );
             }
             else {
                 System.err.print("Error in enterField_decl: unknown Type");
             }
-
         }
         else {
             if (ctx.type().RES_INT() != null) {
-                IrFieldDeclInt fieldDeclInt = new IrFieldDeclInt(new IrTypeInt(l.line, l.col), fieldName, l.line, l.col);
-                this.irStack.push(fieldDeclInt);
-                this.addToCurrentScope(fieldName.getValue(), fieldDeclInt);
+                declareInCurrentScopeOrReportDuplicateDecl(
+                        fieldName,
+                        new IrFieldDeclInt(new IrTypeInt(l.line, l.col), nameIdent),
+                        "enterField_decl: same int declared twice"
+                );
             }
             else if (ctx.type().RES_BOOL() != null) {
-                IrFieldDeclBool fieldDeclBool = new IrFieldDeclBool(new IrTypeBool(l.line, l.col), fieldName, l.line, l.col);
-                this.irStack.push(fieldDeclBool);
-                this.addToCurrentScope(fieldName.getValue(), fieldDeclBool);
+                declareInCurrentScopeOrReportDuplicateDecl(
+                        fieldName,
+                        new IrFieldDeclBool(new IrTypeBool(l.line, l.col), nameIdent),
+                        "enterField_decl: same bool declared twice"
+                );
             }
             else {
                 System.err.print("Error in enterField_decl: unknown Type");
             }
-
         }
 
     }
@@ -133,23 +129,9 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
-//        /*
-//            TODO: doesn't handle nested scopes with field declarations
-//         */
-//
-//        Ir fieldDecl = this.irStack.pop();
-//        if (fieldDecl instanceof IrFieldDecl) {
-//            Ir program = this.irStack.pop();
-//            if(program instanceof IrProgram){
-//                ((IrProgram) program).addFieldDecl((IrFieldDecl) fieldDecl);
-//            }
-//            else{
-//                System.err.print("Error in exitField_decl");
-//            }
-//        }
-//        else {
-//            System.err.print("Error in exitExtern (2)");
-//        }
+        /*
+            TODO: doesn't handle nested scopes with field declarations
+         */
     }
     /**
      * {@inheritDoc}

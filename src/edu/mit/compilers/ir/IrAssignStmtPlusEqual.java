@@ -6,8 +6,8 @@ package edu.mit.compilers.ir;
 public class IrAssignStmtPlusEqual extends IrAssignStmt{
     private final IrExpr incrementBy;
 
-    public IrAssignStmtPlusEqual(IrLocation storeLocation, IrExpr incrementBy, int lineNumber, int colNumber) {
-        super(storeLocation, lineNumber, colNumber);
+    public IrAssignStmtPlusEqual(IrLocation storeLocation, IrExpr incrementBy) {
+        super(storeLocation);
         this.incrementBy = incrementBy;
     }
 }
