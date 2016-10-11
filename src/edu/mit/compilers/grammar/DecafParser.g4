@@ -72,11 +72,14 @@ catch [RecognitionException ex] {
 }
 
 field_decl :
-    type (ID | ID L_SQUARE INT R_SQUARE) (COMMA (ID | ID L_SQUARE INT R_SQUARE))* SEMI_COL;
+    type (ID | array_decl) (COMMA (ID | array_decl))* SEMI_COL;
 catch [RecognitionException ex] {
    System.out.println("Field declaration parsing failed");
    System.exit(1);
 }
+
+array_decl :
+    ID L_SQUARE INT R_SQUARE;
 
 method_decl :
     (type | RES_VOID) ID L_PAREN (param_decl (COMMA param_decl)* )? R_PAREN block;

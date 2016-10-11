@@ -50,6 +50,14 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) {
+
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
         Ir irObject = this.irStack.pop();
 
         if (irObject instanceof IrIdent) {
@@ -60,22 +68,15 @@ public class DecafListener extends DecafParserBaseListener {
                     externDecl,
                     "enterExtern_decl: same extern declared twice"
             );
+
+            // once we create the extern_decl, add it to the stack
+            this.irStack.push(externDecl);
         }
         else {
             System.err.print(
                     "enterExtern_decl: popped object of wrong type"
             );
         }
-
-    }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
-        // Leave on the exitExtern on the stack.
-        // We will collect when exitProgram is called
     }
     /**
      * {@inheritDoc}
