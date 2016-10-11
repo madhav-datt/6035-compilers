@@ -4,7 +4,6 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
-import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -19,7 +18,7 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private ScopeStack scopeStack = new ScopeStack();
 
-    public void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
         if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
             this.scopeStack.addObjectToCurrentScope(id, object);
             this.irStack.push(object);
@@ -80,20 +79,7 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterField_decl(DecafParser.Field_declContext ctx) {
-        // the way we know we there are no more new variables to declare
-        // is by observing the IrType object in the irStack
-        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-        IrType fieldsType;
-        if (ctx.type().RES_BOOL() != null) {
-            fieldsType = new IrTypeBool(l.line, l.col);
-            this.irStack.push(fieldsType);
-        }
-        else if (ctx.type().RES_INT() != null) {
-            fieldsType = new IrTypeInt(l.line, l.col);
-            this.irStack.push(fieldsType);
-        }
-    }
+    @Override public void enterField_decl(DecafParser.Field_declContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -102,7 +88,7 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
         ArrayList<IrFieldDecl> fieldsList = new ArrayList<>();
 
-        // Get each field from the irStack. When we reach the IrType
+        // Get each field from the irStack. When we reach the IrTypeVar
         // object in the stack, we have collected all of the fields
         Ir topOfStack = this.irStack.peek();
         while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
@@ -111,14 +97,15 @@ public class DecafListener extends DecafParserBaseListener {
             topOfStack = this.irStack.peek();
         }
 
-        // the object on the stack should be a IrType object
-        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
-            IrType fieldsType = (IrType) this.irStack.pop();
+        // the object on the stack should be a IrTypeVar object
+        if (this.irStack.size() > 0 && topOfStack instanceof IrTypeVar) {
+            IrTypeVar fieldsType = (IrTypeVar) this.irStack.pop();
 
-            // loop through list in reverse to maintain original push()
-            // each field back to irStack. add() each field to scopeStack
+            // loop through list in reverse to maintain original order
+            // push() each field back to irStack. add() each field to scopeStack
             for (int i = fieldsList.size()-1; i >= 0; i--) {
                 IrFieldDecl field = fieldsList.get(i);
+                field.setType(fieldsType);
                 declareInCurrentScopeOrReportDuplicateDecl(
                         field.getName(),
                         field,
@@ -127,9 +114,8 @@ public class DecafListener extends DecafParserBaseListener {
             }
         }
         else {
-            System.err.print("exitField_decl: missing IrType of newFields");
+            System.err.print("exitField_decl: error with IrTypeVar of newFields");
         }
-
     }
     /**
      * {@inheritDoc}
@@ -175,26 +161,39 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-        // push type or RES_VOID onto the stack
-        IrType methodType;
-        if (ctx.RES_VOID() != null) {
-            methodType = new IrTypeVoid(l.line, l.col);
-            this.irStack.push(methodType);
-        }
-        else if (ctx.type().RES_INT() != null){
-            methodType = new IrTypeInt(l.line, l.col);
-            this.irStack.push(methodType);
-        }
-        else if (ctx.type().RES_BOOL() != null) {
-            methodType = new IrTypeBool(l.line, l.col);
-            this.irStack.push(methodType);
-        }
 
         // push the IrIdent onto the stack
         IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         this.irStack.push(methodName);
     }
     @Override public void exitMethod_decl(DecafParser.Method_declContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterParam_decl(DecafParser.Param_declContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitParam_decl(DecafParser.Param_declContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        IrIdent paramName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+        Ir topOfStack = this.irStack.peek();
+        if (this.irStack.size() > 0 && topOfStack instanceof IrTypeVar) {
+            IrTypeVar paramType = (IrTypeVar) this.irStack.pop();
+
+            // push the IrMethodParamDecl to the irStack
+            IrMethodParamDecl paramDecl = new IrMethodParamDecl(paramType, paramName);
+            this.irStack.push(paramDecl);
+        }
+        else {
+            System.err.print("exitParam_decl: error with IrTypeVar for paramType");
+        }
+    }
     /**
      * {@inheritDoc}
      *
@@ -212,13 +211,40 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterType(DecafParser.TypeContext ctx) { }
+    @Override public void exitVar_type(DecafParser.Var_typeContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        IrTypeVar type;
+        if (ctx.RES_BOOL() != null) {
+            type = new IrTypeVarBool(l.line, l.col);
+        }
+        else {
+            type = new IrTypeVarInt(l.line, l.col);
+        }
+
+        this.irStack.push(type);
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitType(DecafParser.TypeContext ctx) { }
+    @Override public void exitMethod_type(DecafParser.Method_typeContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        IrTypeMethod type;
+        if (ctx.RES_BOOL() != null) {
+            type = new IrTypeMethodBool(l.line, l.col);
+        }
+        else if (ctx.RES_INT() != null) {
+            type = new IrTypeMethodInt(l.line, l.col);
+        }
+        else {
+            type = new IrTypeMethodVoid(l.line, l.col);
+        }
+
+        this.irStack.push(type);
+    }
     /**
      * {@inheritDoc}
      *

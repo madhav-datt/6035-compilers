@@ -72,7 +72,7 @@ catch [RecognitionException ex] {
 }
 
 field_decl :
-    type field (COMMA field)* SEMI_COL;
+    var_type field (COMMA field)* SEMI_COL;
 catch [RecognitionException ex] {
    System.out.println("Field declaration parsing failed");
    System.exit(1);
@@ -84,19 +84,22 @@ field:
     ;
 
 method_decl :
-    (type | RES_VOID) ID L_PAREN (param_decl (COMMA param_decl)* )? R_PAREN block;
+    method_type ID L_PAREN (param_decl (COMMA param_decl)* )? R_PAREN block;
 catch [RecognitionException ex] {
    System.out.println("Method parsing failed");
    System.exit(1);
 }
 
-param_decl : type ID;
+param_decl : var_type ID;
 
 block :
     L_CURL field_decl* statement* R_CURL;
 
-type :
+var_type :
     RES_INT | RES_BOOL;
+
+method_type :
+    RES_INT | RES_BOOL | RES_VOID;
 
 statement :
     assign_stmt
@@ -154,7 +157,7 @@ catch [RecognitionException ex] {
 }
 
 sizeof_call :
-    RES_SIZEOF L_PAREN (ID | type) R_PAREN;
+    RES_SIZEOF L_PAREN (ID | var_type) R_PAREN;
 
 extern_arg :
     expr | STRING;
