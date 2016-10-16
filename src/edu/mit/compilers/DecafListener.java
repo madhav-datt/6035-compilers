@@ -531,7 +531,13 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) {
+    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitVarLocation(DecafParser.VarLocationContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
@@ -563,12 +569,6 @@ public class DecafListener extends DecafParserBaseListener {
             );
         }
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitVarLocation(DecafParser.VarLocationContext ctx) { }
     /**
      * {@inheritDoc}
      *
