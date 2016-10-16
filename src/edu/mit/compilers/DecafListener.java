@@ -152,7 +152,7 @@ public class DecafListener extends DecafParserBaseListener {
                     "exitVarDecl: duplicate var declared in same scope"
             );
 
-            // put the varType back on the stack in case there more fields
+            // put the varType back on the stack in case there are more fields
             // after this one
             this.irStack.push(varType);
         }
@@ -190,7 +190,7 @@ public class DecafListener extends DecafParserBaseListener {
                     "exitArrayDecl: duplicate var declared in same scope"
             );
 
-            // put the arrayType back on the stack in case there more fields
+            // put the arrayType back on the stack in case there are more fields
             // after this one
             this.irStack.push(arrayType);
         }
@@ -222,7 +222,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrCodeBlock block = (IrCodeBlock) this.irStack.pop();
             topOfStack = this.irStack.peek(); // update topOfStack
 
-            // 2) pop the list of param_decl's
+            // 2) pop off the param_decl's and create a list
             ArrayList<IrMethodParamDecl> paramsList = new ArrayList<>();
             while (this.irStack.size() > 0 && topOfStack instanceof IrMethodParamDecl) {
                 IrMethodParamDecl paramDecl = (IrMethodParamDecl) this.irStack.pop();
@@ -270,15 +270,20 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitParam_decl(DecafParser.Param_declContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-
         IrIdent paramName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+
         Ir topOfStack = this.irStack.peek();
         if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
             IrType paramType = (IrType) this.irStack.pop();
 
-            // push the IrMethodParamDecl to the irStack
+            // parameters are part of the local scope of the method so
+            // we will add them to the stack and to the current scope
             IrMethodParamDecl paramDecl = new IrMethodParamDecl(paramType, paramName);
-            this.irStack.push(paramDecl);
+            declareInCurrentScopeOrReportDuplicateDecl(
+                    paramName.getValue(),
+                    paramDecl,
+                    "exitParam_decl: duplicate parameter in same method signature"
+            );
         }
         else {
             System.err.print("exitParam_decl: error with IrTypeVar for paramType");
