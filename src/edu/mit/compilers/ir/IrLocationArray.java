@@ -6,7 +6,7 @@ package edu.mit.compilers.ir;
 public class IrLocationArray extends IrLocation {
     private final IrExpr elementIndex;
 
-    public IrLocationArray(IrExpr elementIndex, IrIdent varName, IrTypeVar varType, int lineNumber, int colNumber) {
+    public IrLocationArray(IrExpr elementIndex, IrIdent varName, IrType varType, int lineNumber, int colNumber) {
         super(varName, varType, lineNumber, colNumber);
         this.elementIndex = elementIndex;
     }

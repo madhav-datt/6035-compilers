@@ -102,14 +102,14 @@ method_type :
     RES_INT | RES_BOOL | RES_VOID;
 
 statement :
-    assign_stmt
-    | method_call SEMI_COL
-    | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)?
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block
-    | RES_WHILE L_PAREN expr R_PAREN block
-    | return_stmt
-    | RES_BREAK SEMI_COL
-    | RES_CONTINUE SEMI_COL
+    location assign_op expr SEMI_COL #AssignStmt
+    | method_call SEMI_COL #AnyMethodCall
+    | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)? #IfStmt
+    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block #ForLoop
+    | RES_WHILE L_PAREN expr R_PAREN block #WhileLoop
+    | RES_RETURN (expr)? SEMI_COL #ReturnStmt
+    | RES_BREAK SEMI_COL #BreakStmt
+    | RES_CONTINUE SEMI_COL #ContinueStmt
     ;
 catch [RecognitionException ex] {
    System.out.println("Statement parsing failed");
@@ -122,15 +122,20 @@ assign_op :
 compound_assign_op :
     ADD_AS_OP | SUB_AS_OP;
 
-assign_stmt :
-    location assign_op expr SEMI_COL;
+//assign_stmt :
+//    location assign_op expr SEMI_COL;
 
-return_stmt :
-    RES_RETURN (expr)? SEMI_COL;
+//return_stmt :
+//    RES_RETURN (expr)? SEMI_COL;
 
 method_call :
-    method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
-    | method_name L_PAREN (extern_arg (COMMA extern_arg)*)? R_PAREN
+    // normal methods are subsets of external_methods
+    // so we don't gain anything by differentiating between
+    // extern methods and internal methods in the parser,
+    // we will need to manually check which type of method (extern or normal)
+    // a method call actually is
+    //    | method_name L_PAREN (expr (COMMA expr)*)? R_PAREN
+    method_name L_PAREN (extern_arg (COMMA extern_arg)*)? R_PAREN
     ;
 catch [RecognitionException ex] {
    System.out.println("Method-call parsing failed");
@@ -140,16 +145,22 @@ catch [RecognitionException ex] {
 method_name : ID;
 
 location :
-    ID | ID L_SQUARE expr R_SQUARE;
+    ID #VarLocation
+    | ID L_SQUARE expr R_SQUARE #ArrayLocation
+    ;
 
 expr :
-    location
-    | method_call
-    | literal
-    | sizeof_call
-    | uni_op expr
-    | expr bin_op expr
-    | L_PAREN expr R_PAREN
+    location #DummyLabel
+    | method_call #NonVoidMethodCall
+    | literal #DummyLabel
+    | sizeof_call #DummyLabel
+    | SUB_OP expr #NegateExpr
+    | NOT_OP expr #NotExpr
+    | expr arith_op expr #ArithExpr
+    | expr rel_op expr #RelExpr
+    | expr eq_op expr #EqateExpr
+    | expr cond_op expr #CondExpr
+    | L_PAREN expr R_PAREN #ParenExpr
     ;
 catch [RecognitionException ex] {
    System.out.println("Expression parsing failed");
@@ -157,7 +168,9 @@ catch [RecognitionException ex] {
 }
 
 sizeof_call :
-    RES_SIZEOF L_PAREN (ID | var_type) R_PAREN;
+    RES_SIZEOF L_PAREN ID R_PAREN #SizeOfVar
+    | RES_SIZEOF L_PAREN var_type R_PAREN #SizeOfType
+    ;
 
 extern_arg :
     expr | STRING;
@@ -166,11 +179,11 @@ catch [RecognitionException ex] {
    System.exit(1);
 }
 
-uni_op :
-    SUB_OP | NOT_OP;
+//uni_op :
+//    SUB_OP | NOT_OP;
 
-bin_op :
-    arith_op | rel_op | eq_op | cond_op;
+//bin_op :
+//    arith_op | rel_op | eq_op | cond_op;
 
 arith_op :
     ADD_OP | SUB_OP | MUL_OP | DIV_OP | MOD_OP;

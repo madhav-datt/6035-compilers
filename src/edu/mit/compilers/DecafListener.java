@@ -38,7 +38,40 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitProgram(DecafParser.ProgramContext ctx) {
-        // TODO: collect all of the extern_decl, field_decl, and method_decl
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrProgram wholeProgram = new IrProgram(l.line, l.col);
+
+        // 1) method_decls will be on the top of the stack so collect them
+        // first
+        Ir topOfStack = this.irStack.peek();
+        while (this.irStack.size() > 0 && topOfStack instanceof IrMethodDecl) {
+            IrMethodDecl newMethodDecl = (IrMethodDecl) this.irStack.pop();
+            wholeProgram.addMethodDecl(newMethodDecl);
+            topOfStack = this.irStack.peek();
+        }
+
+        // 2) now collect the field_decls
+        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
+            IrFieldDecl newFieldDecl = (IrFieldDecl) this.irStack.pop();
+            wholeProgram.addFieldDecl(newFieldDecl);
+            topOfStack = this.irStack.peek();
+        }
+
+        // 3) lastly, collect the extern_decls
+        while (this.irStack.size() > 0 && topOfStack instanceof IrExternDecl) {
+            IrExternDecl newExternDecl = (IrExternDecl) this.irStack.pop();
+            wholeProgram.addExternDecl(newExternDecl);
+            topOfStack = this.irStack.peek();
+        }
+
+        if (this.irStack.size() != 0) {
+            System.err.print(
+                    "irStack not empty after reaching end of program"
+            );
+        }
+
+        // delete the global stack since we have created the program
+        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
@@ -83,7 +116,7 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
         ArrayList<IrFieldDecl> fieldsList = new ArrayList<>();
 
-        // Get each field from the irStack. When we reach the IrTypeVar
+        // Get each field from the irStack. When we reach the IrType
         // object in the stack, we have collected all of the fields
         Ir topOfStack = this.irStack.peek();
         while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
@@ -92,9 +125,9 @@ public class DecafListener extends DecafParserBaseListener {
             topOfStack = this.irStack.peek();
         }
 
-        // the object on the stack should be a IrTypeVar object
-        if (this.irStack.size() > 0 && topOfStack instanceof IrTypeVar) {
-            IrTypeVar fieldsType = (IrTypeVar) this.irStack.pop();
+        // the object on the stack should be a IrType object
+        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+            IrType fieldsType = (IrType) this.irStack.pop();
 
             // loop through list in reverse to maintain original order
             // push() each field back to irStack. add() each field to scopeStack
@@ -109,7 +142,7 @@ public class DecafListener extends DecafParserBaseListener {
             }
         }
         else {
-            System.err.print("exitField_decl: error with IrTypeVar of newFields");
+            System.err.print("exitField_decl: error with IrType of newFields");
         }
     }
     /**
@@ -185,8 +218,8 @@ public class DecafListener extends DecafParserBaseListener {
                 topOfStack = this.irStack.peek(); // update topOfStack
 
                 // 4) pop the method_type
-                if (topOfStack instanceof IrTypeMethod) {
-                    IrTypeMethod methodType = (IrTypeMethod) this.irStack.pop();
+                if (topOfStack instanceof IrType) {
+                    IrType methodType = (IrType) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
                     declareInCurrentScopeOrReportDuplicateDecl(
                             methodName.getValue(),
@@ -195,7 +228,7 @@ public class DecafListener extends DecafParserBaseListener {
                     );
                 }
                 else {
-                    System.err.print("exitMethod_decl: error with IrTypeMethod for methodType");
+                    System.err.print("exitMethod_decl: error with IrType for methodType");
                 }
             }
             else {
@@ -222,8 +255,8 @@ public class DecafListener extends DecafParserBaseListener {
 
         IrIdent paramName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         Ir topOfStack = this.irStack.peek();
-        if (this.irStack.size() > 0 && topOfStack instanceof IrTypeVar) {
-            IrTypeVar paramType = (IrTypeVar) this.irStack.pop();
+        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+            IrType paramType = (IrType) this.irStack.pop();
 
             // push the IrMethodParamDecl to the irStack
             IrMethodParamDecl paramDecl = new IrMethodParamDecl(paramType, paramName);
@@ -274,19 +307,31 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
+    @Override public void enterVar_type(DecafParser.Var_typeContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
     @Override public void exitVar_type(DecafParser.Var_typeContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
-        IrTypeVar type;
+        IrType type;
         if (ctx.RES_BOOL() != null) {
-            type = new IrTypeVarBool(l.line, l.col);
+            type = new IrTypeBool(l.line, l.col);
         }
         else {
-            type = new IrTypeVarInt(l.line, l.col);
+            type = new IrTypeInt(l.line, l.col);
         }
 
         this.irStack.push(type);
     }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterMethod_type(DecafParser.Method_typeContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -295,15 +340,15 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void exitMethod_type(DecafParser.Method_typeContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
-        IrTypeMethod type;
+        IrType type;
         if (ctx.RES_BOOL() != null) {
-            type = new IrTypeMethodBool(l.line, l.col);
+            type = new IrTypeBool(l.line, l.col);
         }
         else if (ctx.RES_INT() != null) {
-            type = new IrTypeMethodInt(l.line, l.col);
+            type = new IrTypeInt(l.line, l.col);
         }
         else {
-            type = new IrTypeMethodVoid(l.line, l.col);
+            type = new IrTypeVoid(l.line, l.col);
         }
 
         this.irStack.push(type);
@@ -313,22 +358,103 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStatement(DecafParser.StatementContext ctx) { }
+    @Override public void enterAssignStmt(DecafParser.AssignStmtContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStatement(DecafParser.StatementContext ctx) { }
+    @Override public void exitAssignStmt(DecafParser.AssignStmtContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAssign_op(DecafParser.Assign_opContext ctx) {
-        // just add the op to the stack
-
-    }
+    @Override public void enterAnyMethodCall(DecafParser.AnyMethodCallContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitAnyMethodCall(DecafParser.AnyMethodCallContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterIfStmt(DecafParser.IfStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitIfStmt(DecafParser.IfStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterForLoop(DecafParser.ForLoopContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitForLoop(DecafParser.ForLoopContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitWhileLoop(DecafParser.WhileLoopContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterReturnStmt(DecafParser.ReturnStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitReturnStmt(DecafParser.ReturnStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterBreakStmt(DecafParser.BreakStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitBreakStmt(DecafParser.BreakStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterContinueStmt(DecafParser.ContinueStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitContinueStmt(DecafParser.ContinueStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterAssign_op(DecafParser.Assign_opContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -376,25 +502,157 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterLocation(DecafParser.LocationContext ctx) { }
+    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitLocation(DecafParser.LocationContext ctx) { }
+    @Override public void exitVarLocation(DecafParser.VarLocationContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterExpr(DecafParser.ExprContext ctx) { }
+    @Override public void enterArrayLocation(DecafParser.ArrayLocationContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitExpr(DecafParser.ExprContext ctx) { }
+    @Override public void exitArrayLocation(DecafParser.ArrayLocationContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterArithExpr(DecafParser.ArithExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitArithExpr(DecafParser.ArithExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterRelExpr(DecafParser.RelExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitRelExpr(DecafParser.RelExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterDummyLabel(DecafParser.DummyLabelContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitDummyLabel(DecafParser.DummyLabelContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterNotExpr(DecafParser.NotExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitNotExpr(DecafParser.NotExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterParenExpr(DecafParser.ParenExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitParenExpr(DecafParser.ParenExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterEqateExpr(DecafParser.EqateExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitEqateExpr(DecafParser.EqateExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterCondExpr(DecafParser.CondExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitCondExpr(DecafParser.CondExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterNegateExpr(DecafParser.NegateExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitNegateExpr(DecafParser.NegateExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterSizeOfVar(DecafParser.SizeOfVarContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitSizeOfVar(DecafParser.SizeOfVarContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterSizeOfType(DecafParser.SizeOfTypeContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitSizeOfType(DecafParser.SizeOfTypeContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -407,18 +665,6 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitExtern_arg(DecafParser.Extern_argContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterBin_op(DecafParser.Bin_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitBin_op(DecafParser.Bin_opContext ctx) { }
     /**
      * {@inheritDoc}
      *
