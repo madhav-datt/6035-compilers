@@ -294,7 +294,11 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterBlock(DecafParser.BlockContext ctx) { }
+    @Override public void enterBlock(DecafParser.BlockContext ctx) {
+        // we won't create a new scope here. Instead we will create
+        // the new scope upon entering pieces of code that have blocks
+        // associated with them (i.e. if-stmt, method_decl, etc.)
+    }
     /**
      * {@inheritDoc}
      *
@@ -387,7 +391,9 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAssignStmt(DecafParser.AssignStmtContext ctx) { }
+    @Override public void exitAssignStmt(DecafParser.AssignStmtContext ctx) {
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -525,7 +531,38 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) { }
+    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+
+        // make sure that the variable has already been declared
+        if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
+            Ir object = this.scopeStack.getSymbol(varName.getValue());
+
+            // make sure that the variable is actually a var and not
+            // a methodCall or an array
+            if (object instanceof IrFieldDeclVar) {
+                IrFieldDeclVar var = (IrFieldDeclVar) object;
+
+                // now we can get the type of the variable
+                IrType varType = var.getType();
+
+                // create the actual IrLocation now and add it to the stack
+                IrLocationVar loc = new IrLocationVar(varName, varType, l.line, l.col);
+                this.irStack.push(loc);
+            }
+            else {
+                System.err.print(
+                        "enterVarLocation: location is not of type IrFieldDecl. Possible syntax error"
+                );
+            }
+        }
+        else {
+            System.err.print(
+                    "enterVarLocation: location accessed without being in any scope"
+            );
+        }
+    }
     /**
      * {@inheritDoc}
      *

@@ -13,4 +13,8 @@ public abstract class IrMemberDecl extends Ir {
     public String getName() {
         return this.name.getValue();
     }
+
+    public IrType getType() {
+        return this.type;
+    }
 }

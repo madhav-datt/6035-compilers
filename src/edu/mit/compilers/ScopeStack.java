@@ -34,7 +34,7 @@ public class ScopeStack {
     }
 
     public Ir getSymbol(String id) {
-        for( SymbolTable e = this.stack.peek(); e != null; e = e.parentScope ) {
+        for (SymbolTable e = this.stack.peek(); e != null; e = e.parentScope) {
             Ir found = e.hashtable.get(id);
             if (found != null) {
                 return found;
