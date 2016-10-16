@@ -392,7 +392,47 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitAssignStmt(DecafParser.AssignStmtContext ctx) {
+        // 1) get the expression from off the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
 
+            // 2) get the location from off the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrLocation) {
+                IrLocation loc = (IrLocation) this.irStack.pop();
+
+                // 3-5) determine the assignment operator then
+                // create the IrAssignStmt and add it to the stack
+                if (ctx.assign_op().AS_OP() != null) { // location = expr
+                    IrAssignStmt assignStmt = new IrAssignStmtEqual(loc, expr);
+                    this.irStack.push(assignStmt);
+                }
+                else if (ctx.assign_op().compound_assign_op().ADD_AS_OP() != null) { // location += expr
+                    IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(loc, expr);
+                    this.irStack.push(plusEqual);
+                }
+                else if (ctx.assign_op().compound_assign_op().SUB_AS_OP() != null) { // location -= expr
+                    IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
+                    this.irStack.push(minusEqual);
+                }
+                else {
+                    System.err.print(
+                            "exitAssignStmt: problem with type of IrAssignStatement"
+                    );
+                }
+            }
+            else {
+                System.err.print(
+                        "exitAssignStmt: IrLocation missing from top of stack"
+                );
+            }
+        }
+        else {
+            System.err.print(
+                    "exitAssignStmt: IrExpression missing from top of stack"
+            );
+        }
     }
     /**
      * {@inheritDoc}
