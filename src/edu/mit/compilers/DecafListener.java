@@ -4,6 +4,7 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -29,15 +30,6 @@ public class DecafListener extends DecafParserBaseListener {
         }
     }
 
-    private boolean checkThatArgumentsAndParametersMatchTypeAndCount(
-            List<IrArg> argsList, List<IrParamDecl> paramsList) {
-        if (argsList.size() == paramsList.size()) {
-            for (int i = 0; i < argsList.size(); i++) {
-                IrType argType = argsList.get(i).get
-            }
-        }
-    }
-
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
         // creates the global scope
         this.scopeStack.createNewScope();
@@ -54,21 +46,21 @@ public class DecafListener extends DecafParserBaseListener {
         // 1) method_decls will be on the top of the stack so collect them
         // first
         Ir topOfStack = this.irStack.peek();
-        while (this.irStack.size() > 0 && topOfStack instanceof IrMethodDecl) {
+        while (topOfStack instanceof IrMethodDecl) {
             IrMethodDecl newMethodDecl = (IrMethodDecl) this.irStack.pop();
             wholeProgram.addMethodDecl(newMethodDecl);
             topOfStack = this.irStack.peek();
         }
 
         // 2) now collect the field_decls
-        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
+        while (topOfStack instanceof IrFieldDecl) {
             IrFieldDecl newFieldDecl = (IrFieldDecl) this.irStack.pop();
             wholeProgram.addFieldDecl(newFieldDecl);
             topOfStack = this.irStack.peek();
         }
 
         // 3) lastly, collect the extern_decls
-        while (this.irStack.size() > 0 && topOfStack instanceof IrExternDecl) {
+        while (topOfStack instanceof IrExternDecl) {
             IrExternDecl newExternDecl = (IrExternDecl) this.irStack.pop();
             wholeProgram.addExternDecl(newExternDecl);
             topOfStack = this.irStack.peek();
@@ -125,7 +117,7 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
         Ir topOfStack = this.irStack.peek();
-        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+        if (topOfStack instanceof IrType) {
             // pop the IrType because we are done creating fields
             this.irStack.pop();
         }
@@ -152,7 +144,7 @@ public class DecafListener extends DecafParserBaseListener {
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         Ir topOfStack = this.irStack.peek();
 
-        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+        if (topOfStack instanceof IrType) {
             // pop the varType so we know what type of var this is
             IrType varType = (IrType) this.irStack.pop();
             IrFieldDeclVar newVar = new IrFieldDeclVar(varName, varType);
@@ -190,7 +182,7 @@ public class DecafListener extends DecafParserBaseListener {
         int arraySize = Integer.getInteger(ctx.INT().getText());
         Ir topOfStack = this.irStack.peek();
 
-        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+        if (topOfStack instanceof IrType) {
             // pop the arrayType so we know what type of var this is
             IrType arrayType = (IrType) this.irStack.pop();
             IrFieldDeclArray newArray = new IrFieldDeclArray(arraySize, arrayName, arrayType);
@@ -234,7 +226,7 @@ public class DecafListener extends DecafParserBaseListener {
 
             // 2) pop off the param_decl's and create a list
             ArrayList<IrParamDecl> paramsList = new ArrayList<>();
-            while (this.irStack.size() > 0 && topOfStack instanceof IrParamDecl) {
+            while (topOfStack instanceof IrParamDecl) {
                 IrParamDecl paramDecl = (IrParamDecl) this.irStack.pop();
                 paramsList.add(0, paramDecl);
                 topOfStack = this.irStack.peek(); // update topOfStack
@@ -283,7 +275,7 @@ public class DecafListener extends DecafParserBaseListener {
         IrIdent paramName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
         Ir topOfStack = this.irStack.peek();
-        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+        if (topOfStack instanceof IrType) {
             IrType paramType = (IrType) this.irStack.pop();
 
             // parameters are part of the local scope of the method so
@@ -321,7 +313,7 @@ public class DecafListener extends DecafParserBaseListener {
         // them first
         ArrayList<IrStatement> statementsList = new ArrayList<>();
         Ir topOfStack = this.irStack.peek();
-        while (this.irStack.size() > 0 && topOfStack instanceof IrStatement) {
+        while (topOfStack instanceof IrStatement) {
             IrStatement statement = (IrStatement) this.irStack.pop();
             statementsList.add(0, statement);
             topOfStack = this.irStack.peek(); // update topOfStack
@@ -329,7 +321,7 @@ public class DecafListener extends DecafParserBaseListener {
 
         // 2) pop all of the field_decl's
         ArrayList<IrFieldDecl> fieldDeclsList = new ArrayList<>();
-        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
+        while (topOfStack instanceof IrFieldDecl) {
             IrFieldDecl fieldDecl = (IrFieldDecl) this.irStack.pop();
             fieldDeclsList.add(0, fieldDecl);
             topOfStack = this.irStack.peek();
@@ -571,7 +563,7 @@ public class DecafListener extends DecafParserBaseListener {
 
         // 1) get all of the extern_args from the stack
         ArrayList<IrArg> argsList = new ArrayList<>();
-        while (this.irStack.size() > 0 && topOfStack instanceof IrArg) {
+        while (topOfStack instanceof IrArg) {
             IrArg externArg = (IrArg) this.irStack.pop();
             argsList.add(0, externArg);
             topOfStack = this.irStack.peek();
@@ -777,7 +769,25 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) { }
+    @Override public void exitNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) {
+        // 1) get the method from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrMethodCall) {
+            IrMethodCall method = (IrMethodCall) topOfStack;
+            IrType methodType = method.getMethodType();
+
+            // 2) make sure that its type is either IrTypeInt or IrTypeBool
+            if (methodType instanceof IrTypeBool || methodType instanceof IrTypeInt) {
+                // Good!
+            }
+            else {
+                // Uh oh!! Report an error
+                System.err.print(
+                        "exitNonVoidMethodCall: there was a Void method where it shouldn't have been"
+                );
+            }
+        }
+    }
     /**
      * {@inheritDoc}
      *
