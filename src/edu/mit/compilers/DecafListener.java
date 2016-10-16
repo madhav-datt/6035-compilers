@@ -45,18 +45,15 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) {
-
-    }
+    @Override public void enterExtern_decl(DecafParser.Extern_declContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
-        Ir irObject = this.irStack.pop();
-
         // assumes an instance of IrIdent is on the stack
+        Ir irObject = this.irStack.pop();
         if (irObject instanceof IrIdent) {
             IrIdent irIdent = (IrIdent) irObject;
             IrExternDecl externDecl = new IrExternDecl(irIdent);
@@ -328,7 +325,10 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAssign_op(DecafParser.Assign_opContext ctx) { }
+    @Override public void enterAssign_op(DecafParser.Assign_opContext ctx) {
+        // just add the op to the stack
+
+    }
     /**
      * {@inheritDoc}
      *
