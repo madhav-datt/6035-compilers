@@ -147,8 +147,10 @@ expr :
     | method_call
     | literal
     | sizeof_call
-    | uni_op expr
-    | expr bin_op expr
+//    | uni_op expr
+    | uni_expr
+//    | expr bin_op expr
+    | bin_expr
     | L_PAREN expr R_PAREN
     ;
 catch [RecognitionException ex] {
@@ -166,11 +168,21 @@ catch [RecognitionException ex] {
    System.exit(1);
 }
 
-uni_op :
-    SUB_OP | NOT_OP;
+//uni_op :
+//    SUB_OP | NOT_OP;
+uni_expr :
+    SUB_OP expr #NegateExpr
+    | NOT_OP expr #NotExpr
+    ;
 
-bin_op :
-    arith_op | rel_op | eq_op | cond_op;
+//bin_op :
+//    arith_op | rel_op | eq_op | cond_op;
+bin_expr :
+    expr arith_op expr #ArithExpr
+    | expr rel_op expr #RelExpr
+    | expr eq_op expr #EqateExpr
+    | expr cond_op expr #CondExpr
+    ;
 
 arith_op :
     ADD_OP | SUB_OP | MUL_OP | DIV_OP | MOD_OP;
