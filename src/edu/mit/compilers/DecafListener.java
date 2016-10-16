@@ -160,6 +160,9 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
+        // When a method gets declared, we need to create a new scope for it
+        this.scopeStack.createNewScope();
+
         // push the IrIdent onto the stack
         IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         this.irStack.push(methodName);
@@ -173,7 +176,7 @@ public class DecafListener extends DecafParserBaseListener {
 
             // 2) pop the list of param_decl's
             ArrayList<IrMethodParamDecl> paramsList = new ArrayList<>();
-            while (topOfStack instanceof IrMethodParamDecl) {
+            while (this.irStack.size() > 0 && topOfStack instanceof IrMethodParamDecl) {
                 IrMethodParamDecl paramDecl = (IrMethodParamDecl) this.irStack.pop();
                 paramsList.add(paramDecl);
                 topOfStack = this.irStack.peek(); // update topOfStack
@@ -194,7 +197,16 @@ public class DecafListener extends DecafParserBaseListener {
                             "exitMethod_decl: duplicate method in same scope"
                     );
                 }
+                else {
+                    System.err.print("exitMethod_decl: error with IrTypeMethod for methodType");
+                }
             }
+            else {
+                System.err.print("exitMethod_decl: error with IrIdent for methodName");
+            }
+        }
+        else {
+            System.err.print("exitMethod_decl: error with IrCodeBlock for block");
         }
     }
     /**
@@ -235,7 +247,31 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitBlock(DecafParser.BlockContext ctx) { }
+    @Override public void exitBlock(DecafParser.BlockContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // 1) the IrStatments will be on the top of the stack so pop
+        // them first
+        ArrayList<IrStatement> statementsList = new ArrayList<>();
+        Ir topOfStack = this.irStack.peek();
+        while (this.irStack.size() > 0 && topOfStack instanceof IrStatement) {
+            IrStatement statement = (IrStatement) this.irStack.pop();
+            statementsList.add(statement);
+            topOfStack = this.irStack.peek(); // update topOfStack
+        }
+
+        // 2) pop all of the field_decl's
+        ArrayList<IrFieldDecl> fieldDeclsList = new ArrayList<>();
+        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
+            IrFieldDecl fieldDecl = (IrFieldDecl) this.irStack.pop();
+            fieldDeclsList.add(fieldDecl);
+            topOfStack = this.irStack.peek();
+        }
+
+        // 3) Create the actual IrCodeBlock and add it to the stack
+        IrCodeBlock newBlock = new IrCodeBlock(fieldDeclsList, statementsList, l.line, l.col);
+        this.irStack.add(newBlock);
+    }
     /**
      * {@inheritDoc}
      *

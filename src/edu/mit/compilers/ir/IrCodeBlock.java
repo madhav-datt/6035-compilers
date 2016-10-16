@@ -1,10 +1,13 @@
 package edu.mit.compilers.ir;
 
-public class IrCodeBlock extends Ir {
-    private final IrFieldDecl[] fieldsList;
-    private final IrStatement[] stmtsList;
+import java.util.ArrayList;
 
-    public IrCodeBlock(IrFieldDecl[] fieldsList, IrStatement[] stmtsList, int lineNumber, int colNumber) {
+public class IrCodeBlock extends Ir {
+    private final ArrayList<IrFieldDecl> fieldsList;
+    private final ArrayList<IrStatement> stmtsList;
+
+    public IrCodeBlock(ArrayList<IrFieldDecl> fieldsList, ArrayList<IrStatement> stmtsList,
+                       int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.fieldsList = fieldsList;
         this.stmtsList = stmtsList;
