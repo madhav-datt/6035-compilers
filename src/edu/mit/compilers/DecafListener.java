@@ -29,6 +29,7 @@ public class DecafListener extends DecafParserBaseListener {
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
+        // creates the global scope
         this.scopeStack.createNewScope();
     }
     /**
@@ -64,9 +65,6 @@ public class DecafListener extends DecafParserBaseListener {
                     externDecl,
                     "enterExtern_decl: same extern declared twice"
             );
-
-            // once we create the extern_decl, add it to the stack
-            this.irStack.push(externDecl);
         }
         else {
             System.err.print(
@@ -166,7 +164,39 @@ public class DecafListener extends DecafParserBaseListener {
         IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         this.irStack.push(methodName);
     }
-    @Override public void exitMethod_decl(DecafParser.Method_declContext ctx) { }
+    @Override public void exitMethod_decl(DecafParser.Method_declContext ctx) {
+        Ir topOfStack = this.irStack.peek();
+        // 1) pop the block
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock block = (IrCodeBlock) this.irStack.pop();
+            topOfStack = this.irStack.peek(); // update topOfStack
+
+            // 2) pop the list of param_decl's
+            ArrayList<IrMethodParamDecl> paramsList = new ArrayList<>();
+            while (topOfStack instanceof IrMethodParamDecl) {
+                IrMethodParamDecl paramDecl = (IrMethodParamDecl) this.irStack.pop();
+                paramsList.add(paramDecl);
+                topOfStack = this.irStack.peek(); // update topOfStack
+            }
+
+            // 3) pop the id
+            if (topOfStack instanceof IrIdent) {
+                IrIdent methodName = (IrIdent) this.irStack.pop();
+                topOfStack = this.irStack.peek(); // update topOfStack
+
+                // 4) pop the method_type
+                if (topOfStack instanceof IrTypeMethod) {
+                    IrTypeMethod methodType = (IrTypeMethod) this.irStack.pop();
+                    IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
+                    declareInCurrentScopeOrReportDuplicateDecl(
+                            methodName.getValue(),
+                            newMethod,
+                            "exitMethod_decl: duplicate method in same scope"
+                    );
+                }
+            }
+        }
+    }
     /**
      * {@inheritDoc}
      *

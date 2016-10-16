@@ -1,4 +1,6 @@
 void main ( ) {
     int i, j, k;
+    bool test,help;
     i = 0;
+    q=3;
 }
