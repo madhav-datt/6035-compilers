@@ -1,10 +1,10 @@
 package edu.mit.compilers.ir;
 
-public class IrArgString extends IrArg{
-    private final String content;
-
-    public IrArgString(String content, int lineNumber, int colNumber) {
-        super(lineNumber, colNumber);
-        this.content = content;
+/**
+ * Created by devinmorgan on 10/16/16.
+ */
+public class IrArgString extends IrArg {
+    public IrArgString(String string, int lineNum, int colNum) {
+        super(string, lineNum, colNum);
     }
 }

@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 
@@ -25,6 +26,15 @@ public class DecafListener extends DecafParserBaseListener {
         }
         else {
             System.err.print(errorMsg);
+        }
+    }
+
+    private boolean checkThatArgumentsAndParametersMatchTypeAndCount(
+            List<IrArg> argsList, List<IrParamDecl> paramsList) {
+        if (argsList.size() == paramsList.size()) {
+            for (int i = 0; i < argsList.size(); i++) {
+                IrType argType = argsList.get(i).get
+            }
         }
     }
 
@@ -223,10 +233,10 @@ public class DecafListener extends DecafParserBaseListener {
             topOfStack = this.irStack.peek(); // update topOfStack
 
             // 2) pop off the param_decl's and create a list
-            ArrayList<IrMethodParamDecl> paramsList = new ArrayList<>();
-            while (this.irStack.size() > 0 && topOfStack instanceof IrMethodParamDecl) {
-                IrMethodParamDecl paramDecl = (IrMethodParamDecl) this.irStack.pop();
-                paramsList.add(paramDecl);
+            ArrayList<IrParamDecl> paramsList = new ArrayList<>();
+            while (this.irStack.size() > 0 && topOfStack instanceof IrParamDecl) {
+                IrParamDecl paramDecl = (IrParamDecl) this.irStack.pop();
+                paramsList.add(0, paramDecl);
                 topOfStack = this.irStack.peek(); // update topOfStack
             }
 
@@ -278,7 +288,7 @@ public class DecafListener extends DecafParserBaseListener {
 
             // parameters are part of the local scope of the method so
             // we will add them to the stack and to the current scope
-            IrMethodParamDecl paramDecl = new IrMethodParamDecl(paramType, paramName);
+            IrParamDecl paramDecl = new IrParamDecl(paramType, paramName);
             declareInCurrentScopeOrReportDuplicateDecl(
                     paramName.getValue(),
                     paramDecl,
@@ -313,7 +323,7 @@ public class DecafListener extends DecafParserBaseListener {
         Ir topOfStack = this.irStack.peek();
         while (this.irStack.size() > 0 && topOfStack instanceof IrStatement) {
             IrStatement statement = (IrStatement) this.irStack.pop();
-            statementsList.add(statement);
+            statementsList.add(0, statement);
             topOfStack = this.irStack.peek(); // update topOfStack
         }
 
@@ -321,13 +331,13 @@ public class DecafListener extends DecafParserBaseListener {
         ArrayList<IrFieldDecl> fieldDeclsList = new ArrayList<>();
         while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
             IrFieldDecl fieldDecl = (IrFieldDecl) this.irStack.pop();
-            fieldDeclsList.add(fieldDecl);
+            fieldDeclsList.add(0, fieldDecl);
             topOfStack = this.irStack.peek();
         }
 
         // 3) Create the actual IrCodeBlock and add it to the stack
         IrCodeBlock newBlock = new IrCodeBlock(fieldDeclsList, statementsList, l.line, l.col);
-        this.irStack.add(newBlock);
+        this.irStack.push(newBlock);
     }
     /**
      * {@inheritDoc}
@@ -445,7 +455,9 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAnyMethodCall(DecafParser.AnyMethodCallContext ctx) { }
+    @Override public void exitAnyMethodCall(DecafParser.AnyMethodCallContext ctx) {
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -553,7 +565,76 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitMethod_call(DecafParser.Method_callContext ctx) { }
+    @Override public void exitMethod_call(DecafParser.Method_callContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        Ir topOfStack = this.irStack.peek();
+
+        // 1) get all of the extern_args from the stack
+        ArrayList<IrArg> argsList = new ArrayList<>();
+        while (this.irStack.size() > 0 && topOfStack instanceof IrArg) {
+            IrArg externArg = (IrArg) this.irStack.pop();
+            argsList.add(0, externArg);
+            topOfStack = this.irStack.peek();
+        }
+
+        // 2) get the methodName (IrIdent)
+        if (topOfStack instanceof IrIdent) {
+            IrIdent methodName = (IrIdent) topOfStack;
+
+            // 3) look up the method in scope to make sure it was declared
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
+
+                // a) determine if the method is an extern (or not)
+                Ir object = this.scopeStack.getSymbol(methodName.getValue());
+                if (object instanceof IrMethodDecl) {
+                    IrMethodDecl method = (IrMethodDecl) object;
+                    IrType returnType = method.getType();
+                    List<IrParamDecl> paramsList = method.getParamsList();
+
+                    // make sure the count and the types of the params and args match
+                    if (argsList.size() == paramsList.size()) {
+                        // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
+
+                        // create the actual IrMethodCall and add it to the stack
+                        IrMethodCall methodCall = new IrMethodCall(methodName, returnType, argsList);
+                        this.irStack.push(methodCall);
+                    }
+                    else {
+                        System.err.print(
+                                "exitMethod_call: number of IrParamDecls doesn't match number of passed IrArgs"
+                        );
+                    }
+                }
+                else if (object instanceof IrExternDecl) {
+                    IrExternDecl externMethod = (IrExternDecl) object;
+                    IrType returnType = new IrTypeInt(l.line, l.col);
+
+                    // we don't need to check whether the params are correct
+                    // for IrExternDecl (or the number of args)
+
+                    // create the actual IrMethodCall and add it to the stack
+                    IrMethodCall externMethodCall = new IrMethodCall(methodName, returnType, argsList);
+                    this.irStack.push(externMethodCall);
+                }
+                else {
+                    System.err.print(
+                            "exitMethod_call: error with instanceof for type of object in the stack"
+                    );
+                }
+
+            }
+            else {
+                System.err.print(
+                        "exitMethod_call: method was not declared/ or is not in scopeStack"
+                );
+            }
+        }
+        else {
+            System.err.print(
+                    "exitMethod_call: ID for methodName is not in irStack"
+            );
+        }
+    }
     /**
      * {@inheritDoc}
      *
@@ -565,7 +646,11 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitMethod_name(DecafParser.Method_nameContext ctx) { }
+    @Override public void exitMethod_name(DecafParser.Method_nameContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+        this.irStack.push(methodName);
+    }
     /**
      * {@inheritDoc}
      *
