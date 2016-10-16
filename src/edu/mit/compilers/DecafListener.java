@@ -114,35 +114,15 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
-        ArrayList<IrFieldDecl> fieldsList = new ArrayList<>();
-
-        // Get each field from the irStack. When we reach the IrType
-        // object in the stack, we have collected all of the fields
         Ir topOfStack = this.irStack.peek();
-        while (this.irStack.size() > 0 && topOfStack instanceof IrFieldDecl) {
-            IrFieldDecl newField = (IrFieldDecl) this.irStack.pop();
-            fieldsList.add(newField);
-            topOfStack = this.irStack.peek();
-        }
-
-        // the object on the stack should be a IrType object
         if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
-            IrType fieldsType = (IrType) this.irStack.pop();
-
-            // loop through list in reverse to maintain original order
-            // push() each field back to irStack. add() each field to scopeStack
-            for (int i = fieldsList.size()-1; i >= 0; i--) {
-                IrFieldDecl field = fieldsList.get(i);
-                field.setType(fieldsType);
-                declareInCurrentScopeOrReportDuplicateDecl(
-                        field.getName(),
-                        field,
-                        "exitField_decl: duplicate field declared in same scope"
-                );
-            }
+            // pop the IrType because we are done creating fields
+            this.irStack.pop();
         }
         else {
-            System.err.print("exitField_decl: error with IrType of newFields");
+            System.err.print(
+                    "exitField_decl: missing IrType from stack"
+            );
         }
     }
     /**
@@ -154,14 +134,34 @@ public class DecafListener extends DecafParserBaseListener {
     /**
      * {@inheritDoc}
      *
-     * <p>The default implementation does nothing.</p>
+     * <p>Note: the IrFieldDeclVar that are put onto the stack don't have
+     * a type set at this point. Their type gets determined in </p>
      */
     @Override public void exitVarDecl(DecafParser.VarDeclContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+        Ir topOfStack = this.irStack.peek();
 
-        IrFieldDeclVar var = new IrFieldDeclVar(varName);
-        this.irStack.push(var);
+        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+            // pop the varType so we know what type of var this is
+            IrType varType = (IrType) this.irStack.pop();
+            IrFieldDeclVar newVar = new IrFieldDeclVar(varName, varType);
+            declareInCurrentScopeOrReportDuplicateDecl(
+                    varName.getValue(),
+                    newVar,
+                    "exitVarDecl: duplicate var declared in same scope"
+            );
+
+            // put the varType back on the stack in case there more fields
+            // after this one
+            this.irStack.push(varType);
+        }
+        else {
+            System.err.print(
+                    "exitVarDecl: error with IrType of newVar"
+            );
+        }
+
     }
     /**
      * {@inheritDoc}
@@ -178,9 +178,27 @@ public class DecafListener extends DecafParserBaseListener {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrIdent arrayName = new IrIdent(ctx.ID().getText(), l.line, l.col);
         int arraySize = Integer.getInteger(ctx.INT().getText());
+        Ir topOfStack = this.irStack.peek();
 
-        IrFieldDeclArray array = new IrFieldDeclArray(arraySize, arrayName);
-        this.irStack.push(array);
+        if (this.irStack.size() > 0 && topOfStack instanceof IrType) {
+            // pop the arrayType so we know what type of var this is
+            IrType arrayType = (IrType) this.irStack.pop();
+            IrFieldDeclArray newArray = new IrFieldDeclArray(arraySize, arrayName, arrayType);
+            declareInCurrentScopeOrReportDuplicateDecl(
+                    arrayName.getValue(),
+                    newArray,
+                    "exitArrayDecl: duplicate var declared in same scope"
+            );
+
+            // put the arrayType back on the stack in case there more fields
+            // after this one
+            this.irStack.push(arrayType);
+        }
+        else {
+            System.err.print(
+                    "exitArrayDecl: error with IrType of newArray"
+            );
+        }
     }
     /**
      * {@inheritDoc}
