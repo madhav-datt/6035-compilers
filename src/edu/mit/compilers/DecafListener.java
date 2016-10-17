@@ -4,6 +4,7 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -723,7 +724,38 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitArrayLocation(DecafParser.ArrayLocationContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
+        // get the expr from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
+
+            // make sure the expr is of type IrTypeInt so
+            // that we can use it as an element index
+            if (expr.getExpressionType() instanceof IrTypeInt) {
+                IrTypeInt varType = (IrTypeInt) expr.getExpressionType();
+
+                // look up the the variable to make sure it was declared
+                IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+                if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
+                    Ir object = this.scopeStack.getSymbol(varName.getValue());
+
+                    // check to make sure that the variable is an array
+                    if (object instanceof IrFieldDeclArray) {
+                        IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) object;
+
+                        // create the actual IrLocationArray and add it to irStack
+                        IrLocationArray locOfArray = new IrLocationArray(expr, varName, varType, l.line, l.col);
+                        this.irStack.push(locOfArray);
+                    }
+                    else {System.err.print("exitArrayLocation: object in scope is not an IrFieldDeclArray");}
+                }
+                else {System.err.print("exitArrayLocation: error with Ident; not found in scope");}
+            }
+            else {System.err.print("exitArrayLocation: error with IrExpr; not of type IrTypeInt");}
+        }
+        else {System.err.print("exitArrayLocation: object on top of stack not an IrExpr");}
     }
     /**
      * {@inheritDoc}
@@ -785,7 +817,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrOperUnaryNot negatedExpr = new IrOperUnaryNot(expr);
                 this.irStack.push(negatedExpr);
             }
+            else {System.err.print("exitNotExpr: expr was not of type IrTypeBool");}
         }
+        else {System.err.print("exitNotExpr: the object on top of the stack was an IrExpr");}
     }
     /**
      * {@inheritDoc}
@@ -876,8 +910,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrOperUnaryNeg negatedExpr = new IrOperUnaryNeg(expr);
                 this.irStack.push(negatedExpr);
             }
-
+            else {System.err.print("exitNegateExpr: expr is not of type IrTypeInt");}
         }
+        else {System.err.print("exitNegateExpr: object on top of stack was not IrExpr");}
     }
     /**
      * {@inheritDoc}
