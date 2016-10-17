@@ -516,6 +516,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrStmtReturnExpr returnExpr = new IrStmtReturnExpr(expr);
             this.irStack.push(returnExpr);
         }
+        else {System.err.print("exitReturnExprStmt: problem with IrExpr on topOfStack");}
     }
     /**
      * {@inheritDoc}
@@ -546,7 +547,13 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitBreakStmt(DecafParser.BreakStmtContext ctx) { }
+    @Override public void exitBreakStmt(DecafParser.BreakStmtContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // create the break stmt add it to irStack
+        IrStmtBreak breakStmt = new IrStmtBreak(l.line, l.col);
+        this.irStack.push(breakStmt);
+    }
     /**
      * {@inheritDoc}
      *
@@ -558,7 +565,13 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitContinueStmt(DecafParser.ContinueStmtContext ctx) { }
+    @Override public void exitContinueStmt(DecafParser.ContinueStmtContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // create the continue stmt add it to irStack
+        IrStmtContinue continueStmt = new IrStmtContinue(l.line, l.col);
+        this.irStack.push(continueStmt);
+    }
     /**
      * {@inheritDoc}
      *
@@ -799,6 +812,7 @@ public class DecafListener extends DecafParserBaseListener {
                 System.err.print("exitNonVoidMethodCall: there was a Void method where it shouldn't have been");
             }
         }
+        else {System.err.print("exitNonVoidMethodCall: no IrMethodCall on top of stack");}
     }
     /**
      * {@inheritDoc}
@@ -847,7 +861,34 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitSizeOfVar(DecafParser.SizeOfVarContext ctx) { }
+    @Override public void exitSizeOfVar(DecafParser.SizeOfVarContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // 1) look up the location that corresponds to the ID in the
+        // sizeof expression (int, bool, or array)
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrIdent) {
+            IrIdent varName = (IrIdent) this.irStack.pop();
+
+            // check that the var is in the stack (has already been declared)
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
+                Ir object = this.scopeStack.getSymbol(varName.getValue());
+
+                // make sure the object is an IrFieldDecl (array or var)
+                if (object instanceof IrFieldDecl) {
+                    IrFieldDecl field = (IrFieldDecl) object;
+                    IrType fieldType = field.getType();
+
+                    // create the IrSizeOfLocation and add it to the stack
+                    IrSizeOfLocation sizeOfField = new IrSizeOfLocation(field, l.line, l.col);
+                    this.irStack.push(sizeOfField);
+                }
+                else {System.err.print("enterSizeOfVar: sizeof object was not an IrFieldDecl");}
+            }
+            else {System.err.print("enterSizeOfVar: sizeof object was in the scope");}
+        }
+        else {System.err.print("enterSizeOfVar: sizeof was has no argument (ID)");}
+    }
     /**
      * {@inheritDoc}
      *
