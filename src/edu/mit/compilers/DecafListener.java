@@ -1020,8 +1020,27 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitLiteral(DecafParser.LiteralContext ctx) { }
+    @Override public void exitLiteral(DecafParser.LiteralContext ctx) {
+        DecafListener.ProgramLocation l = new ProgramLocation(ctx);
 
+        // 1) check which type of literal it is
+        if (ctx.INT() != null) {
+            int intValue = Integer.parseInt(ctx.INT().getText());
+            IrLiteralInt intLiteral = new IrLiteralInt(intValue, l.line, l.col);
+            this.irStack.push(intLiteral);
+        }
+        else if (ctx.BOOL() != null) {
+            boolean boolValue = Boolean.parseBoolean(ctx.BOOL().getText());
+            IrLiteralBool boolLiteral = new IrLiteralBool(boolValue, l.line, l.col);
+            this.irStack.push(boolLiteral);
+        }
+        else if (ctx.CHAR() != null) {
+            char charValue = ctx.CHAR().getText().charAt(0);
+            IrLiteralChar charLiteral = new IrLiteralChar(charValue, l.line, l.col);
+            this.irStack.push(charLiteral);
+        }
+        else {System.err.print("exitLiteral: the ctx did not have a CHAR, BOOL, or INT");}
+    }
     /**
      * {@inheritDoc}
      *
