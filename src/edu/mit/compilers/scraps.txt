@@ -1,3 +1,39 @@
+// if-statement related stuff
+        Ir topOfStack = this.irStack.peek();
+
+        // pop off the if block
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock ifBlock = (IrCodeBlock) this.irStack.pop();
+
+            // pop off the expression
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr condition = (IrExpr) topOfStack;
+
+                // create the If-Else statement
+                IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(condition, ifBlock);
+                this.irStack.push(ifStmt);
+            }
+            else {System.err.print("exitIfStmt: error with if condition");}
+        }
+        else {System.err.print("exitIfStmt: error with if code block");}
+
+// else-statement related stuff
+        Ir topOfStack = this.irStack.peek();
+
+        // pop off the else block
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock elseblock = (IrCodeBlock) this.irStack.pop();
+
+            // create the If-Else statement
+            IrCtrlFlowIfElse ifElseStmt = new IrCtrlFlowIfElse(elseblock, condition, ifBlock);
+            this.irStack.push(ifElseStmt);
+
+        }
+        else {System.err.print("exitIfStmt: error with if-else code block");}
+
+
+
 
 // original implementation of DecafListener.java
     IrProgram program = new IrProgram();

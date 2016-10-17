@@ -6,9 +6,8 @@ package edu.mit.compilers.ir;
 public class IrCtrlFlowIfElse extends IrCtrlFlow{
     private final IrCodeBlock elseBlock;
 
-    public IrCtrlFlowIfElse(IrCodeBlock elseBlock, IrExpr condExpr,
-                            IrCodeBlock stmtBody) {
-        super(condExpr, stmtBody);
+    public IrCtrlFlowIfElse(IrCtrlFlowIf ifStmt, IrCodeBlock elseBlock) {
+        super(ifStmt.getIfCondition(), ifStmt.getIfBodyBlock());
         this.elseBlock = elseBlock;
     }
 }

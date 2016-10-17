@@ -104,7 +104,8 @@ method_type :
 statement :
     location assign_op expr SEMI_COL #AssignStmt
     | method_call SEMI_COL #AnyMethodCall
-    | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)? #IfStmt
+    | if_stmt #IfOnlyStmt
+    | if_stmt else_stmt #IfAndElseStmt
     | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block #ForLoop
     | RES_WHILE L_PAREN expr R_PAREN block #WhileLoop
     | RES_RETURN expr SEMI_COL #ReturnExprStmt
@@ -116,6 +117,10 @@ catch [RecognitionException ex] {
    System.out.println("Statement parsing failed");
    System.exit(1);
 }
+
+if_stmt : RES_IF L_PAREN expr R_PAREN block;
+
+else_stmt : RES_ELSE block;
 
 assign_op :
     AS_OP | compound_assign_op;

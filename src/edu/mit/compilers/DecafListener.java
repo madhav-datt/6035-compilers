@@ -191,7 +191,7 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
-        // When a method gets declared, we need to create a new scope for it
+        // create a new scope for the method_decl
         this.scopeStack.createNewScope();
 
         // push the IrIdent onto the stack
@@ -227,12 +227,16 @@ public class DecafListener extends DecafParserBaseListener {
                             newMethod,
                             "exitMethod_decl: duplicate method in same scope"
                     );
+
                 }
                 else {System.err.print("exitMethod_decl: error with IrType for methodType");}
             }
             else {System.err.print("exitMethod_decl: error with IrIdent for methodName");}
         }
         else {System.err.print("exitMethod_decl: error with IrCodeBlock for block");}
+
+        // delete the current scope since we finished creating the method
+        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
@@ -416,86 +420,130 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIfStmt(DecafParser.IfStmtContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitIfStmt(DecafParser.IfStmtContext ctx) {
-        // check to see if there is an else block
-        if (ctx.RES_ELSE() != null) { // if-else
-            Ir topOfStack = this.irStack.peek();
-
-            // pop off the else block
-            if (topOfStack instanceof IrCodeBlock) {
-                IrCodeBlock elseblock = (IrCodeBlock) this.irStack.pop();
-
-                // pop off the if block
-                topOfStack = this.irStack.peek();
-                if (topOfStack instanceof IrCodeBlock) {
-                    IrCodeBlock ifBlock = (IrCodeBlock) this.irStack.pop();
-
-                    // pop off the expression
-                    topOfStack = this.irStack.peek();
-                    if (topOfStack instanceof IrExpr) {
-                        IrExpr condition = (IrExpr) topOfStack;
-
-                        // create the If-Else statement
-                        IrCtrlFlowIfElse ifElseStmt = new IrCtrlFlowIfElse(elseblock, condition, ifBlock);
-                        this.irStack.push(ifElseStmt);
-                    }
-                    else {System.err.print("exitIfStmt: error with if-else condition");}
-                }
-                else {System.err.print("exitIfStmt: error with if-else code block");}
-            }
-            else {System.err.print("exitIfStmt: error with if-else code block");}
-        }
-        else { // if (only)
-            Ir topOfStack = this.irStack.peek();
-
-            // pop off the if block
-            if (topOfStack instanceof IrCodeBlock) {
-                IrCodeBlock ifBlock = (IrCodeBlock) this.irStack.pop();
-
-                // pop off the expression
-                topOfStack = this.irStack.peek();
-                if (topOfStack instanceof IrExpr) {
-                    IrExpr condition = (IrExpr) topOfStack;
-
-                    // create the If-Else statement
-                    IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(condition, ifBlock);
-                    this.irStack.push(ifStmt);
-                }
-                else {System.err.print("exitIfStmt: error with if condition");}
-            }
-            else {System.err.print("exitIfStmt: error with if code block");}
-        }
+    @Override public void enterIf_stmt(DecafParser.If_stmtContext ctx) {
+        this.scopeStack.createNewScope();
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterForLoop(DecafParser.ForLoopContext ctx) { }
+    @Override public void exitIf_stmt(DecafParser.If_stmtContext ctx) {
+        // 1) pop the block from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock ifBody = (IrCodeBlock) this.irStack.pop();
+
+            // 2) get the expr from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr ifCondition = (IrExpr) this.irStack.pop();
+
+                // 3) make sure expr is of type bool
+                if (ifCondition.getExpressionType() instanceof IrTypeBool) {
+
+                    // 4) create the IrCtrlFlowIf and add it to irStack
+                    IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(ifCondition, ifBody);
+                    this.irStack.push(ifStmt);
+                }
+                else {System.err.print("exitIf_stmt: ifStmt condition is not of type IrTypeBool");}
+            }
+            else {System.err.print("exitIf_stmt: top of stack is not an IrExpr");}
+        }
+        else {System.err.print("exitIf_stmt: top of stack is not a IrCodeBlock");}
+
+        // delete the current scope since we are done creating the If-Stmt
+        this.scopeStack.deleteCurrentScope();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitForLoop(DecafParser.ForLoopContext ctx) { }
+    @Override public void enterElse_stmt(DecafParser.Else_stmtContext ctx) {
+        this.scopeStack.createNewScope();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) { }
+    @Override public void exitElse_stmt(DecafParser.Else_stmtContext ctx) {
+        this.scopeStack.deleteCurrentScope();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitWhileLoop(DecafParser.WhileLoopContext ctx) { }
+    @Override public void enterIfAndElseStmt(DecafParser.IfAndElseStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitIfAndElseStmt(DecafParser.IfAndElseStmtContext ctx) {
+        // 1) grab the codeBlock from the stack (it is the else-stmt body)
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock elseBody = (IrCodeBlock) this.irStack.pop();
+
+            // 2) grab the ifStmt from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrCtrlFlowIf) {
+                IrCtrlFlowIf ifStmt = (IrCtrlFlowIf) this.irStack.pop();
+
+                // 3) create the ifElse stmt and add it to the stack
+                IrCtrlFlowIfElse ifElseStmt = new IrCtrlFlowIfElse(ifStmt, elseBody);
+                this.irStack.push(ifElseStmt);
+            }
+            else {System.err.print("exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf");}
+        }
+        else {System.err.print("exitIfAndElseStmt: top of stack is not a CodeBlock");}
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterForLoop(DecafParser.ForLoopContext ctx) {
+        this.scopeStack.createNewScope();
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitForLoop(DecafParser.ForLoopContext ctx) {
+        this.scopeStack.deleteCurrentScope();
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) {
+        this.scopeStack.createNewScope();
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitWhileLoop(DecafParser.WhileLoopContext ctx) {
+        // 1) pop the block off from the stack
+//        Ir topOfStack = this.irStack.peek()
+        // 2) pop the expr off the stack
+        // 3) make sure the expr is of type IrTypeBool
+        // 4) create the IrCtrlFlowWhile object and add it to irStack
+        // 5) delete the local scope
+        this.scopeStack.deleteCurrentScope();
+    }
     /**
      * {@inheritDoc}
      *
