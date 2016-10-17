@@ -536,12 +536,30 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitWhileLoop(DecafParser.WhileLoopContext ctx) {
-        // 1) pop the block off from the stack
-//        Ir topOfStack = this.irStack.peek()
-        // 2) pop the expr off the stack
-        // 3) make sure the expr is of type IrTypeBool
-        // 4) create the IrCtrlFlowWhile object and add it to irStack
-        // 5) delete the local scope
+        // 1) pop the block from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock whileBody = (IrCodeBlock) this.irStack.pop();
+
+            // 2) get the expr from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr whileCondition = (IrExpr) this.irStack.pop();
+
+                // 3) make sure expr is of type bool
+                if (whileCondition.getExpressionType() instanceof IrTypeBool) {
+
+                    // 4) create the IrCtrlFlowWhile and add it to irStack
+                    IrCtrlFlowWhile whileStmt = new IrCtrlFlowWhile(whileCondition, whileBody);
+                    this.irStack.push(whileStmt);
+                }
+                else {System.err.print("exitWhileLoop: whileStmt condition is not of type IrTypeBool");}
+            }
+            else {System.err.print("exitWhileLoop: top of stack is not an IrExpr");}
+        }
+        else {System.err.print("exitWhileLoop: top of stack is not a IrCodeBlock");}
+
+        // delete the current scope since we are done creating the whileStmt
         this.scopeStack.deleteCurrentScope();
     }
     /**
@@ -893,7 +911,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) {
-        // 1) get the method from the stack
+        // 1) get the method from the stack (but DON'T pop it)
         Ir topOfStack = this.irStack.peek();
         if (topOfStack instanceof IrMethodCall) {
             IrMethodCall method = (IrMethodCall) topOfStack;
@@ -921,7 +939,43 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitEquateExpr(DecafParser.EquateExprContext ctx) { }
+    @Override public void exitEquateExpr(DecafParser.EquateExprContext ctx) {
+        // 1) get the RHS expr from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr rhsExpr = (IrExpr) this.irStack.pop();
+
+            // 2) get the LHS epxr from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr lhsExpr = (IrExpr) this.irStack.pop();
+
+                // 3) make sure that both IrExpr are of the same IrType
+                if (rhsExpr.getExpressionType() == lhsExpr.getExpressionType()) {
+
+                    // 4) determine the type of equality (!= or ==)
+                    if (ctx.eq_op().EQ_OP() != null) {
+                        String equalsEquals = ctx.eq_op().EQ_OP().getText();
+
+                        // 5) create the IrOperBinaryEq and add it irStack
+                        IrOperBinaryEq equalsEqualsExpr = new IrOperBinaryEq(equalsEquals, lhsExpr, rhsExpr);
+                        this.irStack.push(equalsEqualsExpr);
+                    }
+                    else if (ctx.eq_op().NEQ_OP() != null) {
+                        String notEquals = ctx.eq_op().EQ_OP().getText();
+
+                        // 5) create the IrOperBinaryEq and add it irStack
+                        IrOperBinaryEq notEqualsExpr = new IrOperBinaryEq(notEquals, lhsExpr, rhsExpr);
+                        this.irStack.push(notEqualsExpr);
+                    }
+                    else {System.err.print("exitEquateExpr: problem determining type of equality expr");}
+                }
+                else {System.err.print("exitEquateExpr: rhs and lhs don't have the same IrType");}
+            }
+            else {System.err.print("exitEquateExpr: top of stack isn't IrExpr (for lhs expr)");}
+        }
+        else {System.err.print("exitEquateExpr: top of stack isn't IrExpr (for rhs expr)");}
+    }
     /**
      * {@inheritDoc}
      *
