@@ -7,4 +7,11 @@ public class IrLiteralChar extends IrLiteral {
         super(lineNumber, colNumber);
         this.value = value;
     }
+
+    @Override
+    public IrType getExpressionType() {
+        // it's definitely not of type void but it
+        // is also not of type int or type bool
+        return new IrTypeVoid(this.getLineNumber(), this.getColNumber());
+    }
 }

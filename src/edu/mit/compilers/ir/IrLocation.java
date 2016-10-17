@@ -8,7 +8,7 @@ import edu.mit.compilers.ir.IrIdent;
  */
 public abstract class IrLocation extends IrExpr {
     private final IrIdent varName;
-    private final IrType varType;
+    final IrType varType;
 
     public IrLocation(IrIdent varName, IrType varType, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);

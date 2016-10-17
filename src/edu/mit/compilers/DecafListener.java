@@ -4,7 +4,6 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
-import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -513,7 +512,9 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) { }
+    @Override public void enterReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) {
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -773,7 +774,7 @@ public class DecafListener extends DecafParserBaseListener {
         Ir topOfStack = this.irStack.peek();
         if (topOfStack instanceof IrMethodCall) {
             IrMethodCall method = (IrMethodCall) topOfStack;
-            IrType methodType = method.getMethodType();
+            IrType methodType = method.getExpressionType();
 
             // 2) make sure that its type is either IrTypeInt or IrTypeBool
             if (methodType instanceof IrTypeBool || methodType instanceof IrTypeInt) {

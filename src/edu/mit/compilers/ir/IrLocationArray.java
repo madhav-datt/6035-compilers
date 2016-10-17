@@ -10,4 +10,9 @@ public class IrLocationArray extends IrLocation {
         super(varName, varType, lineNumber, colNumber);
         this.elementIndex = elementIndex;
     }
+
+    @Override
+    public IrType getExpressionType() {
+        return this.varType;
+    }
 }

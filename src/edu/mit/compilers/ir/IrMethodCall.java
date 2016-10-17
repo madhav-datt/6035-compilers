@@ -14,7 +14,7 @@ public class IrMethodCall extends IrExpr{
         this.methodType = methodType;
     }
 
-    public IrType getMethodType() {
+    public IrType getExpressionType() {
         return this.methodType;
     }
 

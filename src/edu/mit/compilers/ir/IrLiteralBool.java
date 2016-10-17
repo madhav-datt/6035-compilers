@@ -7,4 +7,9 @@ public class IrLiteralBool extends IrLiteral {
         super(lineNumber, colNumber);
         this.value = value;
     }
+
+    @Override
+    public IrType getExpressionType() {
+        return new IrTypeBool(this.getLineNumber(), this.getColNumber());
+    }
 }

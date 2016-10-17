@@ -8,4 +8,8 @@ public class IrLiteralInt extends IrLiteral {
         this.value = value;
     }
 
+    @Override
+    public IrType getExpressionType() {
+        return new IrTypeInt(this.getLineNumber(), this.getColNumber());
+    }
 }
