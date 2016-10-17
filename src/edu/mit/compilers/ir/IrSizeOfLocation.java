@@ -7,4 +7,9 @@ public class IrSizeOfLocation extends IrSizeOf {
         super(lineNumber, colNumber);
         this.varName = varName;
     }
+
+    @Override
+    public IrType getExpressionType() {
+        return new IrTypeInt(this.varName.getLineNumber(), this.varName.getColNumber());
+    }
 }

@@ -7,4 +7,9 @@ public class IrSizeOfType extends IrSizeOf {
         super(type.getLineNumber(), type.getColNumber());
         this.type = type;
     }
+
+    @Override
+    public IrType getExpressionType() {
+        return this.type;
+    }
 }
