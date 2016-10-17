@@ -900,7 +900,18 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitSizeOfType(DecafParser.SizeOfTypeContext ctx) { }
+    @Override public void exitSizeOfType(DecafParser.SizeOfTypeContext ctx) {
+        // get the type argument from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrTypeBool || topOfStack instanceof IrTypeInt) {
+            IrType type = (IrType) this.irStack.pop();
+
+            // create the IrSizeOfType object and add it to irStack
+            IrSizeOfType sizeOfType = new IrSizeOfType(type);
+            this.irStack.push(sizeOfType);
+        }
+        else { System.err.print("exitSizeOfType: argument for sizeof is not IrTypeBool or IrTypeInt");}
+    }
     /**
      * {@inheritDoc}
      *
@@ -912,7 +923,20 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArgExpr(DecafParser.ArgExprContext ctx) { }
+    @Override public void exitArgExpr(DecafParser.ArgExprContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // get the type argument from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
+
+            // create the IrArgExpr object and add it to irStack
+            IrArgExpr argExpr = new IrArgExpr(expr, l.line, l.col);
+            this.irStack.push(argExpr);
+        }
+        else { System.err.print("exitArgExpr: object in the stack was not an IrExpr");}
+    }
     /**
      * {@inheritDoc}
      *
@@ -924,7 +948,19 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArgString(DecafParser.ArgStringContext ctx) { }
+    @Override public void exitArgString(DecafParser.ArgStringContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // check to make sure that a string was provided
+        if (ctx.STRING() != null) {
+            String string = ctx.STRING().getText();
+
+            // create the IrArgString and add it to irStack
+            IrArgString irArgString = new IrArgString(string, l.line, l.col);
+            this.irStack.push(irArgString);
+        }
+        else { System.err.print("exitArgString: no string was found in ctx");}
+    }
     /**
      * {@inheritDoc}
      *
