@@ -772,7 +772,21 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitNotExpr(DecafParser.NotExprContext ctx) { }
+    @Override public void exitNotExpr(DecafParser.NotExprContext ctx) {
+        // pop the expression to be NOT-ed off the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
+
+            // ensure that the expression is of IrTypeBool
+            if (expr.getExpressionType() instanceof IrTypeBool) {
+
+                // create the NOT-ed expression and add to irStack
+                IrOperUnaryNot negatedExpr = new IrOperUnaryNot(expr);
+                this.irStack.push(negatedExpr);
+            }
+        }
+    }
     /**
      * {@inheritDoc}
      *
@@ -849,7 +863,22 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitNegateExpr(DecafParser.NegateExprContext ctx) { }
+    @Override public void exitNegateExpr(DecafParser.NegateExprContext ctx) {
+        // pop the expression to be negated off the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
+
+            // ensure that the expression is of IrTypeInt
+            if (expr.getExpressionType() instanceof IrTypeInt) {
+
+                // create the negated expression and add to irStack
+                IrOperUnaryNeg negatedExpr = new IrOperUnaryNeg(expr);
+                this.irStack.push(negatedExpr);
+            }
+
+        }
+    }
     /**
      * {@inheritDoc}
      *

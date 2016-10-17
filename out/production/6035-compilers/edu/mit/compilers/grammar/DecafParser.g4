@@ -107,7 +107,8 @@ statement :
     | RES_IF L_PAREN expr R_PAREN block (RES_ELSE block)? #IfStmt
     | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block #ForLoop
     | RES_WHILE L_PAREN expr R_PAREN block #WhileLoop
-    | RES_RETURN (expr)? SEMI_COL #ReturnStmt
+    | RES_RETURN expr SEMI_COL #ReturnExprStmt
+    | RES_RETURN SEMI_COL #ReturnVoidStmt
     | RES_BREAK SEMI_COL #BreakStmt
     | RES_CONTINUE SEMI_COL #ContinueStmt
     ;
@@ -158,7 +159,7 @@ expr :
     | NOT_OP expr #NotExpr
     | expr arith_op expr #ArithExpr
     | expr rel_op expr #RelExpr
-    | expr eq_op expr #EqateExpr
+    | expr eq_op expr #EquateExpr
     | expr cond_op expr #CondExpr
     | L_PAREN expr R_PAREN #ParenExpr
     ;
@@ -173,7 +174,9 @@ sizeof_call :
     ;
 
 extern_arg :
-    expr | STRING;
+    expr #ArgExpr
+    | STRING #ArgString
+    ;
 catch [RecognitionException ex] {
    System.out.println("Argument parsing failed");
    System.exit(1);
