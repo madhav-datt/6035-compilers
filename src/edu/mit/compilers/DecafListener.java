@@ -506,21 +506,35 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitReturnExprStmt(DecafParser.ReturnExprStmtContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) {
+    @Override public void exitReturnExprStmt(DecafParser.ReturnExprStmtContext ctx) {
+        // pop the expression from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr expr = (IrExpr) this.irStack.pop();
 
+            // create the IrStmtReturnExpr and push to irStack
+            IrStmtReturnExpr returnExpr = new IrStmtReturnExpr(expr);
+            this.irStack.push(returnExpr);
+        }
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) { }
+    @Override public void enterReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitReturnVoidStmt(DecafParser.ReturnVoidStmtContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+
+        // create the returnStmt and push it to  irStack
+        IrStmtReturnVoid returnVoid = new IrStmtReturnVoid(l.line, l.col);
+        this.irStack.push(returnVoid);
+    }
     /**
      * {@inheritDoc}
      *
