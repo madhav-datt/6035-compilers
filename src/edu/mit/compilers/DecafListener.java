@@ -520,7 +520,7 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrCodeBlock) {
             IrCodeBlock elseBody = (IrCodeBlock) this.irStack.pop();
 
-            // 2) grab the ifStmt from the stack
+            // 2) grab the ifStmt from the stack (which includes the if-stmt code block)
             topOfStack = this.irStack.peek();
             if (topOfStack instanceof IrCtrlFlowIf) {
                 IrCtrlFlowIf ifStmt = (IrCtrlFlowIf) this.irStack.pop();
@@ -532,6 +532,26 @@ public class DecafListener extends DecafParserBaseListener {
             else {System.err.print("exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf\n\n");}
         }
         else {System.err.print("exitIfAndElseStmt: top of stack is not a CodeBlock\n\n");}
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterElse_stmt(DecafParser.Else_stmtContext ctx) {
+        // 1) add an IrResWordElse to the stack (which is not an IrStatement)
+        // this will prevent the else block from swallowing the IrCtrlStmtIf
+        // that came first
+        // 2) create a new scope for the else block
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitElse_stmt(DecafParser.Else_stmtContext ctx) {
+        // 1) pop the IrResWordElse from the stack
+        // 2) delete the local scope for the else block
     }
     /**
      * {@inheritDoc}
@@ -1129,7 +1149,7 @@ public class DecafListener extends DecafParserBaseListener {
                 IrExpr lhsExpr = (IrExpr) this.irStack.pop();
 
                 // 3) make sure that both IrExpr are of the same IrType
-                if (rhsExpr.getExpressionType() == lhsExpr.getExpressionType()) {
+                if (rhsExpr.getExpressionType().getClass().equals(lhsExpr.getExpressionType().getClass())) {
 
                     // 4) determine the type of equality (!= or ==)
                     if (ctx.eq_op().EQ_OP() != null) {
@@ -1140,7 +1160,7 @@ public class DecafListener extends DecafParserBaseListener {
                         this.irStack.push(equalsEqualsExpr);
                     }
                     else if (ctx.eq_op().NEQ_OP() != null) {
-                        String notEquals = ctx.eq_op().EQ_OP().getText();
+                        String notEquals = ctx.eq_op().NEQ_OP().getText();
 
                         // 5) create the IrOperBinaryEq and add it irStack
                         IrOperBinaryEq notEqualsExpr = new IrOperBinaryEq(notEquals, lhsExpr, rhsExpr);

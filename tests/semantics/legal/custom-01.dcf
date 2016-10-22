@@ -1,11 +1,7 @@
-void foo ( int x ) {
-  bool b;
-  b = true;
-  while (b) {
-    int x;
-  }
-}
-
+// OK
 void main ( ) {
-  foo ( 10 );
+  if ( ( ( 1 > 2 ) == ( true == false ) ) && ( 3 != 2 ) ) {
+  }
+  else {
+  }
 }
