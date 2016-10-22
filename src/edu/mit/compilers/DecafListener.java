@@ -520,6 +520,89 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitForLoop(DecafParser.ForLoopContext ctx) {
+        // 1) pop the block
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrCodeBlock) {
+            IrCodeBlock forLoopBody = (IrCodeBlock) this.irStack.pop();
+
+            // 2) pop the incrementer IrExpr
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr incrementerExpr = (IrExpr) this.irStack.pop();
+
+                // 3) make sure the incrementer expr is of IrTypeInt
+                if (incrementerExpr.getExpressionType() instanceof IrTypeInt) {
+
+                    // 5) pop the var_location for the incrementer expr
+                    topOfStack = this.irStack.peek();
+                    if (topOfStack instanceof IrLocationVar) {
+                        IrLocationVar compoundAssignLocation = (IrLocationVar) this.irStack.pop();
+
+                        // 8) make sure the compoundAsignLocation is of type IrTypeInt
+                        if (compoundAssignLocation.getExpressionType() instanceof IrTypeInt) {
+
+                            // 9) pop the IrExpr for the loop condition
+                            topOfStack = this.irStack.peek();
+                            if (topOfStack instanceof IrExpr) {
+                                IrExpr conditionExpr = (IrExpr) this.irStack.pop();
+
+                                // 10) make sure the condition expr is of type IrTypeBool
+                                if (conditionExpr.getExpressionType() instanceof IrTypeBool) {
+
+                                    // 11) pop the start incrementer IrExpr from the stack
+                                    topOfStack = this.irStack.peek();
+                                    if (topOfStack instanceof IrExpr) {
+                                        IrExpr startingExpValue = (IrExpr) this.irStack.pop();
+
+                                        // 12) make sure start incrementer IrExpr is of IrTypeInt
+                                        if (startingExpValue.getExpressionType() instanceof IrTypeInt) {
+
+                                            // 13) pop the next var_location
+                                            topOfStack = this.irStack.peek();
+                                            if (topOfStack instanceof IrLocationVar) {
+                                                IrLocationVar regularAssignLocation = (IrLocationVar) this.irStack.pop();
+
+                                                // 15) make sure the regular assign expr is of type IrTypeInt
+                                                if (regularAssignLocation.getExpressionType() instanceof IrTypeInt) {
+
+                                                    // 16) determine the type of the compound_assign_op (+= or -=)
+                                                    if (ctx.compound_assign_op().SUB_AS_OP() != null) {
+                                                        IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(compoundAssignLocation, incrementerExpr);
+
+                                                        // 17) create the IrCtrlFlowFor and add it to the stack
+                                                        IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, minusEqual, conditionExpr, forLoopBody);
+                                                        this.irStack.push(forLoop);
+                                                    } else if (ctx.compound_assign_op().ADD_AS_OP() != null) {
+                                                        IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(compoundAssignLocation, incrementerExpr);
+
+                                                        // 17) create the IrCtrlFlowFor and add it to the stack
+                                                        IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, plusEqual, conditionExpr, forLoopBody);
+                                                        this.irStack.push(forLoop);
+                                                    }
+                                                    else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op");}
+                                                }
+                                                else {System.err.print("exitForLoop: problem with 1st assignment stmt; not IrTypeInt");}
+                                            }
+                                            else {System.err.print("exitForLoop: regular assignment var location");}
+                                        }
+                                        else {System.err.print("exitForLoop: incrementing expression not IrTypeInt");}
+                                    }
+                                    else {System.err.print("exitForLoop: starting incrementer expression not found on stack");}
+                                }
+                                else {System.err.print("exitForLoop: condition expr not IrTypeBool");}
+                            }
+                            else {System.err.print("exitForLoop: condition expr not found on stack");}
+                        }
+                        else {System.err.print("exitForLoop: compound assign expr not IrTypeInt");}
+                    }
+                    else {System.err.print("exitForLoop: var location for compound assign expr not found on stack");}
+                }
+                else {System.err.print("exitForLoop: compound assign incrementer epxr not IrTypeInt");}
+            }
+            else {System.err.print("exitForLoop: compound assign incrementer expr not found on stack");}
+        }
+        else {System.err.print("exitForLoop: for loop body not found on stack");}
+
         this.scopeStack.deleteCurrentScope();
     }
     /**
@@ -748,13 +831,13 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterVarLocation(DecafParser.VarLocationContext ctx) { }
+    @Override public void enterVar_location(DecafParser.Var_locationContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitVarLocation(DecafParser.VarLocationContext ctx) {
+    @Override public void exitVar_location(DecafParser.Var_locationContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
@@ -783,13 +866,13 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterArrayLocation(DecafParser.ArrayLocationContext ctx) { }
+    @Override public void enterArray_location(DecafParser.Array_locationContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArrayLocation(DecafParser.ArrayLocationContext ctx) {
+    @Override public void exitArray_location(DecafParser.Array_locationContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
         // get the expr from the stack
@@ -847,18 +930,6 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitRelExpr(DecafParser.RelExprContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterDummyLabel(DecafParser.DummyLabelContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitDummyLabel(DecafParser.DummyLabelContext ctx) { }
     /**
      * {@inheritDoc}
      *

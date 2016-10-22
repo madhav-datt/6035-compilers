@@ -106,7 +106,7 @@ statement :
     | method_call SEMI_COL #AnyMethodCall
     | if_stmt #IfOnlyStmt
     | if_stmt else_stmt #IfAndElseStmt
-    | RES_FOR L_PAREN ID AS_OP expr SEMI_COL expr SEMI_COL ID compound_assign_op expr R_PAREN block #ForLoop
+    | RES_FOR L_PAREN var_location AS_OP expr SEMI_COL expr SEMI_COL var_location compound_assign_op expr R_PAREN block #ForLoop
     | RES_WHILE L_PAREN expr R_PAREN block #WhileLoop
     | RES_RETURN expr SEMI_COL #ReturnExprStmt
     | RES_RETURN SEMI_COL #ReturnVoidStmt
@@ -151,22 +151,27 @@ catch [RecognitionException ex] {
 method_name : ID;
 
 location :
-    ID #VarLocation
-    | ID L_SQUARE expr R_SQUARE #ArrayLocation
+    var_location
+    | array_location
     ;
+
+var_location: ID;
+
+array_location: ID L_SQUARE expr R_SQUARE;
+
 
 expr :
     location #DummyLabel
+    | L_PAREN expr R_PAREN #ParenExpr
     | method_call #NonVoidMethodCall
-    | literal #DummyLabel
-    | sizeof_call #DummyLabel
-    | SUB_OP expr #NegateExpr
-    | NOT_OP expr #NotExpr
     | expr arith_op expr #ArithExpr
     | expr rel_op expr #RelExpr
     | expr eq_op expr #EquateExpr
     | expr cond_op expr #CondExpr
-    | L_PAREN expr R_PAREN #ParenExpr
+    | NOT_OP expr #NotExpr
+    | SUB_OP expr #NegateExpr
+    | literal #DummyLabel
+    | sizeof_call #DummyLabel
     ;
 catch [RecognitionException ex] {
    System.out.println("Expression parsing failed");
@@ -194,7 +199,11 @@ catch [RecognitionException ex] {
 //    arith_op | rel_op | eq_op | cond_op;
 
 arith_op :
-    ADD_OP | SUB_OP | MUL_OP | DIV_OP | MOD_OP;
+    DIV_OP
+    | MUL_OP
+    | ADD_OP
+    | SUB_OP
+    | MOD_OP;
 
 rel_op :
     LT_OP | GT_OP | LEQ_OP | GEQ_OP;
