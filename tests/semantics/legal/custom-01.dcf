@@ -1,7 +1,9 @@
 // OK
+int foo ( ) {
+  return 0;
+}
+bool bar ( bool foo ) {
+  return foo || false;
+}
 void main ( ) {
-  if ( ( ( 1 > 2 ) == ( true == false ) ) && ( 3 != 2 ) ) {
-  }
-  else {
-  }
 }

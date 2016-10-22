@@ -237,11 +237,11 @@ public class DecafListener extends DecafParserBaseListener {
                             "exitMethod_decl: duplicate method in same scope"
                     );
                 }
-                else {System.err.print("exitMethod_decl: error with IrType for methodType\n\n");}
+                else {System.err.print("exitMethod_decl: error with IrType for methodType\n");}
             }
-            else {System.err.print("exitMethod_decl: error with IrIdent for methodName\n\n");}
+            else {System.err.print("exitMethod_decl: error with IrIdent for methodName\n");}
         }
-        else {System.err.print("exitMethod_decl: error with IrCodeBlock for block\n\n");}
+        else {System.err.print("exitMethod_decl: error with IrCodeBlock for block\n");}
 
         // delete the current scope since we finished creating the method
         this.scopeStack.deleteCurrentScope();
@@ -273,7 +273,7 @@ public class DecafListener extends DecafParserBaseListener {
                     "exitParam_decl: duplicate parameter in same method signature"
             );
         }
-        else {System.err.print("exitParam_decl: error with IrTypeVar for paramType\n\n");}
+        else {System.err.print("exitParam_decl: error with IrTypeVar for paramType\n");}
     }
     /**
      * {@inheritDoc}
@@ -399,11 +399,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
                     this.irStack.push(minusEqual);
                 }
-                else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n\n");}
+                else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
             }
-            else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n\n");}
+            else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n");}
         }
-        else {System.err.print("exitAssignStmt: IrExpression missing from top of stack\n\n");}
+        else {System.err.print("exitAssignStmt: IrExpression missing from top of stack\n");}
     }
     /**
      * {@inheritDoc}
@@ -499,11 +499,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(ifCondition, ifBody);
                     this.irStack.push(ifStmt);
                 }
-                else {System.err.print("exitIf_stmt: ifStmt condition is not of type IrTypeBool\n\n");}
+                else {System.err.print("exitIf_stmt: ifStmt condition is not of type IrTypeBool\n");}
             }
-            else {System.err.print("exitIf_stmt: top of stack is not an IrExpr\n\n");}
+            else {System.err.print("exitIf_stmt: top of stack is not an IrExpr\n");}
         }
-        else {System.err.print("exitIf_stmt: top of stack is not a IrCodeBlock\n\n");}
+        else {System.err.print("exitIf_stmt: top of stack is not a IrCodeBlock\n");}
 
         // delete the current scope since we are done creating the If-Stmt
         this.scopeStack.deleteCurrentScope();
@@ -529,9 +529,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrCtrlFlowIfElse ifElseStmt = new IrCtrlFlowIfElse(ifStmt, elseBody);
                 this.irStack.push(ifElseStmt);
             }
-            else {System.err.print("exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf\n\n");}
+            else {System.err.print("exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf\n");}
         }
-        else {System.err.print("exitIfAndElseStmt: top of stack is not a CodeBlock\n\n");}
+        else {System.err.print("exitIfAndElseStmt: top of stack is not a CodeBlock\n");}
     }
     /**
      * {@inheritDoc}
@@ -541,8 +541,13 @@ public class DecafListener extends DecafParserBaseListener {
     @Override public void enterElse_stmt(DecafParser.Else_stmtContext ctx) {
         // 1) add an IrResWordElse to the stack (which is not an IrStatement)
         // this will prevent the else block from swallowing the IrCtrlStmtIf
-        // that came first
+        // that comes before the else stmt in an IrCtrlFlowIfElse
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrResWordElse resWorldElse = new IrResWordElse(l.line, l.col);
+        this.irStack.push(resWorldElse);
+
         // 2) create a new scope for the else block
+        this.scopeStack.createNewScope();
     }
     /**
      * {@inheritDoc}
@@ -550,8 +555,25 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitElse_stmt(DecafParser.Else_stmtContext ctx) {
-        // 1) pop the IrResWordElse from the stack
-        // 2) delete the local scope for the else block
+
+
+        // 1) top of stack will be the else body IrCodeBlock so pop this
+        if (this.irStack.peek() instanceof IrCodeBlock) {
+            IrCodeBlock elseBlock = (IrCodeBlock) this.irStack.pop();
+
+            // 2) top of stack should be the IrResWord so pop this next
+            if (this.irStack.peek() instanceof IrResWordElse) {
+                this.irStack.pop(); // just pop this we don't care about saving it
+
+                // 3) put the IrCodeBlock back on the stack
+                this.irStack.push(elseBlock);
+            }
+            else {System.err.print("exitElse_stmt: IrResWordElse not on top of stack\n");}
+        }
+        else {System.err.print("exitElse_stmt: else IrCodeBlock not on stack\n");}
+
+        // 4) delete the local scope for the else block
+        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
@@ -626,25 +648,25 @@ public class DecafListener extends DecafParserBaseListener {
                                                         IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, plusEqual, conditionExpr, forLoopBody);
                                                         this.irStack.push(forLoop);
                                                     }
-                                                    else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n\n");}
+                                                    else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n");}
                                                 }
-                                                else {System.err.print("exitForLoop: problem with 1st assignment stmt; not IrTypeInt\n\n");}
+                                                else {System.err.print("exitForLoop: problem with 1st assignment stmt; not IrTypeInt\n");}
                                             }
-                                            else {System.err.print("exitForLoop: regular assignment var location\n\n");}
+                                            else {System.err.print("exitForLoop: regular assignment var location\n");}
                                         }
-                                        else {System.err.print("exitForLoop: incrementing expression not IrTypeInt\n\n");}
+                                        else {System.err.print("exitForLoop: incrementing expression not IrTypeInt\n");}
                                     }
-                                    else {System.err.print("exitForLoop: starting incrementer expression not found on stack\n\n");}
+                                    else {System.err.print("exitForLoop: starting incrementer expression not found on stack\n");}
                                 }
-                                else {System.err.print("exitForLoop: condition expr not IrTypeBool\n\n");}
+                                else {System.err.print("exitForLoop: condition expr not IrTypeBool\n");}
                             }
-                            else {System.err.print("exitForLoop: condition expr not found on stack\n\n");}
+                            else {System.err.print("exitForLoop: condition expr not found on stack\n");}
                         }
-                        else {System.err.print("exitForLoop: compound assign expr not IrTypeInt\n\n");}
+                        else {System.err.print("exitForLoop: compound assign expr not IrTypeInt\n");}
                     }
-                    else {System.err.print("exitForLoop: var location for compound assign expr not found on stack\n\n");}
+                    else {System.err.print("exitForLoop: var location for compound assign expr not found on stack\n");}
                 }
-                else {System.err.print("exitForLoop: compound assign incrementer epxr not IrTypeInt\n\n");}
+                else {System.err.print("exitForLoop: compound assign incrementer epxr not IrTypeInt\n");}
             }
             else {System.err.print("exitForLoop: compound assign incrementer expr not found on stack\n");}
         }
@@ -818,8 +840,7 @@ public class DecafListener extends DecafParserBaseListener {
         if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
             Ir object = this.scopeStack.getSymbol(varName.getValue());
 
-            // make sure that the variable is actually a var and not
-            // a methodCall or an array
+            // make sure that the variable is var or a param (not a methodCall or an array)
             if (object instanceof IrFieldDeclVar) {
                 IrFieldDeclVar var = (IrFieldDeclVar) object;
 
@@ -830,7 +851,17 @@ public class DecafListener extends DecafParserBaseListener {
                 IrLocationVar loc = new IrLocationVar(varName, varType, l.line, l.col);
                 this.irStack.push(loc);
             }
-            else {System.err.print("enterVarLocation: location is not of type IrFieldDecl. Possible syntax error\n");}
+            else if (object instanceof IrParamDecl) {
+                IrParamDecl param = (IrParamDecl) object;
+
+                // now we get the type of the param
+                IrType paramType = param.getExpressionType();
+
+                // create the actual IrLocation now and add it to the stack
+                IrLocationVar loc = new IrLocationVar(varName, paramType, l.line, l.col);
+                this.irStack.push(loc);
+            }
+            else {System.err.print("enterVarLocation: location is not of type IrFieldDecl or IrParamDecl\n");}
         }
         else {System.err.print("enterVarLocation: location accessed without being in any scope\n");}
     }
