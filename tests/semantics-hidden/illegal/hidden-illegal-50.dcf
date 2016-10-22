@@ -1,0 +1,7 @@
+// 15. <expr> == <expr> must have type bool on both sides
+void x ( ) {
+}
+void main ( ) {
+  if ( x ( ) != x ( ) ) {
+  }
+}

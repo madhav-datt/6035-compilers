@@ -1,0 +1,8 @@
+// 12. <arith_op>s must have type int
+bool foo ( ) {
+  return true;
+}
+void main ( ) {
+  int i;
+  i = -foo ( );
+}

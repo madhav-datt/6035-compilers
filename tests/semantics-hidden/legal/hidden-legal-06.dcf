@@ -1,0 +1,10 @@
+// OK
+void main ( ) {
+  int x, y, z;
+  bool t, f;
+  t = 1 < 2;
+  f = 2 >= 1;
+  x = 1 + 2;
+  y = x - 3;
+  z = x * y;
+}

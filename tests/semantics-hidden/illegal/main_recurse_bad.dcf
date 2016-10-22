@@ -1,0 +1,6 @@
+// main can be recursive, but main returns type void.
+
+void main() {
+  int a;
+  a = main();
+}

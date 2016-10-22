@@ -1,0 +1,7 @@
+// 8. The expression in a return must have the same type as the
+// declared result type of the enclosing method definition.
+int foo ( ) {
+  return;
+}
+void main ( ) {
+}

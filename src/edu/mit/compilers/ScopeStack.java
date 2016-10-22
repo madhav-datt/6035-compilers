@@ -30,7 +30,8 @@ public class ScopeStack {
     }
     
     public boolean checkIfSymbolExistsAtCurrentScope(String id) {
-        return this.stack.peek().hashtable.contains(id);
+
+        return this.stack.peek().hashtable.containsKey(id);
     }
 
     public Ir getSymbol(String id) {

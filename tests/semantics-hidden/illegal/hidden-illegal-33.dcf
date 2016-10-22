@@ -1,0 +1,5 @@
+// Error 
+int i;
+void main ( ) {
+  i ( );
+}

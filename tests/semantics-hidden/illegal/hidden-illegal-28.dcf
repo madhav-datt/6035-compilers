@@ -1,0 +1,7 @@
+// 5. The number and types of arguments in a method call must be
+//    the same as the number and type of the formals.
+void test ( int x ) {
+}
+void main ( ) {
+  test ( );
+}

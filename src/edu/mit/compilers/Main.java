@@ -95,7 +95,7 @@ class Main {
             ParseTreeWalker walker = new ParseTreeWalker();
             DecafListener listener = new DecafListener();
             walker.walk(listener, tree);
-            Trees.inspect(tree, parser);
+//            Trees.inspect(tree, parser);
         }
         catch (IOException e) {
             System.out.println("There was an error:\n" + e);
@@ -104,7 +104,7 @@ class Main {
 
     public static void main(String[] args) {
 
-//        Main.testParserCode(args);
-        Main.testDecafListner();
+        Main.testParserCode(args);
+//        Main.testDecafListner();
     }
 }
