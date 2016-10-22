@@ -865,7 +865,60 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitRelExpr(DecafParser.RelExprContext ctx) { }
+    @Override public void exitRelExpr(DecafParser.RelExprContext ctx) {
+        // 1) pop the rhs from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr rhs = (IrExpr) this.irStack.pop();
+
+            // 2) pop the lhs from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr lhs = (IrExpr) this.irStack.pop();
+
+                // 3) make sure rhs and lhs are both type IrTypeInt
+                if (rhs.getExpressionType() instanceof IrTypeInt
+                        && lhs.getExpressionType() instanceof IrTypeInt) {
+
+                    // 4) get the type of RelExpr frm the stack
+                    if (ctx.rel_op().GEQ_OP() != null) {
+                        String greaterThanEqualTo = ctx.rel_op().GEQ_OP().getText();
+
+                        // 5) create the IrOperBinaryRel and add it irStack
+                        IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThanEqualTo, lhs, rhs);
+                        this.irStack.push(relExpr);
+                    }
+                    else if (ctx.rel_op().LEQ_OP() != null) {
+                        String lessThanEqualTo = ctx.rel_op().LEQ_OP().getText();
+
+                        // 5) create the IrOperBinaryRel and add it irStack
+                        IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThanEqualTo, lhs, rhs);
+                        this.irStack.push(relExpr);
+                    }
+                    else if (ctx.rel_op().LT_OP() != null) {
+                        String lessThan = ctx.rel_op().LT_OP().getText();
+
+                        // 5) create the IrOperBinaryRel and add it irStack
+                        IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThan, lhs, rhs);
+                        this.irStack.push(relExpr);
+
+                    }
+                    else if (ctx.rel_op().GT_OP() != null) {
+                        String greaterThan = ctx.rel_op().GT_OP().getText();
+
+                        // 5) create the IrOperBinaryRel and add it irStack
+                        IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThan, lhs, rhs);
+                        this.irStack.push(relExpr);
+
+                    }
+                    else {System.err.print("enterRelExpr: problem with determining exprType");}
+                }
+                else {System.err.print("enterRelExpr: rhs or lhs not IrTypeInt");}
+            }
+            else {System.err.print("enterRelExpr: lhs not on the stack");}
+        }
+        else {System.err.print("enterRelExpr: rhs not on the stack");}
+    }
     /**
      * {@inheritDoc}
      *
