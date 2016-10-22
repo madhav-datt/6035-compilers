@@ -16,4 +16,19 @@ public class IrMethodDecl extends IrMemberDecl {
     public List<IrParamDecl> getParamsList() {
         return new ArrayList<>(this.paramsList);
     }
+    public String generateCode(int n){
+        String assembly = "";
+        String methodName = this.getName() + ":\n";
+        assembly += methodName;
+        assembly += "enter $(8*2), $0 \n"; // what is 2?
+        String registers[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+        int m =  paramsList.size();
+        for(int i = 0; i < paramsList.size(); i++){
+            assembly += "mov " + registers[i] + ", " + (-8*(m-i)) +  " (%rbp) \n";
+        }
+        assembly +=  "... \n";//this.methodBody.generateCode();
+        assembly += "leave\nret\n";
+        return assembly;
+
+    }
 }
