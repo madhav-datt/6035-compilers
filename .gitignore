@@ -27,3 +27,4 @@ autogen/
 classes/
 dist/
 src/edu/mit/compilers/grammar/DecafScanner.tokens
+/.idea/
