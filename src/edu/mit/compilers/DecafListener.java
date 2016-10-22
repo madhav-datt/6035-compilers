@@ -4,7 +4,6 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
 import edu.mit.compilers.ir.*;
-import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -23,6 +22,16 @@ public class DecafListener extends DecafParserBaseListener {
     private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
         if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
             this.scopeStack.addObjectToCurrentScope(id, object);
+            this.irStack.push(object);
+        }
+        else {
+            System.err.print(errorMsg);
+        }
+    }
+
+    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
+            this.scopeStack.addSymbolToGlobalScope(id, object);
             this.irStack.push(object);
         }
         else {
@@ -222,7 +231,7 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
-                    declareInCurrentScopeOrReportDuplicateDecl(
+                    declareInGlobalScopeOrReportDuplicateDecl(
                             methodName.getValue(),
                             newMethod,
                             "exitMethod_decl: duplicate method in same scope"
@@ -395,6 +404,69 @@ public class DecafListener extends DecafParserBaseListener {
             else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n\n");}
         }
         else {System.err.print("exitAssignStmt: IrExpression missing from top of stack\n\n");}
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterAnyMethodCall(DecafParser.AnyMethodCallContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitAnyMethodCall(DecafParser.AnyMethodCallContext ctx) {
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        Ir topOfStack = this.irStack.peek();
+
+        // 1) get all of the extern_args from the stack
+        ArrayList<IrArg> argsList = new ArrayList<>();
+        while (topOfStack instanceof IrArg) {
+            IrArg externArg = (IrArg) this.irStack.pop();
+            argsList.add(0, externArg);
+            topOfStack = this.irStack.peek();
+        }
+
+        // 2) get the methodName (IrIdent)
+        if (topOfStack instanceof IrIdent) {
+            IrIdent methodName = (IrIdent) this.irStack.pop();
+
+            // 3) look up the method in scope to make sure it was declared
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
+
+                // a) determine if the method is an extern (or not)
+                Ir object = this.scopeStack.getSymbol(methodName.getValue());
+                if (object instanceof IrMethodDecl) {
+                    IrMethodDecl method = (IrMethodDecl) object;
+                    IrType returnType = method.getType();
+                    List<IrParamDecl> paramsList = method.getParamsList();
+
+                    // make sure the count and the types of the params and args match
+                    if (argsList.size() == paramsList.size()) {
+                        // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
+
+                        // create the actual IrMethodCallExpr and add it to the stack
+                        IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
+                        this.irStack.push(methodCall);
+                    }
+                    else {System.err.print("exitAnyMethodCall: number of IrParamDecls doesn't match number of passed IrArgs\n");}
+                }
+                else if (object instanceof IrExternDecl) {
+                    IrType returnType = new IrTypeInt(l.line, l.col);
+
+                    // we don't need to check whether the params are correct
+                    // for IrExternDecl (or the number of args)
+
+                    // create the actual IrMethodCallExpr and add it to the stack
+                    IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
+                    this.irStack.push(externMethodCall);
+                }
+                else {System.err.print("exitAnyMethodCall: error with instanceof for type of object in the stack\n");}
+            }
+            else {System.err.print("exitAnyMethodCall: method was not declared/ or is not in scopeStack\n");}
+        }
+        else {System.err.print("exitAnyMethodCall: ID for methodName is not in irStack\n");}
     }
     /**
      * {@inheritDoc}
@@ -689,57 +761,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitMethod_call(DecafParser.Method_callContext ctx) {
-        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-        Ir topOfStack = this.irStack.peek();
 
-        // 1) get all of the extern_args from the stack
-        ArrayList<IrArg> argsList = new ArrayList<>();
-        while (topOfStack instanceof IrArg) {
-            IrArg externArg = (IrArg) this.irStack.pop();
-            argsList.add(0, externArg);
-            topOfStack = this.irStack.peek();
-        }
-
-        // 2) get the methodName (IrIdent)
-        if (topOfStack instanceof IrIdent) {
-            IrIdent methodName = (IrIdent) topOfStack;
-
-            // 3) look up the method in scope to make sure it was declared
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
-
-                // a) determine if the method is an extern (or not)
-                Ir object = this.scopeStack.getSymbol(methodName.getValue());
-                if (object instanceof IrMethodDecl) {
-                    IrMethodDecl method = (IrMethodDecl) object;
-                    IrType returnType = method.getType();
-                    List<IrParamDecl> paramsList = method.getParamsList();
-
-                    // make sure the count and the types of the params and args match
-                    if (argsList.size() == paramsList.size()) {
-                        // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
-
-                        // create the actual IrMethodCall and add it to the stack
-                        IrMethodCall methodCall = new IrMethodCall(methodName, returnType, argsList);
-                        this.irStack.push(methodCall);
-                    }
-                    else {System.err.print("exitMethod_call: number of IrParamDecls doesn't match number of passed IrArgs\n");}
-                }
-                else if (object instanceof IrExternDecl) {
-                    IrExternDecl externMethod = (IrExternDecl) object;
-                    IrType returnType = new IrTypeInt(l.line, l.col);
-
-                    // we don't need to check whether the params are correct
-                    // for IrExternDecl (or the number of args)
-
-                    // create the actual IrMethodCall and add it to the stack
-                    IrMethodCall externMethodCall = new IrMethodCall(methodName, returnType, argsList);
-                    this.irStack.push(externMethodCall);
-                }
-                else {System.err.print("exitMethod_call: error with instanceof for type of object in the stack\n");}
-            }
-            else {System.err.print("exitMethod_call: method was not declared/ or is not in scopeStack\n");}
-        }
-        else {System.err.print("exitMethod_call: ID for methodName is not in irStack\n");}
     }
     /**
      * {@inheritDoc}
@@ -1028,22 +1050,61 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitNonVoidMethodCall(DecafParser.NonVoidMethodCallContext ctx) {
-        // 1) get the method from the stack (but DON'T pop it)
+        DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         Ir topOfStack = this.irStack.peek();
-        if (topOfStack instanceof IrMethodCall) {
-            IrMethodCall method = (IrMethodCall) topOfStack;
-            IrType methodType = method.getExpressionType();
 
-            // 2) make sure that its type is either IrTypeInt or IrTypeBool
-            if (methodType instanceof IrTypeBool || methodType instanceof IrTypeInt) {
-                // Good!
-            }
-            else {
-                // Uh oh!! Report an error
-                System.err.print("exitNonVoidMethodCall: there was a Void method where it shouldn't have been");
-            }
+        // 1) get all of the extern_args from the stack
+        ArrayList<IrArg> argsList = new ArrayList<>();
+        while (topOfStack instanceof IrArg) {
+            IrArg externArg = (IrArg) this.irStack.pop();
+            argsList.add(0, externArg);
+            topOfStack = this.irStack.peek();
         }
-        else {System.err.print("exitNonVoidMethodCall: no IrMethodCall on top of stack\n");}
+
+        // 2) get the methodName (IrIdent)
+        if (topOfStack instanceof IrIdent) {
+            IrIdent methodName = (IrIdent) this.irStack.pop();
+
+            // 3) look up the method in scope to make sure it was declared
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
+
+                // a) determine if the method is an extern (or not)
+                Ir object = this.scopeStack.getSymbol(methodName.getValue());
+                if (object instanceof IrMethodDecl) {
+                    IrMethodDecl method = (IrMethodDecl) object;
+                    IrType returnType = method.getType();
+
+                    // make sure method is not of IrTypeVoid
+                    if (!(returnType instanceof IrTypeVoid)) {
+                        List<IrParamDecl> paramsList = method.getParamsList();
+
+                        // make sure the count and the types of the params and args match
+                        if (argsList.size() == paramsList.size()) {
+                            // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
+
+                            // create the actual IrMethodCallExpr and add it to the stack
+                            IrMethodCallExpr methodCall = new IrMethodCallExpr(methodName, returnType, argsList);
+                            this.irStack.push(methodCall);
+                        }
+                        else {System.err.print("exitNonVoidMethodCall: number of IrParamDecls doesn't match number of passed IrArgs\n");}
+                    }
+                }
+                else if (object instanceof IrExternDecl) {
+                    IrType returnType = new IrTypeInt(l.line, l.col);
+
+                    // we don't need to check whether the params are correct
+                    // for IrExternDecl (or the number of args)
+                    // also all IrExtern's return ints so they are all valid IrExpr
+
+                    // create the actual IrMethodCallExpr and add it to the stack
+                    IrMethodCallExpr externMethodCall = new IrMethodCallExpr(methodName, returnType, argsList);
+                    this.irStack.push(externMethodCall);
+                }
+                else {System.err.print("exitNonVoidMethodCall: error with instanceof for type of object in the stack\n");}
+            }
+            else {System.err.print("exitNonVoidMethodCall: method was not declared/ or is not in scopeStack\n");}
+        }
+        else {System.err.print("exitNonVoidMethodCall: ID for methodName is not in irStack\n");}
     }
     /**
      * {@inheritDoc}

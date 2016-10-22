@@ -1,13 +1,16 @@
 package edu.mit.compilers.ir;
 
-import java.util.*;
+import java.util.List;
 
-public class IrMethodCall extends IrExpr{
+/**
+ * Created by devinmorgan on 10/22/16.
+ */
+public class IrMethodCallStmt extends IrStatement{
     private final IrIdent methodName;
     private final List<IrArg> argsList;
     private final IrType methodType;
 
-    public IrMethodCall(IrIdent methodName, IrType methodType, List<IrArg> argsList) {
+    public IrMethodCallStmt(IrIdent methodName, IrType methodType, List<IrArg> argsList) {
         super(methodName.getLineNumber(), methodName.getColNumber());
         this.methodName = methodName;
         this.argsList = argsList;
@@ -21,5 +24,4 @@ public class IrMethodCall extends IrExpr{
     public String toString(){
         return this.methodName + "(" +this.argsList.toString()+ ")";
     }
-
 }

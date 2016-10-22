@@ -30,8 +30,27 @@ public class ScopeStack {
     }
     
     public boolean checkIfSymbolExistsAtCurrentScope(String id) {
-
         return this.stack.peek().hashtable.containsKey(id);
+    }
+
+    public void addSymbolToGlobalScope(String id, Ir object) {
+        // get the parent-most (global) scope
+        SymbolTable globalScope = this.stack.peek();
+        while (globalScope.parentScope != null) {
+            globalScope = globalScope.parentScope;
+        }
+
+        globalScope.hashtable.put(id, object);
+    }
+
+    public boolean checkIfSymbolExistsInGlobalScope(String id) {
+        // get the parent-most (global) scope
+        SymbolTable globalScope = this.stack.peek();
+        while (globalScope.parentScope != null) {
+            globalScope = globalScope.parentScope;
+        }
+
+        return globalScope.hashtable.containsKey(id);
     }
 
     public Ir getSymbol(String id) {
