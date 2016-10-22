@@ -899,7 +899,10 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterParenExpr(DecafParser.ParenExprContext ctx) { }
+    @Override public void enterParenExpr(DecafParser.ParenExprContext ctx) {
+        // TODO: fix for to correctly follow order of operations
+        // do nothing for right now
+    }
     /**
      * {@inheritDoc}
      *
@@ -994,7 +997,44 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCondExpr(DecafParser.CondExprContext ctx) { }
+    @Override public void exitCondExpr(DecafParser.CondExprContext ctx) {
+        // 1) pop the rhs from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr rhs = (IrExpr) this.irStack.pop();
+
+            // 2) pop the lhs from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr lhs = (IrExpr) this.irStack.pop();
+
+                // 3) make sure rhs and lhs are both type IrTypeBool
+                if (rhs.getExpressionType() instanceof IrTypeBool
+                        && lhs.getExpressionType() instanceof IrTypeBool) {
+
+                    // 4) get the type of CondExpr frm the stack
+                    if (ctx.cond_op().AND_OP() != null) {
+                        String exprType = ctx.cond_op().AND_OP().getText();
+
+                        // 5) create the IrOperBinaryCond expr and push to irstack
+                        IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
+                        this.irStack.push(condExpr);
+                    }
+                    else if (ctx.cond_op().OR_OP() != null) {
+                        String exprType = ctx.cond_op().OR_OP().getText();
+
+                        // 5) create the IrOperBinaryCond expr and push to irstack
+                        IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
+                        this.irStack.push(condExpr);
+                    }
+                    else {System.err.print("exitCondExpr: problem with determining exprType");}
+                }
+                else {System.err.print("exitCondExpr: rhs or lhs not IrTypeBool");}
+            }
+            else {System.err.print("exitCondExpr: lhs not on the stack");}
+        }
+        else {System.err.print("exitCondExpr: rhs not on the stack");}
+    }
     /**
      * {@inheritDoc}
      *
