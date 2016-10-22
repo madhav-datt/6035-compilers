@@ -406,25 +406,6 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAnyMethodCall(DecafParser.AnyMethodCallContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitAnyMethodCall(DecafParser.AnyMethodCallContext ctx) {
-
-    }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override public void enterIf_stmt(DecafParser.If_stmtContext ctx) {
         this.scopeStack.createNewScope();
     }
@@ -460,27 +441,6 @@ public class DecafListener extends DecafParserBaseListener {
         // delete the current scope since we are done creating the If-Stmt
         this.scopeStack.deleteCurrentScope();
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterElse_stmt(DecafParser.Else_stmtContext ctx) {
-        this.scopeStack.createNewScope();
-    }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitElse_stmt(DecafParser.Else_stmtContext ctx) {
-        this.scopeStack.deleteCurrentScope();
-    }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override public void enterIfAndElseStmt(DecafParser.IfAndElseStmtContext ctx) { }
     /**
      * {@inheritDoc}
@@ -722,30 +682,6 @@ public class DecafListener extends DecafParserBaseListener {
         IrStmtContinue continueStmt = new IrStmtContinue(l.line, l.col);
         this.irStack.push(continueStmt);
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterAssign_op(DecafParser.Assign_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitAssign_op(DecafParser.Assign_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCompound_assign_op(DecafParser.Compound_assign_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCompound_assign_op(DecafParser.Compound_assign_opContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -1198,54 +1134,6 @@ public class DecafListener extends DecafParserBaseListener {
         }
         else { System.err.print("exitArgString: no string was found in ctx");}
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterArith_op(DecafParser.Arith_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitArith_op(DecafParser.Arith_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterRel_op(DecafParser.Rel_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitRel_op(DecafParser.Rel_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterEq_op(DecafParser.Eq_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitEq_op(DecafParser.Eq_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCond_op(DecafParser.Cond_opContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCond_op(DecafParser.Cond_opContext ctx) { }
     /**
      * {@inheritDoc}
      *
