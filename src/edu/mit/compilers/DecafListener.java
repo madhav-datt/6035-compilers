@@ -853,7 +853,67 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArithExpr(DecafParser.ArithExprContext ctx) { }
+    @Override public void exitArithExpr(DecafParser.ArithExprContext ctx) {
+        // TODO: Fix for order of operations
+
+        // 1) pop the rhs from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr rhs = (IrExpr) this.irStack.pop();
+
+            // 2) pop the lhs from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr lhs = (IrExpr) this.irStack.pop();
+
+                // 3) make sure rhs and lhs are both type IrTypeInt
+                if (rhs.getExpressionType() instanceof IrTypeInt
+                        && lhs.getExpressionType() instanceof IrTypeInt) {
+
+                    // 4) get the type of ArithExpr frm the stack
+                    if (ctx.arith_op().ADD_OP() != null) {
+                        String addition = ctx.arith_op().ADD_OP().getText();
+
+                        // 5) create the IrOperBinaryArith and add it irStack
+                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(addition, lhs, rhs);
+                        this.irStack.push(arithExpr);
+                    }
+                    else if (ctx.arith_op().SUB_OP() != null) {
+                        String subtraction = ctx.arith_op().SUB_OP().getText();
+
+                        // 5) create the IrOperBinaryArith and add it irStack
+                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(subtraction, lhs, rhs);
+                        this.irStack.push(arithExpr);
+                    }
+                    else if (ctx.arith_op().DIV_OP() != null) {
+                        String division = ctx.arith_op().DIV_OP().getText();
+
+                        // 5) create the IrOperBinaryArith and add it irStack
+                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(division, lhs, rhs);
+                        this.irStack.push(arithExpr);
+                    }
+                    else if (ctx.arith_op().MUL_OP() != null) {
+                        String multiplication = ctx.arith_op().MUL_OP().getText();
+
+                        // 5) create the IrOperBinaryArith and add it irStack
+                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(multiplication, lhs, rhs);
+                        this.irStack.push(arithExpr);
+                    }
+                    else if (ctx.arith_op().MOD_OP() != null) {
+                        String modulus = ctx.arith_op().MOD_OP().getText();
+
+                        // 5) create the IrOperBinaryArith and add it irStack
+                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
+                        this.irStack.push(arithExpr);
+                    }
+                    else {System.err.print("exitArithExpr: problem with determining exprType");}
+                }
+                else {System.err.print("exitArithExpr: rhs or lhs not IrTypeInt");}
+            }
+            else {System.err.print("exitArithExpr: lhs not on the stack");}
+        }
+        else {System.err.print("exitArithExpr: rhs not on the stack");}
+    }
     /**
      * {@inheritDoc}
      *
@@ -866,6 +926,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitRelExpr(DecafParser.RelExprContext ctx) {
+        // TODO: Fix for order of operations
         // 1) pop the rhs from the stack
         Ir topOfStack = this.irStack.peek();
         if (topOfStack instanceof IrExpr) {
@@ -901,7 +962,6 @@ public class DecafListener extends DecafParserBaseListener {
                         // 5) create the IrOperBinaryRel and add it irStack
                         IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThan, lhs, rhs);
                         this.irStack.push(relExpr);
-
                     }
                     else if (ctx.rel_op().GT_OP() != null) {
                         String greaterThan = ctx.rel_op().GT_OP().getText();
@@ -909,7 +969,6 @@ public class DecafListener extends DecafParserBaseListener {
                         // 5) create the IrOperBinaryRel and add it irStack
                         IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThan, lhs, rhs);
                         this.irStack.push(relExpr);
-
                     }
                     else {System.err.print("enterRelExpr: problem with determining exprType");}
                 }
@@ -953,7 +1012,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterParenExpr(DecafParser.ParenExprContext ctx) {
-        // TODO: fix for to correctly follow order of operations
+        // TODO: Fix for order of operations
         // do nothing for right now
     }
     /**
@@ -1051,6 +1110,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitCondExpr(DecafParser.CondExprContext ctx) {
+        // TODO: Fix for order of operations
         // 1) pop the rhs from the stack
         Ir topOfStack = this.irStack.peek();
         if (topOfStack instanceof IrExpr) {
