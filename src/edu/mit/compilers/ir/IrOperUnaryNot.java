@@ -10,6 +10,6 @@ public class IrOperUnaryNot extends IrOperUnary{
 
     @Override
     public IrType getExpressionType() {
-        return new IrTypeInt(this.operand.getLineNumber(), this.operand.getColNumber());
+        return new IrTypeBool(this.operand.getLineNumber(), this.operand.getColNumber());
     }
 }
