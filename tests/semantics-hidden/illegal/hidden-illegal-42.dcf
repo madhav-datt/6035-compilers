@@ -1,0 +1,10 @@
+// 8. The expression in a return must have the same type as the declared
+// result type of the enclosing method definition.
+bool bar ( ) {
+  return false;
+}
+int foo ( ) {
+  return bar ( );
+}
+void main ( ) {
+}

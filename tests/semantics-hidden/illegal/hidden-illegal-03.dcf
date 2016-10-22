@@ -1,0 +1,5 @@
+// 15. character literals have int type
+void main ( ) {
+  bool b;
+  b = 'b';
+}

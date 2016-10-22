@@ -1,0 +1,6 @@
+extern printf();
+
+void main() {
+  int a;
+  a = printf(a, printf(a, printf()));
+}

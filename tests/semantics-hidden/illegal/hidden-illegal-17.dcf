@@ -1,0 +1,8 @@
+extern getpid();
+// 14. The <location> and <expr> in an assignment, <location> = <expr>, 
+// and externs must be declared.
+void main ( ) {
+  bool b;
+  b = getpida ( );
+  // Error: externs must be declared
+}

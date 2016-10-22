@@ -1,0 +1,10 @@
+void foo ( int x ) {
+  bool b;
+  b = true;
+  while (b) {
+    int x;
+  }
+}
+void main ( ) {
+  foo ( 10 );
+}
