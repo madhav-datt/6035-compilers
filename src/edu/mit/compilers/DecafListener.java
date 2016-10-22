@@ -887,7 +887,6 @@ public class DecafListener extends DecafParserBaseListener {
             // make sure the expr is of type IrTypeInt so
             // that we can use it as an element index
             if (expr.getExpressionType() instanceof IrTypeInt) {
-                IrTypeInt varType = (IrTypeInt) expr.getExpressionType();
 
                 // look up the the variable to make sure it was declared
                 IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
@@ -897,9 +896,10 @@ public class DecafListener extends DecafParserBaseListener {
                     // check to make sure that the variable is an array
                     if (object instanceof IrFieldDeclArray) {
                         IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) object;
+                        IrType arrayType = fieldDeclArray.getType();
 
                         // create the actual IrLocationArray and add it to irStack
-                        IrLocationArray locOfArray = new IrLocationArray(expr, varName, varType, l.line, l.col);
+                        IrLocationArray locOfArray = new IrLocationArray(expr, varName, arrayType, l.line, l.col);
                         this.irStack.push(locOfArray);
                     }
                     else {System.err.print("exitArrayLocation: object in scope is not an IrFieldDeclArray\n");}
@@ -1410,9 +1410,26 @@ public class DecafListener extends DecafParserBaseListener {
 
         // 1) check which type of literal it is
         if (ctx.INT() != null) {
-            int intValue = Integer.parseInt(ctx.INT().getText());
-            IrLiteralInt intLiteral = new IrLiteralInt(intValue, l.line, l.col);
-            this.irStack.push(intLiteral);
+            String intString = ctx.INT().getText();
+
+            // remove the suffix "ll" if it exists
+            if (intString.contains("ll")) {
+                intString = intString.substring(0, intString.length()-2);
+            }
+
+            // for 0x "hex" ints
+            if (intString.contains("0x")) {
+                intString = intString.substring(2);
+                long hexInt = Long.parseLong(intString, 16);
+                IrLiteralInt intLiteral = new IrLiteralInt(hexInt, l.line, l.col);
+                this.irStack.push(intLiteral);
+            }
+            // for decimal ints
+            else {
+                long decimalInt = Long.parseLong(intString);
+                IrLiteralInt intLiteral = new IrLiteralInt(decimalInt, l.line, l.col);
+                this.irStack.push(intLiteral);
+            }
         }
         else if (ctx.BOOL() != null) {
             boolean boolValue = Boolean.parseBoolean(ctx.BOOL().getText());

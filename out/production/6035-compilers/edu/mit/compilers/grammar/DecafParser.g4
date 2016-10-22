@@ -215,4 +215,4 @@ cond_op :
     AND_OP | OR_OP;
 
 literal :
-    INT | CHAR | BOOL;
+    INT | CHAR | BOOL | HEX_INT;
