@@ -65,8 +65,7 @@ class Main {
                         scanner.skip(); // replaces
                     }
                 }
-            } else if (CLI.target == Action.PARSE ||
-                    CLI.target == Action.DEFAULT) {
+            } else if (CLI.target == Action.PARSE) {
                 DecafScanner scanner =
                         new DecafScanner(new ANTLRInputStream(inputStream));
                 CommonTokenStream tokenStream = new CommonTokenStream(scanner); // added for Antlr4
@@ -77,6 +76,17 @@ class Main {
                 if (parser.getNumberOfSyntaxErrors() > 0) {
                     System.exit(1);
                 }
+            } else if (CLI.target == Action.INTER ||
+                    CLI.target == Action.DEFAULT) {
+
+                DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//                Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
             // print the error:
@@ -84,27 +94,7 @@ class Main {
         }
     }
 
-    public static void testDecafListner() {
-        String prefix = "/Users/devinmorgan/Documents/Java_Workspace_6035/6035-compilers/tests/semantics/";
-        try {
-            CharStream stream = new ANTLRFileStream(prefix + "legal/custom-01.dcf");
-            DecafScanner lexer = new DecafScanner(stream);
-            TokenStream tokens = new CommonTokenStream(lexer);
-            DecafParser parser = new DecafParser(tokens);
-            ParseTree tree = parser.program();
-            ParseTreeWalker walker = new ParseTreeWalker();
-            DecafListener listener = new DecafListener();
-            walker.walk(listener, tree);
-//            Trees.inspect(tree, parser);
-        }
-        catch (IOException e) {
-            System.out.println("There was an error:\n" + e);
-        }
-    }
-
     public static void main(String[] args) {
-
-//        Main.testParserCode(args);
-        Main.testDecafListner();
+        Main.testParserCode(args);
     }
 }
