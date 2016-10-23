@@ -19,12 +19,16 @@ public class IrCodeBlock extends Ir {
         String errorMessage = "";
 
         // 1) check that no identifiers declared twice in same scope
-        HashMap<String, Ir> fieldsHashMap = new HashMap<>();
+        HashMap<String, IrFieldDecl> fieldsHashMap = new HashMap<>();
         for (IrFieldDecl fieldDecl: this.fieldsList) {
             if (fieldsHashMap.containsKey(fieldDecl.getName())) {
                 errorMessage += "Duplicate declaration in same scope __filename__"+
                         " line: "+fieldDecl.getLineNumber() + " col: " +fieldDecl.getColNumber() + "\n";
             }
+            fieldsHashMap.put(fieldDecl.getName(), fieldDecl);
+
+            // make sure each IrFieldDecl is correct
+            errorMessage += fieldDecl.semanticCheck();
         }
 
         // 2) check that each statement is valid
