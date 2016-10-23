@@ -749,9 +749,7 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitMethod_call(DecafParser.Method_callContext ctx) {
-
-    }
+    @Override public void exitMethod_call(DecafParser.Method_callContext ctx) { }
     /**
      * {@inheritDoc}
      *
