@@ -25,13 +25,13 @@ public class IrLocationArray extends IrLocation {
         // 1) make sure the array has been declared already
         if (!scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
             errorMessage += "Array variable used before declared" +
-                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber();
+                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
         }
 
         // 2) make sure that the IrExpr offset is an IrTypeInt
         if (!(elementIndex.getExpressionType() instanceof IrTypeInt)) {
             errorMessage += "Element offset must of type int" +
-                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber();
+                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
         }
 
         return errorMessage;
