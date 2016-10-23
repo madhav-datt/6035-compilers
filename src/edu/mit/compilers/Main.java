@@ -85,9 +85,8 @@ class Main {
         }
     }
 
-    public static void testDecafListner() {
-        String prefix = "./tests/semantics-hidden/illegal/"; //./tests/semantics/
-        File dir = new File(prefix);
+    private static void runFilesInDirectory(String dirPath) {
+        File dir = new File(dirPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File child : directoryListing) {
@@ -112,25 +111,54 @@ class Main {
                         ParseTreeWalker walker = new ParseTreeWalker();
                         DecafListener listener = new DecafListener();
                         walker.walk(listener, tree);
-//            Trees.inspect(tree, parser);
                     }
                     catch (IOException e) {
                         System.out.println("There was an error:\n" + e);
                     }
                 }
             }
-        } else {
-            // Handle the case where dir is not really a directory.
-            // Checking dir.isDirectory() above would not be sufficient
-            // to avoid race conditions with another process that deletes
-            // directories.
+        }
+    }
+
+    private static void runFile(String filePath) {
+        // get the fileExtension
+        String fileExtension = "none";
+        int i = filePath.lastIndexOf('.');
+        if (i > 0) {
+            fileExtension = filePath.substring(i+1);
         }
 
+        // run the test in the file
+        if (fileExtension.equals("dcf")) {
+            try {
+                System.out.println("\n\n" + filePath);
+                CharStream stream = new ANTLRFileStream(filePath);
+                DecafScanner lexer = new DecafScanner(stream);
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//            Trees.inspect(tree, parser);
+            }
+            catch (IOException e) {
+                System.out.println("There was an error:\n" + e);
+            }
+        }
     }
 
     public static void main(String[] args) {
+//        // test the parser
+//        testParserCode(args);
 
-//        Main.testParserCode(args);
-        Main.testDecafListner();
+//        // all tests
+//        String legalTests = "./tests/semantics-hidden/legal/";
+//        String illegalTests = "./tests/semantics-hidden/illegal/";
+//        Main.runFilesInDirectory(legalTests);
+//        Main.runFilesInDirectory(illegalTests);
+
+        String customTest = "./tests/semantics/legal/custom-01.dcf";
+        Main.runFile(customTest);
     }
 }

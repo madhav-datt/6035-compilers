@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 public class IrLiteralInt extends IrLiteral {
     private final long value;
 
@@ -11,5 +13,10 @@ public class IrLiteralInt extends IrLiteral {
     @Override
     public IrType getExpressionType() {
         return new IrTypeInt(this.getLineNumber(), this.getColNumber());
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        return "";
     }
 }

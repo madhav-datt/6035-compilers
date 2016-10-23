@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 public class IrLiteralChar extends IrLiteral {
     private final char value;
 
@@ -13,5 +15,10 @@ public class IrLiteralChar extends IrLiteral {
         // it's definitely not of type void but it
         // is also not of type int or type bool
         return new IrTypeVoid(this.getLineNumber(), this.getColNumber());
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        return "";
     }
 }

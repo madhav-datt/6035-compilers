@@ -77,6 +77,9 @@ public class DecafListener extends DecafParserBaseListener {
 
         // delete the global stack since we have created the program
         this.scopeStack.deleteCurrentScope();
+
+        // check the semantics of the final program
+        System.err.println(wholeProgram.semanticCheck(new ScopeStack()));
     }
     /**
      * {@inheritDoc}

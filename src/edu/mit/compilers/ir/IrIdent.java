@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 public class IrIdent extends Ir {
 
     private final String name;
@@ -11,5 +13,10 @@ public class IrIdent extends Ir {
 
     public String getValue(){
         return this.name;
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        return "";
     }
 }
