@@ -650,14 +650,9 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr whileCondition = (IrExpr) this.irStack.pop();
 
-                // 3) make sure expr is of type bool
-                if (whileCondition.getExpressionType() instanceof IrTypeBool) {
-
-                    // 4) create the IrCtrlFlowWhile and add it to irStack
-                    IrCtrlFlowWhile whileStmt = new IrCtrlFlowWhile(whileCondition, whileBody);
-                    this.irStack.push(whileStmt);
-                }
-                else {System.err.print("exitWhileLoop: whileStmt condition is not of type IrTypeBool\n");}
+                // 4) create the IrCtrlFlowWhile and add it to irStack
+                IrCtrlFlowWhile whileStmt = new IrCtrlFlowWhile(whileCondition, whileBody);
+                this.irStack.push(whileStmt);
             }
             else {System.err.print("exitWhileLoop: top of stack is not an IrExpr\n");}
         }
