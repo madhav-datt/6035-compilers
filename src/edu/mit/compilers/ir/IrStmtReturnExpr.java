@@ -20,6 +20,24 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
-        return "";
+        String errorMessage = "";
+
+        // 1) check to make sure that the IrStmtReturn exists within a method
+        IrType methodType = scopeStack.getScopeReturnType();
+        if (methodType != null) {
+
+            // 2) check if method signature and return type match
+            if (!methodType.getClass().equals(this.getExpressionType().getClass())) {
+                errorMessage += "Return type does not match method return type"+
+                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+            }
+        }
+        else {
+            // we are not in a method so we should not have an IrStmtReturnExpr
+            errorMessage += "Return statements can only have a value in non-void methods."+
+                    " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+        }
+
+        return errorMessage;
     }
 }

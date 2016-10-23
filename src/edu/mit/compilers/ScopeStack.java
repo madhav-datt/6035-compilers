@@ -1,6 +1,7 @@
 package edu.mit.compilers;
 
 import edu.mit.compilers.ir.Ir;
+import edu.mit.compilers.ir.IrType;
 
 import java.util.Hashtable;
 import java.util.Stack;
@@ -70,7 +71,7 @@ public class ScopeStack {
         return null;
     }
 
-    public SymbolTable createNewScope() {
+    public SymbolTable createNewBlockScope() {
         // start the ScopeStack out with a Global Scope
         if (this.stack.size() == 0) {
             ScopeStack.SymbolTable globalScope = this.new SymbolTable();
@@ -86,9 +87,27 @@ public class ScopeStack {
         }
     }
 
+    public SymbolTable createNewMethodScope(IrType methodType) {
+        ScopeStack.SymbolTable parentScope = this.stack.peek();
+        ScopeStack.SymbolTable newScope = this.new SymbolTable(parentScope, methodType);
+        this.stack.push(newScope);
+        return newScope;
+    }
+
+    public IrType getScopeReturnType() {
+        for (SymbolTable e = this.stack.peek(); e != null; e = e.parentScope) {
+            IrType methodType = e.scopeReturnType;
+            if (methodType != null) {
+                return methodType;
+            }
+        }
+        return null;
+    }
+
     class SymbolTable {
         protected Hashtable<String, Ir> hashtable;
         protected SymbolTable parentScope;
+        protected IrType scopeReturnType;
 
         protected SymbolTable(){
             this.hashtable = new Hashtable<String, Ir>();
@@ -100,6 +119,11 @@ public class ScopeStack {
             this.parentScope = parentScope;
         }
 
+        protected SymbolTable(SymbolTable parentScope, IrType scopeReturnType) {
+            this.hashtable = new Hashtable<String, Ir>();
+            this.parentScope = parentScope;
+            this.scopeReturnType = scopeReturnType;
+        }
     }
 
 }

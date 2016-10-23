@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 /**
  * Created by devinmorgan on 10/5/16.
  */
@@ -12,5 +14,12 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         super(condExpr, stmtBody);
         this.counter = counter;
         this.compoundAssignStmt = updateCounterStmt;
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        String errorMessage = "";
+
+        // 1) check for a return statment and that
     }
 }

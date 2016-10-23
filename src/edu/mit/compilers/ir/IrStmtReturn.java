@@ -9,4 +9,5 @@ public abstract class IrStmtReturn extends IrStatement {
     }
 
     public abstract IrType getExpressionType();
+
 }

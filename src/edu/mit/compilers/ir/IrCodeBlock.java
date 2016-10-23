@@ -39,15 +39,4 @@ public class IrCodeBlock extends Ir {
 
         return errorMessage;
     }
-
-    public IrStmtReturn getReturnStatment() {
-
-        for (IrStatement stmt: this.stmtsList) {
-            if (stmt instanceof IrStmtReturn) {
-                return (IrStmtReturn) stmt;
-            }
-        }
-
-        return null;
-    }
 }

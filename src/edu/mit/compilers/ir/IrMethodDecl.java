@@ -23,8 +23,8 @@ public class IrMethodDecl extends IrMemberDecl {
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
-        // give method has a new local scope (which includes the method's parameters)
-        scopeStack.createNewScope();
+        // give method has a new method scope with method returnType
+        scopeStack.createNewMethodScope(this.getType());
 
         // check the params before the code block
         for (IrParamDecl paramDecl: this.paramsList) {
@@ -42,26 +42,6 @@ public class IrMethodDecl extends IrMemberDecl {
 
         // 3) check that the codeBlock is valid
         errorMessage += this.methodBody.semanticCheck(scopeStack);
-
-        // 4) verify that method signature and return types match
-        if (this.getType() instanceof IrTypeVoid) {
-            IrStmtReturn returnStmt = this.methodBody.getReturnStatment();
-
-            // if the method is void it must return void or have no return stmt
-            if (returnStmt != null && !(returnStmt.getExpressionType() instanceof IrTypeVoid)) {
-                errorMessage += "Non-void return statement in void method"+
-                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
-            }
-        }
-        else {
-            IrStmtReturn returnStmt = this.methodBody.getReturnStatment();
-
-            // IrStmtReturn must match the IrType of methodDecl if non-void
-            if (!returnStmt.getExpressionType().getClass().equals(this.getType().getClass())) {
-                errorMessage += "Method type and return type do not match"+
-                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
-            }
-        }
 
         return errorMessage;
     }

@@ -11,12 +11,24 @@ public class IrStmtReturnVoid extends IrStmtReturn {
     }
 
     @Override
-    public String semanticCheck(ScopeStack scopeStack) {
-        return "";
+    public IrType getExpressionType() {
+        return new IrTypeVoid(this.getLineNumber(), this.getColNumber());
     }
 
     @Override
-    public IrType getExpressionType() {
-        return new IrTypeVoid(this.getLineNumber(), this.getColNumber());
+    public String semanticCheck(ScopeStack scopeStack) {
+        String errorMessage = "";
+
+        // 1) check to make sure that the IrStmtReturn exists within a non-void method
+        IrType methodType = scopeStack.getScopeReturnType();
+        if (methodType != null) {
+
+            if (!(methodType instanceof IrTypeVoid)) {
+                errorMessage += "Returning void in a non-void method"+
+                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+            }
+        }
+
+        return errorMessage;
     }
 }

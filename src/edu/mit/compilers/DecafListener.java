@@ -41,7 +41,7 @@ public class DecafListener extends DecafParserBaseListener {
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
         // creates the global scope
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
@@ -200,7 +200,7 @@ public class DecafListener extends DecafParserBaseListener {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
 
         // create a new scope for the method_decl
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
 
         // push the IrIdent onto the stack
         IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
@@ -495,7 +495,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterIf_stmt(DecafParser.If_stmtContext ctx) {
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
@@ -568,7 +568,7 @@ public class DecafListener extends DecafParserBaseListener {
         this.irStack.push(resWorldElse);
 
         // 2) create a new scope for the else block
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
@@ -602,7 +602,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterForLoop(DecafParser.ForLoopContext ctx) {
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
@@ -701,7 +701,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) {
-        this.scopeStack.createNewScope();
+        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
