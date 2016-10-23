@@ -17,27 +17,27 @@ import java.util.Stack;
 
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
-    private ScopeStack scopeStack = new ScopeStack();
+//    private ScopeStack scopeStack = new ScopeStack();
 
-    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
-            this.scopeStack.addObjectToCurrentScope(id, object);
-            this.irStack.push(object);
-        }
-        else {
-            System.err.print(errorMsg);
-        }
-    }
+//    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+//        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
+//            this.scopeStack.addObjectToCurrentScope(id, object);
+//            this.irStack.push(object);
+//        }
+//        else {
+//            System.err.print(errorMsg);
+//        }
+//    }
 
-    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
-            this.scopeStack.addSymbolToGlobalScope(id, object);
-            this.irStack.push(object);
-        }
-        else {
-            System.err.print(errorMsg);
-        }
-    }
+//    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+//        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
+//            this.scopeStack.addSymbolToGlobalScope(id, object);
+//            this.irStack.push(object);
+//        }
+//        else {
+//            System.err.print(errorMsg);
+//        }
+//    }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
         // creates the global scope
@@ -388,41 +388,26 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrLocation) {
                 IrLocation loc = (IrLocation) this.irStack.pop();
 
-                // 3) check to that the IrType of the location and the IrExpr match before assignment
-                if (expr.getExpressionType().getClass().equals(loc.getExpressionType().getClass())) {
+                // 4) determine the assignment operator then
+                if (ctx.assign_op().AS_OP() != null) { // location = expr
 
-                    // 4) determine the assignment operator then
-                    if (ctx.assign_op().AS_OP() != null) { // location = expr
-
-                        // 5) create the IrAssignStmt and add it to the stack
-                        IrAssignStmt assignStmt = new IrAssignStmtEqual(loc, expr);
-                        this.irStack.push(assignStmt);
-                    }
-                    else if (ctx.assign_op().compound_assign_op().ADD_AS_OP() != null) { // location += expr
-
-                        // 5) for compound assing ops, make sure they are of type IrTypeInt
-                        if (expr.getExpressionType() instanceof  IrTypeInt) {
-
-                            // 6) create the IrAssignStmt and add it to the stack
-                            IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(loc, expr);
-                            this.irStack.push(plusEqual);
-                        }
-                        else {System.err.print("exitAssignStmt: must be IrTypeInt in compound assign stmts\n");}
-                    }
-                    else if (ctx.assign_op().compound_assign_op().SUB_AS_OP() != null) { // location -= expr
-
-                        // 5) for compound assing ops, make sure they are of type IrTypeInt
-                        if (expr.getExpressionType() instanceof  IrTypeInt) {
-
-                            // 6) create the IrAssignStmt and add it to the stack
-                            IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
-                            this.irStack.push(minusEqual);
-                        }
-                        else {System.err.print("exitAssignStmt: must be IrTypeInt in compound assign stmts\n");}
-                    }
-                    else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
+                    // 5) create the IrAssignStmt and add it to the stack
+                    IrAssignStmt assignStmt = new IrAssignStmtEqual(loc, expr);
+                    this.irStack.push(assignStmt);
                 }
-                else {System.err.print("exitAssignStmt: IrLocation and IrExpr are not of matching IrType\n");}
+                else if (ctx.assign_op().compound_assign_op().ADD_AS_OP() != null) { // location += expr
+
+                    // 6) create the IrAssignStmt and add it to the stack
+                    IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(loc, expr);
+                    this.irStack.push(plusEqual);
+                }
+                else if (ctx.assign_op().compound_assign_op().SUB_AS_OP() != null) { // location -= expr
+
+                    // 6) create the IrAssignStmt and add it to the stack
+                    IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
+                    this.irStack.push(minusEqual);
+                }
+                else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
             }
             else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n");}
         }
