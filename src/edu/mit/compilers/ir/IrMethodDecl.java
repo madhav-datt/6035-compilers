@@ -43,6 +43,9 @@ public class IrMethodDecl extends IrMemberDecl {
         // 3) check that the codeBlock is valid
         errorMessage += this.methodBody.semanticCheck(scopeStack);
 
+        // delete method scope the scope
+        scopeStack.deleteCurrentScope();
+
         return errorMessage;
     }
 }

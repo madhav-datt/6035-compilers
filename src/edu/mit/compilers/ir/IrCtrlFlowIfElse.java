@@ -22,8 +22,15 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         // 1) verify that the IrCtrlFlowIf stmt is valid
         errorMessage += this.ifStmt.semanticCheck(scopeStack);
 
+
+        // create the scope for the else block only
+        scopeStack.createNewBlockScope();
+
         // 2) verify that the else-block is valid
         errorMessage += this.stmtBody.semanticCheck(scopeStack);
+
+        // delete the else block scope
+        scopeStack.deleteCurrentScope();
 
         return errorMessage;
     }

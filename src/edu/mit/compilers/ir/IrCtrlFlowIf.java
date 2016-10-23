@@ -22,6 +22,9 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
+        // create the scope for the if-statement
+        scopeStack.createNewBlockScope();
+
         // 1) verify that the expression is valid
         errorMessage += this.condExpr.semanticCheck(scopeStack);
 
@@ -33,6 +36,9 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
 
         // 3) verify that the block is valid
         errorMessage += this.stmtBody.semanticCheck(scopeStack);
+
+        // delete the current scope
+        scopeStack.createNewLoopScope();
 
         return errorMessage;
     }

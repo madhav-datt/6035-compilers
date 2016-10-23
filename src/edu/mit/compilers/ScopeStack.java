@@ -94,6 +94,13 @@ public class ScopeStack {
         return newScope;
     }
 
+    public SymbolTable createNewLoopScope() {
+        ScopeStack.SymbolTable parentScope = this.stack.peek();
+        ScopeStack.SymbolTable newScope = this.new SymbolTable(parentScope, true);
+        this.stack.push(newScope);
+        return newScope;
+    }
+
     public IrType getScopeReturnType() {
         for (SymbolTable e = this.stack.peek(); e != null; e = e.parentScope) {
             IrType methodType = e.scopeReturnType;
@@ -104,10 +111,21 @@ public class ScopeStack {
         return null;
     }
 
+    public boolean isScopeForALoop() {
+        for (SymbolTable e = this.stack.peek(); e != null; e = e.parentScope) {
+            boolean isALoop = e.isLoop;
+            if (isALoop) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     class SymbolTable {
         protected Hashtable<String, Ir> hashtable;
         protected SymbolTable parentScope;
         protected IrType scopeReturnType;
+        protected boolean isLoop = false;
 
         protected SymbolTable(){
             this.hashtable = new Hashtable<String, Ir>();
@@ -123,6 +141,12 @@ public class ScopeStack {
             this.hashtable = new Hashtable<String, Ir>();
             this.parentScope = parentScope;
             this.scopeReturnType = scopeReturnType;
+        }
+
+        protected SymbolTable(SymbolTable parentScope, boolean isLoop) {
+            this.hashtable = new Hashtable<String, Ir>();
+            this.parentScope = parentScope;
+            this.isLoop = isLoop;
         }
     }
 

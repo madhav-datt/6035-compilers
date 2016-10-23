@@ -14,6 +14,9 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
+        // create the scope for the while loop
+        scopeStack.createNewLoopScope();
+
         // 1) verify that the expression is valid
         errorMessage += this.condExpr.semanticCheck(scopeStack);
 
@@ -25,6 +28,9 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
 
         // 3) verify that the while block is valid
         errorMessage += this.stmtBody.semanticCheck(scopeStack);
+
+        // delete the scope for the while loop
+        scopeStack.deleteCurrentScope();
 
         return errorMessage;
     }

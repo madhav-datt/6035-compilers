@@ -20,6 +20,9 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
+        // create the scope for the loop
+        scopeStack.createNewLoopScope();
+
         // 1) verify the IrLocationVar
         errorMessage += this.counter.semanticCheck(scopeStack);
 
@@ -41,6 +44,9 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
 
         // 5) verify that the for-block is valid
         errorMessage += this.stmtBody.semanticCheck(scopeStack);
+
+        // delete the current loop scope
+        scopeStack.deleteCurrentScope();
 
         return errorMessage;
     }
