@@ -98,7 +98,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitExtern_decl(DecafParser.Extern_declContext ctx) {
-        // assumes an instance of IrIdent is on the stack
+        // pop the extern name (IrIdent) from the top of the stack
         if (this.irStack.size() > 0 && this.irStack.peek() instanceof IrIdent) {
             IrIdent irIdent = (IrIdent) this.irStack.pop();
             IrExternDecl externDecl = new IrExternDecl(irIdent);
@@ -122,8 +122,7 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitField_decl(DecafParser.Field_declContext ctx) {
-        Ir topOfStack = this.irStack.peek();
-        if (topOfStack instanceof IrType) {
+        if (this.irStack.peek() instanceof IrType) {
             // pop the IrType because we are done creating fields
             this.irStack.pop();
         }
@@ -440,40 +439,16 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrIdent) {
             IrIdent methodName = (IrIdent) this.irStack.pop();
 
-            // 3) look up the method in scope to make sure it was declared
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
-
-                // a) determine if the method is an extern (or not)
                 Ir object = this.scopeStack.getSymbol(methodName.getValue());
                 if (object instanceof IrMethodDecl) {
                     IrMethodDecl method = (IrMethodDecl) object;
                     IrType returnType = method.getType();
-                    List<IrParamDecl> paramsList = method.getParamsList();
-
-                    // make sure the count and the types of the params and args match
-                    if (argsList.size() == paramsList.size()) {
-                        // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
-                        // Todo: make sure that none of the parameters are STRINGs
-
-                        // create the actual IrMethodCallExpr and add it to the stack
-                        IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
-                        this.irStack.push(methodCall);
-                    }
-                    else {System.err.print("exitAnyMethodCall: number of IrParamDecls doesn't match number of passed IrArgs\n");}
-                }
-                else if (object instanceof IrExternDecl) {
-                    IrType returnType = new IrTypeInt(l.line, l.col);
-
-                    // we don't need to check whether the params are correct
-                    // for IrExternDecl (or the number of args)
 
                     // create the actual IrMethodCallExpr and add it to the stack
-                    IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
-                    this.irStack.push(externMethodCall);
+                    IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
+                    this.irStack.push(methodCall);
                 }
-                else {System.err.print("exitAnyMethodCall: error with instanceof for type of object in the stack\n");}
-            }
-            else {System.err.print("exitAnyMethodCall: method was not declared/ or is not in scopeStack\n");}
+                else {System.err.print("exitAnyMethodCall: error with of object in the stack\n");}
         }
         else {System.err.print("exitAnyMethodCall: ID for methodName is not in irStack\n");}
     }
@@ -501,14 +476,9 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr ifCondition = (IrExpr) this.irStack.pop();
 
-                // 3) make sure expr is of type bool
-                if (ifCondition.getExpressionType() instanceof IrTypeBool) {
-
-                    // 4) create the IrCtrlFlowIf and add it to irStack
-                    IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(ifCondition, ifBody);
-                    this.irStack.push(ifStmt);
-                }
-                else {System.err.print("exitIf_stmt: ifStmt condition is not of type IrTypeBool\n");}
+                // 4) create the IrCtrlFlowIf and add it to irStack
+                IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(ifCondition, ifBody);
+                this.irStack.push(ifStmt);
             }
             else {System.err.print("exitIf_stmt: top of stack is not an IrExpr\n");}
         }
@@ -564,8 +534,6 @@ public class DecafListener extends DecafParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitElse_stmt(DecafParser.Else_stmtContext ctx) {
-
-
         // 1) top of stack will be the else body IrCodeBlock so pop this
         if (this.irStack.peek() instanceof IrCodeBlock) {
             IrCodeBlock elseBlock = (IrCodeBlock) this.irStack.pop();
@@ -608,74 +576,49 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr incrementerExpr = (IrExpr) this.irStack.pop();
 
-                // 3) make sure the incrementer expr is of IrTypeInt
-                if (incrementerExpr.getExpressionType() instanceof IrTypeInt) {
+                // 5) pop the var_location for the incrementer expr
+                topOfStack = this.irStack.peek();
+                if (topOfStack instanceof IrLocationVar) {
+                    IrLocationVar compoundAssignLocation = (IrLocationVar) this.irStack.pop();
 
-                    // 5) pop the var_location for the incrementer expr
+                    // 9) pop the IrExpr for the loop condition
                     topOfStack = this.irStack.peek();
-                    if (topOfStack instanceof IrLocationVar) {
-                        IrLocationVar compoundAssignLocation = (IrLocationVar) this.irStack.pop();
+                    if (topOfStack instanceof IrExpr) {
+                        IrExpr conditionExpr = (IrExpr) this.irStack.pop();
 
-                        // 8) make sure the compoundAsignLocation is of type IrTypeInt
-                        if (compoundAssignLocation.getExpressionType() instanceof IrTypeInt) {
+                        // 11) pop the start incrementer IrExpr from the stack
+                        topOfStack = this.irStack.peek();
+                        if (topOfStack instanceof IrExpr) {
+                            IrExpr startingExpValue = (IrExpr) this.irStack.pop();
 
-                            // 9) pop the IrExpr for the loop condition
+                            // 13) pop the next var_location
                             topOfStack = this.irStack.peek();
-                            if (topOfStack instanceof IrExpr) {
-                                IrExpr conditionExpr = (IrExpr) this.irStack.pop();
+                            if (topOfStack instanceof IrLocationVar) {
+                                IrLocationVar regularAssignLocation = (IrLocationVar) this.irStack.pop();
 
-                                // 10) make sure the condition expr is of type IrTypeBool
-                                if (conditionExpr.getExpressionType() instanceof IrTypeBool) {
+                                // 16) determine the type of the compound_assign_op (+= or -=)
+                                if (ctx.compound_assign_op().SUB_AS_OP() != null) {
+                                    IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(compoundAssignLocation, incrementerExpr);
 
-                                    // 11) pop the start incrementer IrExpr from the stack
-                                    topOfStack = this.irStack.peek();
-                                    if (topOfStack instanceof IrExpr) {
-                                        IrExpr startingExpValue = (IrExpr) this.irStack.pop();
+                                    // 17) create the IrCtrlFlowFor and add it to the stack
+                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, minusEqual, conditionExpr, forLoopBody);
+                                    this.irStack.push(forLoop);
+                                } else if (ctx.compound_assign_op().ADD_AS_OP() != null) {
+                                    IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(compoundAssignLocation, incrementerExpr);
 
-                                        // 12) make sure start incrementer IrExpr is of IrTypeInt
-                                        if (startingExpValue.getExpressionType() instanceof IrTypeInt) {
-
-                                            // 13) pop the next var_location
-                                            topOfStack = this.irStack.peek();
-                                            if (topOfStack instanceof IrLocationVar) {
-                                                IrLocationVar regularAssignLocation = (IrLocationVar) this.irStack.pop();
-
-                                                // 15) make sure the regular assign expr is of type IrTypeInt
-                                                if (regularAssignLocation.getExpressionType() instanceof IrTypeInt) {
-
-                                                    // 16) determine the type of the compound_assign_op (+= or -=)
-                                                    if (ctx.compound_assign_op().SUB_AS_OP() != null) {
-                                                        IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(compoundAssignLocation, incrementerExpr);
-
-                                                        // 17) create the IrCtrlFlowFor and add it to the stack
-                                                        IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, minusEqual, conditionExpr, forLoopBody);
-                                                        this.irStack.push(forLoop);
-                                                    } else if (ctx.compound_assign_op().ADD_AS_OP() != null) {
-                                                        IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(compoundAssignLocation, incrementerExpr);
-
-                                                        // 17) create the IrCtrlFlowFor and add it to the stack
-                                                        IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, plusEqual, conditionExpr, forLoopBody);
-                                                        this.irStack.push(forLoop);
-                                                    }
-                                                    else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n");}
-                                                }
-                                                else {System.err.print("exitForLoop: problem with 1st assignment stmt; not IrTypeInt\n");}
-                                            }
-                                            else {System.err.print("exitForLoop: regular assignment var location\n");}
-                                        }
-                                        else {System.err.print("exitForLoop: incrementing expression not IrTypeInt\n");}
-                                    }
-                                    else {System.err.print("exitForLoop: starting incrementer expression not found on stack\n");}
+                                    // 17) create the IrCtrlFlowFor and add it to the stack
+                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, plusEqual, conditionExpr, forLoopBody);
+                                    this.irStack.push(forLoop);
                                 }
-                                else {System.err.print("exitForLoop: condition expr not IrTypeBool\n");}
+                                else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n");}
                             }
-                            else {System.err.print("exitForLoop: condition expr not found on stack\n");}
+                            else {System.err.print("exitForLoop: regular assignment var location\n");}
                         }
-                        else {System.err.print("exitForLoop: compound assign expr not IrTypeInt\n");}
+                        else {System.err.print("exitForLoop: starting incrementer expression not found on stack\n");}
                     }
-                    else {System.err.print("exitForLoop: var location for compound assign expr not found on stack\n");}
+                    else {System.err.print("exitForLoop: condition expr not found on stack\n");}
                 }
-                else {System.err.print("exitForLoop: compound assign incrementer epxr not IrTypeInt\n");}
+                else {System.err.print("exitForLoop: var location for compound assign expr not found on stack\n");}
             }
             else {System.err.print("exitForLoop: compound assign incrementer expr not found on stack\n");}
         }
