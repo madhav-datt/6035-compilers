@@ -31,12 +31,16 @@ public class IrStmtReturnExpr extends IrStmtReturn{
                 errorMessage += "Return type does not match method return type"+
                         " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
             }
+
         }
         else {
             // we are not in a method so we should not have an IrStmtReturnExpr
             errorMessage += "Return statements can only have a value in non-void methods."+
                     " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
         }
+
+        // 3) check to make sure the expression is valid
+        errorMessage += this.result.semanticCheck(scopeStack);
 
         return errorMessage;
     }
