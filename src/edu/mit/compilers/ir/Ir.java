@@ -18,4 +18,6 @@ public abstract class Ir {
     public int getColNumber() {
         return this.colNumber;
     }
+
+    public abstract String semanticCheck();
 }
