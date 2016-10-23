@@ -23,7 +23,16 @@ public class IrLocationArray extends IrLocation {
         String errorMessage = "";
 
         // 1) make sure the array has been declared already
-        if (!scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
+        if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
+
+            // make sure that var_decl is an array
+            Ir object = scopeStack.getSymbol(this.varName.getValue());
+            if (!(object instanceof IrFieldDeclArray)) {
+                errorMessage += "Non-array variable be accessed as an array" +
+                        " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
+            }
+        }
+        else {
             errorMessage += "Array variable used before declared" +
                     " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
         }

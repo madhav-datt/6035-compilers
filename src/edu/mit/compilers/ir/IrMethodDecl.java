@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 import java.util.*;
 
 public class IrMethodDecl extends IrMemberDecl {
@@ -15,5 +17,10 @@ public class IrMethodDecl extends IrMemberDecl {
 
     public List<IrParamDecl> getParamsList() {
         return new ArrayList<>(this.paramsList);
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        return null;
     }
 }
