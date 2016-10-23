@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 public class IrParamDecl extends Ir {
     private final IrType paramType;
     private final IrIdent paramName;
@@ -15,5 +17,14 @@ public class IrParamDecl extends Ir {
 
     public IrType getExpressionType() {
         return this.paramType;
+    }
+
+    public IrIdent getParamName() {
+        return this.paramName;
+    }
+
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        return "";
     }
 }

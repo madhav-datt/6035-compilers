@@ -29,58 +29,66 @@ public class IrProgram extends Ir{
     }
 
     @Override
-    public String semanticCheck(ScopeStack scopeStack) {
+    public String semanticCheck(ScopeStack dontUseThisScope) {
         String errorMessage = "";
 
         // 1) check that no field_decls are declared twice in same scope
-        HashMap<String, IrFieldDecl> fieldsHashMap = new HashMap<>();
         for (IrFieldDecl fieldDecl: this.fieldDecls) {
-            if (fieldsHashMap.containsKey(fieldDecl.getName())) {
+            if (this.scopeStack.checkIfSymbolExistsAtCurrentScope(fieldDecl.getName())) {
                 errorMessage += "Duplicate field_decl in same scope __filename__"+
                         " line: "+fieldDecl.getLineNumber() + " col: " +fieldDecl.getColNumber() + "\n";
             }
-            fieldsHashMap.put(fieldDecl.getName(), fieldDecl);
+            this.scopeStack.addObjectToCurrentScope(fieldDecl.getName(), fieldDecl);
 
             // check that each fieldDecl is correct
             errorMessage += fieldDecl.semanticCheck(this.scopeStack);
         }
 
         // 2) check that no externs are declared twice
-        HashMap<String, IrExternDecl> externsHashMap = new HashMap<>();
         for (IrExternDecl externDecl: this.externDecls) {
-            if (externsHashMap.containsKey(externDecl.getName())) {
+            if (this.scopeStack.checkIfSymbolExistsAtCurrentScope(externDecl.getName())) {
                 errorMessage += "Duplicate externs declared __filename__"+
                         " line: "+externDecl.getLineNumber() + " col: " + externDecl.getColNumber() + "\n";
             }
-            externsHashMap.put(externDecl.getName(), externDecl);
+            this.scopeStack.addObjectToCurrentScope(externDecl.getName(), externDecl);
 
             // check that each externDecl is correct
             errorMessage += externDecl.semanticCheck(this.scopeStack);
         }
 
         // 3) check that no methods are declared twice
-        HashMap<String, IrMethodDecl> methodsHashmap = new HashMap<>();
         for (IrMethodDecl methodDecl: this.methodDecls) {
-            if (externsHashMap.containsKey(methodDecl.getName())) {
-                errorMessage += "Duplicate method declaration__filename__"+
+            if (this.scopeStack.checkIfSymbolExistsAtCurrentScope(methodDecl.getName())) {
+                errorMessage += "Duplicate method declared in __filename__"+
                         " line: "+methodDecl.getLineNumber() + " col: " + methodDecl.getColNumber() + "\n";
             }
-            methodsHashmap.put(methodDecl.getName(), methodDecl);
+            this.scopeStack.addObjectToCurrentScope(methodDecl.getName(), methodDecl);
 
             // check that each methodDecl is correct
             errorMessage += methodDecl.semanticCheck(this.scopeStack);
         }
 
         // 4) check for main() method
-        if (!methodsHashmap.containsKey("main")) {
-            errorMessage += "No method main() in program\n";
-        }
-        else { // 5) make sure main() has no parameters
-            IrMethodDecl mainMethod = methodsHashmap.get("main");
-            if (mainMethod.getParamsList().size() > 0) {
-                errorMessage += "main() method cannot have parameters" +
-                        "line: " + mainMethod.getLineNumber() + "col: " + mainMethod.getColNumber();
+        if (this.scopeStack.checkIfSymbolExistsAtCurrentScope("main")) {
+            Ir object = this.scopeStack.getSymbol("main");
+
+            if (object instanceof IrMethodDecl) {
+                IrMethodDecl mainMethod = (IrMethodDecl) object;
+
+                // 5) make sure main() has no parameters
+                if (mainMethod.getParamsList().size() > 0) {
+                    errorMessage += "main() method cannot have parameters" +
+                            "line: " + mainMethod.getLineNumber() + "col: " + mainMethod.getColNumber();
+                }
             }
+            else {
+                errorMessage += "main must be void method with no parameters " +
+                        "line: " + this.getLineNumber() + "col: " + this.getColNumber();
+            }
+        }
+        else {
+            errorMessage += "Program must contain a main() method" +
+                    "line: " + this.getLineNumber() + "col: " + this.getColNumber();
         }
 
         return errorMessage;

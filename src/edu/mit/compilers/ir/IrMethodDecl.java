@@ -21,6 +21,28 @@ public class IrMethodDecl extends IrMemberDecl {
 
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
-        return null;
+        String errorMessage = "";
+
+        // give method has a new local scope (which includes the method's parameters)
+        scopeStack.createNewScope();
+
+        // check the params before the code block
+        for (IrParamDecl paramDecl: this.paramsList) {
+
+            // 1) make sure no duplicate params are declared
+            if (scopeStack.checkIfSymbolExistsAtCurrentScope(paramDecl.getParamName().getValue())) {
+                errorMessage += "Duplicate declaration of parameters in method declaration"+
+                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+            }
+            scopeStack.addObjectToCurrentScope(paramDecl.getParamName().getValue(), paramDecl);
+
+            // 2) check that all the IrParamDecls are valid
+            errorMessage += paramDecl.semanticCheck(scopeStack);
+        }
+
+        // 3) check that the codeBlock is valid
+        errorMessage += this.methodBody.semanticCheck(scopeStack);
+
+        return errorMessage;
     }
 }

@@ -25,7 +25,7 @@ public class IrLocationArray extends IrLocation {
         // 1) make sure the array has been declared already
         if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
 
-            // make sure that var_decl is an array
+            // make sure that var is an array
             Ir object = scopeStack.getSymbol(this.varName.getValue());
             if (!(object instanceof IrFieldDeclArray)) {
                 errorMessage += "Non-array variable be accessed as an array" +
@@ -39,7 +39,7 @@ public class IrLocationArray extends IrLocation {
 
         // 2) make sure that the IrExpr offset is an IrTypeInt
         if (!(elementIndex.getExpressionType() instanceof IrTypeInt)) {
-            errorMessage += "Element offset must of type int" +
+            errorMessage += "Element offset must be of type int" +
                     " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
         }
 
