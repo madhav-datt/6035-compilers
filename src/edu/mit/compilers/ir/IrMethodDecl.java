@@ -23,7 +23,7 @@ public class IrMethodDecl extends IrMemberDecl {
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
-        // give method has a new method scope with method returnType
+        // give method a new method scope with method returnType
         scopeStack.createNewMethodScope(this.getType());
 
         // check the params before the code block

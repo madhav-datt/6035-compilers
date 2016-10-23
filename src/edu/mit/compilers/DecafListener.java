@@ -444,11 +444,21 @@ public class DecafListener extends DecafParserBaseListener {
                     IrMethodDecl method = (IrMethodDecl) object;
                     IrType returnType = method.getType();
 
-                    // create the actual IrMethodCallExpr and add it to the stack
+                    // create the actual IrMethodCallStmt and add it to the stack
                     IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
                     this.irStack.push(methodCall);
                 }
-                else {System.err.print("exitAnyMethodCall: error with of object in the stack\n");}
+                else if (object instanceof IrExternDecl) {
+                    IrType returnType = new IrTypeInt(l.line, l.col);
+                    // we don't need to check whether the params are correct
+                    // for IrExternDecl (or the number of args)
+                    // also all IrExtern's return ints so they are all valid IrExpr
+
+                    // create the actual IrMethodCallStmt and add it to the stack
+                    IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
+                    this.irStack.push(externMethodCall);
+                }
+                else {System.err.print("exitAnyMethodCall: error with object in the stack\n");}
         }
         else {System.err.print("exitAnyMethodCall: ID for methodName is not in irStack\n");}
     }
@@ -829,29 +839,23 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrExpr) {
             IrExpr expr = (IrExpr) this.irStack.pop();
 
-            // make sure the expr is of type IrTypeInt so
-            // that we can use it as an element index
-            if (expr.getExpressionType() instanceof IrTypeInt) {
+            // look up the the variable to make sure it was declared
+            IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
+                Ir object = this.scopeStack.getSymbol(varName.getValue());
 
-                // look up the the variable to make sure it was declared
-                IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
-                if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
-                    Ir object = this.scopeStack.getSymbol(varName.getValue());
+                // check to make sure that the variable is an array
+                if (object instanceof IrFieldDeclArray) {
+                    IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) object;
+                    IrType arrayType = fieldDeclArray.getType();
 
-                    // check to make sure that the variable is an array
-                    if (object instanceof IrFieldDeclArray) {
-                        IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) object;
-                        IrType arrayType = fieldDeclArray.getType();
-
-                        // create the actual IrLocationArray and add it to irStack
-                        IrLocationArray locOfArray = new IrLocationArray(expr, varName, arrayType, l.line, l.col);
-                        this.irStack.push(locOfArray);
-                    }
-                    else {System.err.print("exitArrayLocation: object in scope is not an IrFieldDeclArray\n");}
+                    // create the actual IrLocationArray and add it to irStack
+                    IrLocationArray locOfArray = new IrLocationArray(expr, varName, arrayType, l.line, l.col);
+                    this.irStack.push(locOfArray);
                 }
-                else {System.err.print("exitArrayLocation: error with Ident; not found in scope\n");}
+                else {System.err.print("exitArrayLocation: object in scope is not an IrFieldDeclArray\n");}
             }
-            else {System.err.print("exitArrayLocation: error with IrExpr; not of type IrTypeInt\n");}
+            else {System.err.print("exitArrayLocation: error with Ident; not found in scope\n");}
         }
         else {System.err.print("exitArrayLocation: object on top of stack not an IrExpr\n");}
     }
@@ -879,49 +883,43 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr lhs = (IrExpr) this.irStack.pop();
 
-                // 3) make sure rhs and lhs are both type IrTypeInt
-                if (rhs.getExpressionType() instanceof IrTypeInt
-                        && lhs.getExpressionType() instanceof IrTypeInt) {
+                // 4) get the type of ArithExpr frm the stack
+                if (ctx.arith_op().ADD_OP() != null) {
+                    String addition = ctx.arith_op().ADD_OP().getText();
 
-                    // 4) get the type of ArithExpr frm the stack
-                    if (ctx.arith_op().ADD_OP() != null) {
-                        String addition = ctx.arith_op().ADD_OP().getText();
-
-                        // 5) create the IrOperBinaryArith and add it irStack
-                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(addition, lhs, rhs);
-                        this.irStack.push(arithExpr);
-                    }
-                    else if (ctx.arith_op().SUB_OP() != null) {
-                        String subtraction = ctx.arith_op().SUB_OP().getText();
-
-                        // 5) create the IrOperBinaryArith and add it irStack
-                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(subtraction, lhs, rhs);
-                        this.irStack.push(arithExpr);
-                    }
-                    else if (ctx.arith_op().DIV_OP() != null) {
-                        String division = ctx.arith_op().DIV_OP().getText();
-
-                        // 5) create the IrOperBinaryArith and add it irStack
-                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(division, lhs, rhs);
-                        this.irStack.push(arithExpr);
-                    }
-                    else if (ctx.arith_op().MUL_OP() != null) {
-                        String multiplication = ctx.arith_op().MUL_OP().getText();
-
-                        // 5) create the IrOperBinaryArith and add it irStack
-                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(multiplication, lhs, rhs);
-                        this.irStack.push(arithExpr);
-                    }
-                    else if (ctx.arith_op().MOD_OP() != null) {
-                        String modulus = ctx.arith_op().MOD_OP().getText();
-
-                        // 5) create the IrOperBinaryArith and add it irStack
-                        IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
-                        this.irStack.push(arithExpr);
-                    }
-                    else {System.err.print("exitArithExpr: problem with determining exprType\n");}
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(addition, lhs, rhs);
+                    this.irStack.push(arithExpr);
                 }
-                else {System.err.print("exitArithExpr: rhs or lhs not IrTypeInt\n");}
+                else if (ctx.arith_op().SUB_OP() != null) {
+                    String subtraction = ctx.arith_op().SUB_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(subtraction, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else if (ctx.arith_op().DIV_OP() != null) {
+                    String division = ctx.arith_op().DIV_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(division, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else if (ctx.arith_op().MUL_OP() != null) {
+                    String multiplication = ctx.arith_op().MUL_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(multiplication, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else if (ctx.arith_op().MOD_OP() != null) {
+                    String modulus = ctx.arith_op().MOD_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else {System.err.print("exitArithExpr: problem with determining exprType\n");}
             }
             else {System.err.print("exitArithExpr: lhs not on the stack\n");}
         }
@@ -950,42 +948,36 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr lhs = (IrExpr) this.irStack.pop();
 
-                // 3) make sure rhs and lhs are both type IrTypeInt
-                if (rhs.getExpressionType() instanceof IrTypeInt
-                        && lhs.getExpressionType() instanceof IrTypeInt) {
+                // 4) get the type of RelExpr frm the stack
+                if (ctx.rel_op().GEQ_OP() != null) {
+                    String greaterThanEqualTo = ctx.rel_op().GEQ_OP().getText();
 
-                    // 4) get the type of RelExpr frm the stack
-                    if (ctx.rel_op().GEQ_OP() != null) {
-                        String greaterThanEqualTo = ctx.rel_op().GEQ_OP().getText();
-
-                        // 5) create the IrOperBinaryRel and add it irStack
-                        IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThanEqualTo, lhs, rhs);
-                        this.irStack.push(relExpr);
-                    }
-                    else if (ctx.rel_op().LEQ_OP() != null) {
-                        String lessThanEqualTo = ctx.rel_op().LEQ_OP().getText();
-
-                        // 5) create the IrOperBinaryRel and add it irStack
-                        IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThanEqualTo, lhs, rhs);
-                        this.irStack.push(relExpr);
-                    }
-                    else if (ctx.rel_op().LT_OP() != null) {
-                        String lessThan = ctx.rel_op().LT_OP().getText();
-
-                        // 5) create the IrOperBinaryRel and add it irStack
-                        IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThan, lhs, rhs);
-                        this.irStack.push(relExpr);
-                    }
-                    else if (ctx.rel_op().GT_OP() != null) {
-                        String greaterThan = ctx.rel_op().GT_OP().getText();
-
-                        // 5) create the IrOperBinaryRel and add it irStack
-                        IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThan, lhs, rhs);
-                        this.irStack.push(relExpr);
-                    }
-                    else {System.err.print("enterRelExpr: problem with determining exprType\n");}
+                    // 5) create the IrOperBinaryRel and add it irStack
+                    IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThanEqualTo, lhs, rhs);
+                    this.irStack.push(relExpr);
                 }
-                else {System.err.print("enterRelExpr: rhs or lhs not IrTypeInt\n");}
+                else if (ctx.rel_op().LEQ_OP() != null) {
+                    String lessThanEqualTo = ctx.rel_op().LEQ_OP().getText();
+
+                    // 5) create the IrOperBinaryRel and add it irStack
+                    IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThanEqualTo, lhs, rhs);
+                    this.irStack.push(relExpr);
+                }
+                else if (ctx.rel_op().LT_OP() != null) {
+                    String lessThan = ctx.rel_op().LT_OP().getText();
+
+                    // 5) create the IrOperBinaryRel and add it irStack
+                    IrOperBinaryRel relExpr = new IrOperBinaryRel(lessThan, lhs, rhs);
+                    this.irStack.push(relExpr);
+                }
+                else if (ctx.rel_op().GT_OP() != null) {
+                    String greaterThan = ctx.rel_op().GT_OP().getText();
+
+                    // 5) create the IrOperBinaryRel and add it irStack
+                    IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThan, lhs, rhs);
+                    this.irStack.push(relExpr);
+                }
+                else {System.err.print("enterRelExpr: problem with determining exprType\n");}
             }
             else {System.err.print("enterRelExpr: lhs not on the stack\n");}
         }
@@ -1008,14 +1000,9 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrExpr) {
             IrExpr expr = (IrExpr) this.irStack.pop();
 
-            // ensure that the expression is of IrTypeBool
-            if (expr.getExpressionType() instanceof IrTypeBool) {
-
-                // create the NOT-ed expression and add to irStack
-                IrOperUnaryNot negatedExpr = new IrOperUnaryNot(expr);
-                this.irStack.push(negatedExpr);
-            }
-            else {System.err.print("exitNotExpr: expr was not of type IrTypeBool\n");}
+            // create the NOT-ed expression and add to irStack
+            IrOperUnaryNot negatedExpr = new IrOperUnaryNot(expr);
+            this.irStack.push(negatedExpr);
         }
         else {System.err.print("exitNotExpr: the object on top of the stack was an IrExpr\n");}
     }
@@ -1070,20 +1057,9 @@ public class DecafListener extends DecafParserBaseListener {
                     IrMethodDecl method = (IrMethodDecl) object;
                     IrType returnType = method.getType();
 
-                    // make sure method is not of IrTypeVoid
-                    if (!(returnType instanceof IrTypeVoid)) {
-                        List<IrParamDecl> paramsList = method.getParamsList();
-
-                        // make sure the count and the types of the params and args match
-                        if (argsList.size() == paramsList.size()) {
-                            // Todo: make sure the types of the parameters match the types of the arguments for non-extern methods
-
-                            // create the actual IrMethodCallExpr and add it to the stack
-                            IrMethodCallExpr methodCall = new IrMethodCallExpr(methodName, returnType, argsList);
-                            this.irStack.push(methodCall);
-                        }
-                        else {System.err.print("exitNonVoidMethodCall: number of IrParamDecls doesn't match number of passed IrArgs\n");}
-                    }
+                    // create the actual IrMethodCallExpr and add it to the stack
+                    IrMethodCallExpr methodCall = new IrMethodCallExpr(methodName, returnType, argsList);
+                    this.irStack.push(methodCall);
                 }
                 else if (object instanceof IrExternDecl) {
                     IrType returnType = new IrTypeInt(l.line, l.col);
@@ -1124,27 +1100,22 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr lhsExpr = (IrExpr) this.irStack.pop();
 
-                // 3) make sure that both IrExpr are of the same IrType
-                if (rhsExpr.getExpressionType().getClass().equals(lhsExpr.getExpressionType().getClass())) {
+                // 4) determine the type of equality (!= or ==)
+                if (ctx.eq_op().EQ_OP() != null) {
+                    String equalsEquals = ctx.eq_op().EQ_OP().getText();
 
-                    // 4) determine the type of equality (!= or ==)
-                    if (ctx.eq_op().EQ_OP() != null) {
-                        String equalsEquals = ctx.eq_op().EQ_OP().getText();
-
-                        // 5) create the IrOperBinaryEq and add it irStack
-                        IrOperBinaryEq equalsEqualsExpr = new IrOperBinaryEq(equalsEquals, lhsExpr, rhsExpr);
-                        this.irStack.push(equalsEqualsExpr);
-                    }
-                    else if (ctx.eq_op().NEQ_OP() != null) {
-                        String notEquals = ctx.eq_op().NEQ_OP().getText();
-
-                        // 5) create the IrOperBinaryEq and add it irStack
-                        IrOperBinaryEq notEqualsExpr = new IrOperBinaryEq(notEquals, lhsExpr, rhsExpr);
-                        this.irStack.push(notEqualsExpr);
-                    }
-                    else {System.err.print("exitEquateExpr: problem determining type of equality expr\n");}
+                    // 5) create the IrOperBinaryEq and add it irStack
+                    IrOperBinaryEq equalsEqualsExpr = new IrOperBinaryEq(equalsEquals, lhsExpr, rhsExpr);
+                    this.irStack.push(equalsEqualsExpr);
                 }
-                else {System.err.print("exitEquateExpr: rhs and lhs don't have the same IrType\n");}
+                else if (ctx.eq_op().NEQ_OP() != null) {
+                    String notEquals = ctx.eq_op().NEQ_OP().getText();
+
+                    // 5) create the IrOperBinaryEq and add it irStack
+                    IrOperBinaryEq notEqualsExpr = new IrOperBinaryEq(notEquals, lhsExpr, rhsExpr);
+                    this.irStack.push(notEqualsExpr);
+                }
+                else {System.err.print("exitEquateExpr: problem determining type of equality expr\n");}
             }
             else {System.err.print("exitEquateExpr: top of stack isn't IrExpr (for lhs expr)\n");}
         }
@@ -1173,28 +1144,22 @@ public class DecafListener extends DecafParserBaseListener {
             if (topOfStack instanceof IrExpr) {
                 IrExpr lhs = (IrExpr) this.irStack.pop();
 
-                // 3) make sure rhs and lhs are both type IrTypeBool
-                if (rhs.getExpressionType() instanceof IrTypeBool
-                        && lhs.getExpressionType() instanceof IrTypeBool) {
+                // 4) get the type of CondExpr frm the stack
+                if (ctx.cond_op().AND_OP() != null) {
+                    String exprType = ctx.cond_op().AND_OP().getText();
 
-                    // 4) get the type of CondExpr frm the stack
-                    if (ctx.cond_op().AND_OP() != null) {
-                        String exprType = ctx.cond_op().AND_OP().getText();
-
-                        // 5) create the IrOperBinaryCond expr and push to irstack
-                        IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
-                        this.irStack.push(condExpr);
-                    }
-                    else if (ctx.cond_op().OR_OP() != null) {
-                        String exprType = ctx.cond_op().OR_OP().getText();
-
-                        // 5) create the IrOperBinaryCond expr and push to irstack
-                        IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
-                        this.irStack.push(condExpr);
-                    }
-                    else {System.err.print("exitCondExpr: problem with determining exprType\n");}
+                    // 5) create the IrOperBinaryCond expr and push to irstack
+                    IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
+                    this.irStack.push(condExpr);
                 }
-                else {System.err.print("exitCondExpr: rhs or lhs not IrTypeBool\n");}
+                else if (ctx.cond_op().OR_OP() != null) {
+                    String exprType = ctx.cond_op().OR_OP().getText();
+
+                    // 5) create the IrOperBinaryCond expr and push to irstack
+                    IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
+                    this.irStack.push(condExpr);
+                }
+                else {System.err.print("exitCondExpr: problem with determining exprType\n");}
             }
             else {System.err.print("exitCondExpr: lhs not on the stack\n");}
         }
@@ -1217,14 +1182,9 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrExpr) {
             IrExpr expr = (IrExpr) this.irStack.pop();
 
-            // ensure that the expression is of IrTypeInt
-            if (expr.getExpressionType() instanceof IrTypeInt) {
-
-                // create the negated expression and add to irStack
-                IrOperUnaryNeg negatedExpr = new IrOperUnaryNeg(expr);
-                this.irStack.push(negatedExpr);
-            }
-            else {System.err.print("exitNegateExpr: expr is not of type IrTypeInt\n");}
+            // create the negated expression and add to irStack
+            IrOperUnaryNeg negatedExpr = new IrOperUnaryNeg(expr);
+            this.irStack.push(negatedExpr);
         }
         else {System.err.print("exitNegateExpr: object on top of stack was not IrExpr\n");}
     }
