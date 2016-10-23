@@ -22,7 +22,10 @@ public class IrLocationArray extends IrLocation {
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
-        // 1) make sure the array has been declared already
+        // 1) verify that the IrExpr is semantically correct
+        errorMessage += this.elementIndex.semanticCheck(scopeStack);
+
+        // 2) make sure the array has been declared already
         if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
 
             // make sure that var is an array
@@ -37,7 +40,7 @@ public class IrLocationArray extends IrLocation {
                     " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
         }
 
-        // 2) make sure that the IrExpr offset is an IrTypeInt
+        // 3) make sure that the IrExpr offset is an IrTypeInt
         if (!(elementIndex.getExpressionType() instanceof IrTypeInt)) {
             errorMessage += "Element offset must be of type int" +
                     " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";

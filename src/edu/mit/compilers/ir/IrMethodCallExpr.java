@@ -64,7 +64,7 @@ public class IrMethodCallExpr extends IrExpr{
                             }
                         }
                         else {
-                            errorMessage += "Invalid argumenttype" +
+                            errorMessage += "Invalid argument type" +
                                     " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                         }
                     }

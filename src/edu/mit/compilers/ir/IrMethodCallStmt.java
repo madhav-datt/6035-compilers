@@ -67,7 +67,7 @@ public class IrMethodCallStmt extends IrStatement{
                             }
                         }
                         else {
-                            errorMessage += "Invalid argumenttype" +
+                            errorMessage += "Invalid argument type" +
                                     " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                         }
                     }

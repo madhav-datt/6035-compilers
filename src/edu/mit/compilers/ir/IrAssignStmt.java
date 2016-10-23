@@ -10,4 +10,8 @@ public abstract class IrAssignStmt extends IrStatement{
         super(storeLocation.getLineNumber(), storeLocation.getColNumber());
         this.storeLocation = storeLocation;
     }
+
+    public IrLocation getStoreLocation() {
+        return storeLocation;
+    }
 }
