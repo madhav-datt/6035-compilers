@@ -1,5 +1,3 @@
-// Generated from /Users/abel/Desktop/Fall2016/6.035/6035-compilers/src/edu/mit/compilers/grammar/DecafParser.g4 by ANTLR 4.5.3
-
 package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;

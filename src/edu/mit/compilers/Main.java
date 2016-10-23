@@ -4,6 +4,7 @@ import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -37,9 +38,7 @@ class Main {
                             String type = "";
                             String text = token.getText();
 
-                            //              System.out.println("\n\n"+token.getType());
                             switch (token.getType()) {
-                                // TODO: add strings for the other types here...
                                 case DecafScanner.CHAR:
                                     type = " CHARLITERAL";
                                     break;
@@ -79,7 +78,6 @@ class Main {
                 }
             } else if (CLI.target == Action.INTER ||
                     CLI.target == Action.DEFAULT) {
-
                 DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
                 TokenStream tokens = new CommonTokenStream(lexer);
                 DecafParser parser = new DecafParser(tokens);
@@ -87,6 +85,7 @@ class Main {
                 ParseTreeWalker walker = new ParseTreeWalker();
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
+                System.exit(1);
 //                Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
@@ -95,82 +94,7 @@ class Main {
         }
     }
 
-    private static void runFilesInDirectory(String dirPath) {
-        File dir = new File(dirPath);
-        File[] directoryListing = dir.listFiles();
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-
-                // get the fileExtension
-                String filePath = child.getPath();
-                String fileExtension = "none";
-                int i = filePath.lastIndexOf('.');
-                if (i > 0) {
-                    fileExtension = filePath.substring(i+1);
-                }
-
-                // run the test in the file
-                if (fileExtension.equals("dcf")) {
-                    try {
-                        System.out.println("\n\n" + child.getPath());
-                        CharStream stream = new ANTLRFileStream(child.getPath());
-                        DecafScanner lexer = new DecafScanner(stream);
-                        TokenStream tokens = new CommonTokenStream(lexer);
-                        DecafParser parser = new DecafParser(tokens);
-                        ParseTree tree = parser.program();
-                        ParseTreeWalker walker = new ParseTreeWalker();
-                        DecafListener listener = new DecafListener();
-                        walker.walk(listener, tree);
-                    }
-                    catch (IOException e) {
-                        System.out.println("There was an error:\n" + e);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void runFile(String filePath) {
-        // get the fileExtension
-        String fileExtension = "none";
-        int i = filePath.lastIndexOf('.');
-        if (i > 0) {
-            fileExtension = filePath.substring(i+1);
-        }
-
-        // run the test in the file
-        if (fileExtension.equals("dcf")) {
-            try {
-                System.out.println("\n\n" + filePath);
-                CharStream stream = new ANTLRFileStream(filePath);
-                DecafScanner lexer = new DecafScanner(stream);
-                TokenStream tokens = new CommonTokenStream(lexer);
-                DecafParser parser = new DecafParser(tokens);
-                ParseTree tree = parser.program();
-                ParseTreeWalker walker = new ParseTreeWalker();
-                DecafListener listener = new DecafListener();
-                walker.walk(listener, tree);
-//            Trees.inspect(tree, parser);
-            }
-            catch (IOException e) {
-                System.out.println("There was an error:\n" + e);
-            }
-        }
-    }
-
     public static void main(String[] args) {
-//        // test the parser
-//        testParserCode(args);
-
-//        // all tests
-        String legalTests = "./tests/semantics-hidden/legal/";
-//        Main.runFilesInDirectory(legalTests);
-
-        String illegalTests = "./tests/semantics-hidden/illegal/";
-        Main.runFilesInDirectory(illegalTests);
-
-        String customTest = "./tests/semantics/legal/custom-01.dcf";
-        Main.runFile(customTest);
-
+        Main.testParserCode(args);
     }
 }
