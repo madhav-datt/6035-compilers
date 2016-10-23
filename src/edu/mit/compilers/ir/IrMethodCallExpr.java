@@ -51,6 +51,12 @@ public class IrMethodCallExpr extends IrExpr{
                         }
                     }
                 }
+
+                // 3) check that method type is not IrTypeVoid
+                if (methodDecl.getType() instanceof IrTypeVoid) {
+                    errorMessage += "Void method can't be used in an expression" +
+                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                }
             }
 
             // for an extern method_decl
