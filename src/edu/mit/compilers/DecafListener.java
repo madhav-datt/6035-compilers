@@ -17,27 +17,27 @@ import java.util.Stack;
 
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
-//    private ScopeStack scopeStack = new ScopeStack();
+    private ScopeStack scopeStack = new ScopeStack();
 
-//    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-//        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
-//            this.scopeStack.addObjectToCurrentScope(id, object);
-//            this.irStack.push(object);
-//        }
-//        else {
-//            System.err.print(errorMsg);
-//        }
-//    }
+    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
+            this.scopeStack.addObjectToCurrentScope(id, object);
+        }
+        else {
+            System.err.print(errorMsg);
+        }
+        this.irStack.push(object);
+    }
 
-//    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-//        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
-//            this.scopeStack.addSymbolToGlobalScope(id, object);
-//            this.irStack.push(object);
-//        }
-//        else {
-//            System.err.print(errorMsg);
-//        }
-//    }
+    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
+        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
+            this.scopeStack.addSymbolToGlobalScope(id, object);
+        }
+        else {
+            System.err.print(errorMsg);
+        }
+        this.irStack.push(object);
+    }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
         // creates the global scope
@@ -439,6 +439,9 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrIdent) {
             IrIdent methodName = (IrIdent) this.irStack.pop();
 
+            // 3) make the method has been previously declared
+            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
+
                 Ir object = this.scopeStack.getSymbol(methodName.getValue());
                 if (object instanceof IrMethodDecl) {
                     IrMethodDecl method = (IrMethodDecl) object;
@@ -447,8 +450,7 @@ public class DecafListener extends DecafParserBaseListener {
                     // create the actual IrMethodCallStmt and add it to the stack
                     IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
                     this.irStack.push(methodCall);
-                }
-                else if (object instanceof IrExternDecl) {
+                } else if (object instanceof IrExternDecl) {
                     IrType returnType = new IrTypeInt(l.line, l.col);
                     // we don't need to check whether the params are correct
                     // for IrExternDecl (or the number of args)
@@ -457,8 +459,8 @@ public class DecafListener extends DecafParserBaseListener {
                     // create the actual IrMethodCallStmt and add it to the stack
                     IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
                     this.irStack.push(externMethodCall);
-                }
-                else {System.err.print("exitAnyMethodCall: error with object in the stack\n");}
+                } else {System.err.print("exitAnyMethodCall: error with object in the stack\n");}
+            }
         }
         else {System.err.print("exitAnyMethodCall: ID for methodName is not in irStack\n");}
     }

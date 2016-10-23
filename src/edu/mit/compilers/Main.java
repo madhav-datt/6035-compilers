@@ -153,10 +153,11 @@ class Main {
 //        testParserCode(args);
 
 //        // all tests
-//        String legalTests = "./tests/semantics-hidden/legal/";
-//        String illegalTests = "./tests/semantics-hidden/illegal/";
+        String legalTests = "./tests/semantics-hidden/legal/";
 //        Main.runFilesInDirectory(legalTests);
-//        Main.runFilesInDirectory(illegalTests);
+
+        String illegalTests = "./tests/semantics-hidden/illegal/";
+        Main.runFilesInDirectory(illegalTests);
 
         String customTest = "./tests/semantics/legal/custom-01.dcf";
         Main.runFile(customTest);
