@@ -41,21 +41,33 @@ public class IrMethodCallExpr extends IrExpr{
                 if (declParams.size() == this.argsList.size()) {
                     for (int i = 0; i < declParams.size(); i++) {
                         IrParamDecl param = declParams.get(i);
-                        IrArg arg = argsList.get(i);
+                        Object unsafeArg = argsList.get(i).getArgValue(); // i.e. a STRING
 
-                        // 3) check that each argument and param types match
-                        if (!param.getExpressionType().getClass().
-                                equals(arg.getArgValue().getClass())) {
-                            errorMessage += "Argument doesn't match param type" +
-                                    " line: " + arg.getLineNumber() + " col: " + arg.getColNumber() + "\n";
+                        if (unsafeArg instanceof IrExpr) {
+                            IrExpr safeArg = (IrExpr) unsafeArg;
+
+                            // 3) check that each argument and param types match
+                            if (!param.getExpressionType().getClass().equals(safeArg.getExpressionType().getClass())) {
+                                errorMessage += "Argument and parameter types don't match" +
+                                        " line: " + safeArg.getLineNumber() + " col: " + safeArg.getColNumber() + "\n";
+                            }
+
+                            // 4) check that the argument is not an array_location
+                            if (safeArg instanceof IrLocation) {
+                                IrLocation locArg = (IrLocation) safeArg;
+                                Ir possibleArray = scopeStack.getSymbol(locArg.getLocationName().getValue());
+
+                                if (possibleArray instanceof IrFieldDeclArray) {
+                                    errorMessage += "Argument cannot be an array location " +
+                                            " line: " + safeArg.getLineNumber() + " col: " + safeArg.getColNumber() + "\n";
+                                }
+                            }
+                        }
+                        else {
+                            errorMessage += "Invalid argumenttype" +
+                                    " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                         }
                     }
-                }
-
-                // 3) check that method type is not IrTypeVoid
-                if (methodDecl.getType() instanceof IrTypeVoid) {
-                    errorMessage += "Void method can't be used in an expression" +
-                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                 }
             }
 
