@@ -1,35 +1,35 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class IrProgram extends Ir{
-//    public Ir
-   private ArrayList<IrFieldDecl> fieldDecls;
-   private ArrayList<IrMethodDecl> methodDecls;
-   private ArrayList<IrExternDecl> externDecls;
 
-    public void addFieldDecl(IrFieldDecl field) {
-        this.fieldDecls.add(field);
-    }
+    private ScopeStack scopeStack;
+    private ArrayList<IrFieldDecl> fieldDecls;
+    private ArrayList<IrMethodDecl> methodDecls;
+    private ArrayList<IrExternDecl> externDecls;
 
+    public void addFieldDecl(IrFieldDecl field) { this.fieldDecls.add(field); }
     public void addMethodDecl(IrMethodDecl method) {
         this.methodDecls.add(method);
     }
-
     public void addExternDecl(IrExternDecl extern) {
         this.externDecls.add(extern);
     }
 
-   public IrProgram(int lineNumber, int colNumber) {
-       super(lineNumber, colNumber);
-       this.fieldDecls = new ArrayList<IrFieldDecl>();
-       this.methodDecls = new ArrayList<IrMethodDecl>();
-       this.externDecls = new ArrayList<IrExternDecl>();
-   }
+    public IrProgram(ScopeStack scopeStack, int lineNumber, int colNumber) {
+        super(lineNumber, colNumber);
+        this.scopeStack = scopeStack;
+        this.fieldDecls = new ArrayList<IrFieldDecl>();
+        this.methodDecls = new ArrayList<IrMethodDecl>();
+        this.externDecls = new ArrayList<IrExternDecl>();
+    }
 
     @Override
-    public String semanticCheck() {
+    public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
         // 1) check that no field_decls are declared twice in same scope
@@ -42,7 +42,7 @@ public class IrProgram extends Ir{
             fieldsHashMap.put(fieldDecl.getName(), fieldDecl);
 
             // check that each fieldDecl is correct
-            errorMessage += fieldDecl.semanticCheck();
+            errorMessage += fieldDecl.semanticCheck(this.scopeStack);
         }
 
         // 2) check that no externs are declared twice
@@ -55,7 +55,7 @@ public class IrProgram extends Ir{
             externsHashMap.put(externDecl.getName(), externDecl);
 
             // check that each externDecl is correct
-            errorMessage += externDecl.semanticCheck();
+            errorMessage += externDecl.semanticCheck(this.scopeStack);
         }
 
         // 3) check that no methods are declared twice
@@ -68,14 +68,14 @@ public class IrProgram extends Ir{
             methodsHashmap.put(methodDecl.getName(), methodDecl);
 
             // check that each methodDecl is correct
-            errorMessage += methodDecl.semanticCheck();
+            errorMessage += methodDecl.semanticCheck(this.scopeStack);
         }
 
         // 4) check for main() method
         if (!methodsHashmap.containsKey("main")) {
             errorMessage += "No method main() in program\n";
         }
-        else { // 5) make sure main has no parameters
+        else { // 5) make sure main() has no parameters
             IrMethodDecl mainMethod = methodsHashmap.get("main");
             if (mainMethod.getParamsList().size() > 0) {
                 errorMessage += "main() method cannot have parameters" +

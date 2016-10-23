@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,7 +17,7 @@ public class IrCodeBlock extends Ir {
     }
 
     @Override
-    public String semanticCheck() {
+    public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
 
         // 1) check that no identifiers declared twice in same scope
@@ -28,12 +30,12 @@ public class IrCodeBlock extends Ir {
             fieldsHashMap.put(fieldDecl.getName(), fieldDecl);
 
             // make sure each IrFieldDecl is correct
-            errorMessage += fieldDecl.semanticCheck();
+            errorMessage += fieldDecl.semanticCheck(scopeStack);
         }
 
         // 2) check that each statement is valid
         for (IrStatement stmt: this.stmtsList) {
-            errorMessage += stmt.semanticCheck();
+            errorMessage += stmt.semanticCheck(scopeStack);
         }
 
         return errorMessage;

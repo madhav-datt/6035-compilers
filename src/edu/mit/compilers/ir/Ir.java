@@ -1,5 +1,7 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.ScopeStack;
+
 public abstract class Ir {
     // keep track of the line & column number for
     // for error reporting purposes
@@ -19,5 +21,5 @@ public abstract class Ir {
         return this.colNumber;
     }
 
-    public abstract String semanticCheck();
+    public abstract String semanticCheck(ScopeStack scopeStack);
 }
