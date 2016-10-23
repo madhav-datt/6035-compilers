@@ -66,8 +66,7 @@ class Main {
                         scanner.skip(); // replaces
                     }
                 }
-            } else if (CLI.target == Action.PARSE ||
-                    CLI.target == Action.DEFAULT) {
+            } else if (CLI.target == Action.PARSE) {
                 DecafScanner scanner =
                         new DecafScanner(new ANTLRInputStream(inputStream));
                 CommonTokenStream tokenStream = new CommonTokenStream(scanner); // added for Antlr4
@@ -78,6 +77,17 @@ class Main {
                 if (parser.getNumberOfSyntaxErrors() > 0) {
                     System.exit(1);
                 }
+            } else if (CLI.target == Action.INTER ||
+                    CLI.target == Action.DEFAULT) {
+
+                DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//                Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
             // print the error:
@@ -161,5 +171,6 @@ class Main {
 
         String customTest = "./tests/semantics/legal/custom-01.dcf";
         Main.runFile(customTest);
+
     }
 }

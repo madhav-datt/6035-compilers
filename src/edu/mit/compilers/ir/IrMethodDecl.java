@@ -27,12 +27,12 @@ public class IrMethodDecl extends IrMemberDecl {
         scopeStack.createNewMethodScope(this.getType());
 
         // check the params before the code block
-        for (IrParamDecl paramDecl: this.paramsList) {
+        for (IrParamDecl paramDecl : this.paramsList) {
 
             // 1) make sure no duplicate params are declared
             if (scopeStack.checkIfSymbolExistsAtCurrentScope(paramDecl.getParamName().getValue())) {
-                errorMessage += "Duplicate declaration of parameters in method declaration"+
-                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+                errorMessage += "Duplicate declaration of parameters in method declaration" +
+                        " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
             }
             scopeStack.addObjectToCurrentScope(paramDecl.getParamName().getValue(), paramDecl);
 
@@ -48,4 +48,20 @@ public class IrMethodDecl extends IrMemberDecl {
 
         return errorMessage;
     }
+
+//    public String generateCode(int n){
+//        String assembly = "";
+//        String methodName = this.getName() + ":\n";
+//        assembly += methodName;
+//        assembly += "enter $(8*2), $0 \n"; // what is 2?
+//        String registers[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+//        int m =  paramsList.size();
+//        for(int i = 0; i < paramsList.size(); i++){
+//            assembly += "mov " + registers[i] + ", " + (-8*(m-i)) +  " (%rbp) \n";
+//        }
+//        assembly +=  "... \n";//this.methodBody.generateCode();
+//        assembly += "leave\nret\n";
+//        return assembly;
+//
+//    }
 }
