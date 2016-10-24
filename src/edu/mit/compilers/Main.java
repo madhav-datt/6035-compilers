@@ -85,12 +85,15 @@ class Main {
                 ParseTreeWalker walker = new ParseTreeWalker();
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
-                System.exit(1);
 //                Trees.inspect(tree, parser); // Makes pretty graph
+
+                if (listener.getNumberOfSematicErrors() > 0) {
+                    System.exit(1);
+                }
             }
         } catch(Exception e) {
             // print the error:
-            System.err.println(CLI.infile+" "+e);
+            System.err.println(CLI.infile + " " + e);
         }
     }
 

@@ -16,6 +16,7 @@ import java.util.Stack;
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private ScopeStack scopeStack = new ScopeStack();
+    private int countErrors;
 
     private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
         if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
@@ -34,6 +35,7 @@ public class DecafListener extends DecafParserBaseListener {
         else {
             System.err.print(errorMsg);
         }
+
         this.irStack.push(object);
     }
 
