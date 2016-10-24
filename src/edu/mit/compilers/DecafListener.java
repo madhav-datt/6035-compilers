@@ -1,5 +1,3 @@
-// Generated from /Users/abel/Desktop/Fall2016/6.035/6035-compilers/src/edu/mit/compilers/grammar/DecafParser.g4 by ANTLR 4.5.3
-
 package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.*;
@@ -18,13 +16,14 @@ import java.util.Stack;
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private ScopeStack scopeStack = new ScopeStack();
+    private int countErrors;
 
     private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
         if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
             this.scopeStack.addObjectToCurrentScope(id, object);
         }
         else {
-            System.err.print(errorMsg);
+//            System.err.print(errorMsg);
         }
         this.irStack.push(object);
     }
@@ -34,8 +33,9 @@ public class DecafListener extends DecafParserBaseListener {
             this.scopeStack.addSymbolToGlobalScope(id, object);
         }
         else {
-            System.err.print(errorMsg);
+//            System.err.print(errorMsg);
         }
+
         this.irStack.push(object);
     }
 
@@ -79,6 +79,9 @@ public class DecafListener extends DecafParserBaseListener {
         this.scopeStack.deleteCurrentScope();
 
         // check the semantics of the final program
+        if (!wholeProgram.semanticCheck(new ScopeStack()).equals("")) {
+            // do something..
+        }
         System.err.println(wholeProgram.semanticCheck(new ScopeStack()));
     }
     /**
@@ -152,7 +155,7 @@ public class DecafListener extends DecafParserBaseListener {
             declareInCurrentScopeOrReportDuplicateDecl(
                     varName.getValue(),
                     newVar,
-                    "exitVarDecl: duplicate var declared in same scope"
+                    "exitVarDecl: duplicate var declared in same scope\n"
             );
 
             // put the varType back on the stack in case there are more fields

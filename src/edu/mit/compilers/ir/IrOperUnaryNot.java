@@ -23,7 +23,7 @@ public class IrOperUnaryNot extends IrOperUnary{
         errorMessage += this.operand.semanticCheck(scopeStack);
 
         // 2) verify that the operand is IrTypeBool
-        if (!(this.operand.getExpressionType() instanceof IrTypeInt)) {
+        if (!(this.operand.getExpressionType() instanceof IrTypeBool)) {
             errorMessage += "The not '!' operand must be used on a bool" +
                     " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
         }

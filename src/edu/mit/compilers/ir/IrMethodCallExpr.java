@@ -69,6 +69,10 @@ public class IrMethodCallExpr extends IrExpr{
                         }
                     }
                 }
+                else {
+                    errorMessage += "Wrong number of arguments passed to function" +
+                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                }
 
                 // 5) check that return type is not IrTypeVoid (since this method evaluates to IrExpr)
                 if (methodDecl.getType() instanceof  IrTypeVoid) {

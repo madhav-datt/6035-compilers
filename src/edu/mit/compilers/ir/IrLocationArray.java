@@ -32,18 +32,18 @@ public class IrLocationArray extends IrLocation {
             Ir object = scopeStack.getSymbol(this.varName.getValue());
             if (!(object instanceof IrFieldDeclArray)) {
                 errorMessage += "Non-array variable be accessed as an array" +
-                        " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
+                        " line: " + this.elementIndex.getLineNumber() + " col: " + this.elementIndex.getColNumber() + "\n";
             }
         }
         else {
             errorMessage += "Array variable used before declared" +
-                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
+                    " line: " + this.elementIndex.getLineNumber() + " col: " + this.elementIndex.getColNumber() + "\n";
         }
 
         // 3) make sure that the IrExpr offset is an IrTypeInt
         if (!(elementIndex.getExpressionType() instanceof IrTypeInt)) {
             errorMessage += "Element offset must be of type int" +
-                    " line: " + this.elementIndex.getLineNumber() + "col: " + this.elementIndex.getColNumber() + "\n";
+                    " line: " + this.elementIndex.getLineNumber() + " col: " + this.elementIndex.getColNumber() + "\n";
         }
 
         return errorMessage;

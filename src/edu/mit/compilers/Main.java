@@ -4,6 +4,7 @@ import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -37,9 +38,7 @@ class Main {
                             String type = "";
                             String text = token.getText();
 
-                            //              System.out.println("\n\n"+token.getType());
                             switch (token.getType()) {
-                                // TODO: add strings for the other types here...
                                 case DecafScanner.CHAR:
                                     type = " CHARLITERAL";
                                     break;
@@ -79,7 +78,6 @@ class Main {
                 }
             } else if (CLI.target == Action.INTER ||
                     CLI.target == Action.DEFAULT) {
-
                 DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
                 TokenStream tokens = new CommonTokenStream(lexer);
                 DecafParser parser = new DecafParser(tokens);
@@ -88,10 +86,14 @@ class Main {
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
 //                Trees.inspect(tree, parser); // Makes pretty graph
+                //Todo: write the listener method
+//                if (listener.getNumberOfSematicErrors() > 0) {
+//                    System.exit(1);
+//                }
             }
         } catch(Exception e) {
             // print the error:
-            System.err.println(CLI.infile+" "+e);
+            System.err.println(CLI.infile + " " + e);
         }
     }
 
@@ -174,3 +176,7 @@ class Main {
 
     }
 }
+
+
+
+

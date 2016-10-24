@@ -22,7 +22,7 @@ public class IrSizeOfLocation extends IrSizeOf {
         // 1) make sure the variable has been declared already
         if (!scopeStack.checkIfSymbolExistsAtAnyScope(this.field.getName())) {
             errorMessage += "Argument in sizeof hasn't been declared" +
-                    " line: " + this.field.getLineNumber() + "col: " + this.field.getColNumber() + "\n";
+                    " line: " + this.field.getLineNumber() + " col: " + this.field.getColNumber() + "\n";
         }
 
         return errorMessage;

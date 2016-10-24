@@ -72,6 +72,10 @@ public class IrMethodCallStmt extends IrStatement{
                         }
                     }
                 }
+                else {
+                    errorMessage += "Wrong number of arguments passed to function" +
+                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                }
             }
 
             // for an extern method_decl

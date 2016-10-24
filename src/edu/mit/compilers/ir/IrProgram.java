@@ -33,7 +33,8 @@ public class IrProgram extends Ir{
         String errorMessage = "";
 
         // 1) check that no field_decls are declared twice in same scope
-        for (IrFieldDecl fieldDecl: this.fieldDecls) {
+        for (int i = this.fieldDecls.size()-1; i >=0 ; i--) {
+            IrFieldDecl fieldDecl = this.fieldDecls.get(i);
             if (scopeStack.checkIfSymbolExistsAtCurrentScope(fieldDecl.getName())) {
                 errorMessage += "Duplicate field_decl in same scope __filename__"+
                         " line: "+fieldDecl.getLineNumber() + " col: " +fieldDecl.getColNumber() + "\n";
@@ -45,7 +46,8 @@ public class IrProgram extends Ir{
         }
 
         // 2) check that no externs are declared twice
-        for (IrExternDecl externDecl: this.externDecls) {
+        for (int j = this.externDecls.size()-1; j >=0 ; j--) {
+            IrExternDecl externDecl = this.externDecls.get(j);
             if (scopeStack.checkIfSymbolExistsAtCurrentScope(externDecl.getName())) {
                 errorMessage += "Duplicate externs declared __filename__"+
                         " line: "+externDecl.getLineNumber() + " col: " + externDecl.getColNumber() + "\n";
@@ -57,7 +59,8 @@ public class IrProgram extends Ir{
         }
 
         // 3) check that no methods are declared twice
-        for (IrMethodDecl methodDecl: this.methodDecls) {
+        for (int k = this.methodDecls.size()-1; k >=0 ; k--) {
+            IrMethodDecl methodDecl = this.methodDecls.get(k);
             if (scopeStack.checkIfSymbolExistsAtCurrentScope(methodDecl.getName())) {
                 errorMessage += "Duplicate method declared in __filename__"+
                         " line: "+methodDecl.getLineNumber() + " col: " + methodDecl.getColNumber() + "\n";
@@ -78,17 +81,17 @@ public class IrProgram extends Ir{
                 // 5) make sure main() has no parameters
                 if (mainMethod.getParamsList().size() > 0) {
                     errorMessage += "main() method cannot have parameters" +
-                            "line: " + mainMethod.getLineNumber() + "col: " + mainMethod.getColNumber();
+                            " line: " + mainMethod.getLineNumber() + " col: " + mainMethod.getColNumber();
                 }
             }
             else {
                 errorMessage += "main must be void method with no parameters " +
-                        "line: " + this.getLineNumber() + "col: " + this.getColNumber();
+                        " line: " + this.getLineNumber() + " col: " + this.getColNumber();
             }
         }
         else {
             errorMessage += "Program must contain a main() method" +
-                    "line: " + this.getLineNumber() + "col: " + this.getColNumber();
+                    " line: " + this.getLineNumber() + " col: " + this.getColNumber();
         }
 
         return errorMessage;

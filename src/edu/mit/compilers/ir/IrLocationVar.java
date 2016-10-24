@@ -22,7 +22,7 @@ public class IrLocationVar extends IrLocation {
         // 1) make sure the variable has been declared already
         if (!scopeStack.checkIfSymbolExistsAtAnyScope(this.varName.getValue())) {
             errorMessage += "Variable used before declared" +
-                    " line: " + this.varName.getLineNumber() + "col: " + this.varName.getColNumber() + "\n";
+                    " line: " + this.varName.getLineNumber() + " col: " + this.varName.getColNumber() + "\n";
         }
 
         return errorMessage;
