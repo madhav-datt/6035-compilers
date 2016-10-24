@@ -164,10 +164,13 @@ expr :
     location #DummyLabel
     | L_PAREN expr R_PAREN #ParenExpr
     | method_call #NonVoidMethodCall
-    | expr arith_op expr #ArithExpr
+    | expr arith_op_mul expr #ArithMulExpr
+    | expr arith_op_add expr #ArithAddExpr
+//    | expr arith_op expr #ArithExpr
     | expr rel_op expr #RelExpr
     | expr eq_op expr #EquateExpr
-    | expr cond_op expr #CondExpr
+    | expr AND_OP expr #CondExpr
+    | expr OR_OP expr #CondExpr
     | NOT_OP expr #NotExpr
     | SUB_OP expr #NegateExpr
     | literal #DummyLabel
@@ -198,12 +201,23 @@ catch [RecognitionException ex] {
 //bin_op :
 //    arith_op | rel_op | eq_op | cond_op;
 
-arith_op :
+//arith_op :
+//    arith_op_mul
+//    | arith_op_add;
+//    | DIV_OP
+//    | MUL_OP
+//    | ADD_OP
+//    | SUB_OP
+//    | MOD_OP;
+
+arith_op_mul :
     DIV_OP
     | MUL_OP
-    | ADD_OP
-    | SUB_OP
     | MOD_OP;
+
+arith_op_add :
+    ADD_OP
+    | SUB_OP;
 
 rel_op :
     LT_OP | GT_OP | LEQ_OP | GEQ_OP;

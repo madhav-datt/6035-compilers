@@ -869,13 +869,64 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterArithExpr(DecafParser.ArithExprContext ctx) { }
+    @Override public void enterArithMulExpr(DecafParser.ArithMulExprContext ctx) { }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitArithExpr(DecafParser.ArithExprContext ctx) {
+    @Override public void exitArithMulExpr(DecafParser.ArithMulExprContext ctx) {
+        // TODO: Fix for order of operations
+
+        // 1) pop the rhs from the stack
+        Ir topOfStack = this.irStack.peek();
+        if (topOfStack instanceof IrExpr) {
+            IrExpr rhs = (IrExpr) this.irStack.pop();
+
+            // 2) pop the lhs from the stack
+            topOfStack = this.irStack.peek();
+            if (topOfStack instanceof IrExpr) {
+                IrExpr lhs = (IrExpr) this.irStack.pop();
+
+                if (ctx.arith_op_mul().DIV_OP() != null) {
+                    String division = ctx.arith_op_mul().DIV_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(division, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else if (ctx.arith_op_mul().MUL_OP() != null) {
+                    String multiplication = ctx.arith_op_mul().MUL_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(multiplication, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else if (ctx.arith_op_mul().MOD_OP() != null) {
+                    String modulus = ctx.arith_op_mul().MOD_OP().getText();
+
+                    // 5) create the IrOperBinaryArith and add it irStack
+                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
+                    this.irStack.push(arithExpr);
+                }
+                else {System.err.print("exitArithMulExpr: problem with determining exprType\n");}
+            }
+            else {System.err.print("exitArithMulExpr: lhs not on the stack\n");}
+        }
+        else {System.err.print("exitArithMulExpr: rhs not on the stack\n");}
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterArithAddExpr(DecafParser.ArithAddExprContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitArithAddExpr(DecafParser.ArithAddExprContext ctx) {
         // TODO: Fix for order of operations
 
         // 1) pop the rhs from the stack
@@ -889,46 +940,25 @@ public class DecafListener extends DecafParserBaseListener {
                 IrExpr lhs = (IrExpr) this.irStack.pop();
 
                 // 4) get the type of ArithExpr frm the stack
-                if (ctx.arith_op().ADD_OP() != null) {
-                    String addition = ctx.arith_op().ADD_OP().getText();
+                if (ctx.arith_op_add().ADD_OP() != null) {
+                    String addition = ctx.arith_op_add().ADD_OP().getText();
 
                     // 5) create the IrOperBinaryArith and add it irStack
                     IrOperBinaryArith arithExpr = new IrOperBinaryArith(addition, lhs, rhs);
                     this.irStack.push(arithExpr);
                 }
-                else if (ctx.arith_op().SUB_OP() != null) {
-                    String subtraction = ctx.arith_op().SUB_OP().getText();
+                else if (ctx.arith_op_add().SUB_OP() != null) {
+                    String subtraction = ctx.arith_op_add().SUB_OP().getText();
 
                     // 5) create the IrOperBinaryArith and add it irStack
                     IrOperBinaryArith arithExpr = new IrOperBinaryArith(subtraction, lhs, rhs);
                     this.irStack.push(arithExpr);
                 }
-                else if (ctx.arith_op().DIV_OP() != null) {
-                    String division = ctx.arith_op().DIV_OP().getText();
-
-                    // 5) create the IrOperBinaryArith and add it irStack
-                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(division, lhs, rhs);
-                    this.irStack.push(arithExpr);
-                }
-                else if (ctx.arith_op().MUL_OP() != null) {
-                    String multiplication = ctx.arith_op().MUL_OP().getText();
-
-                    // 5) create the IrOperBinaryArith and add it irStack
-                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(multiplication, lhs, rhs);
-                    this.irStack.push(arithExpr);
-                }
-                else if (ctx.arith_op().MOD_OP() != null) {
-                    String modulus = ctx.arith_op().MOD_OP().getText();
-
-                    // 5) create the IrOperBinaryArith and add it irStack
-                    IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
-                    this.irStack.push(arithExpr);
-                }
-                else {System.err.print("exitArithExpr: problem with determining exprType\n");}
+                else {System.err.print("exitArithAddExpr: problem with determining exprType\n");}
             }
-            else {System.err.print("exitArithExpr: lhs not on the stack\n");}
+            else {System.err.print("exitArithAddExpr: lhs not on the stack\n");}
         }
-        else {System.err.print("exitArithExpr: rhs not on the stack\n");}
+        else {System.err.print("exitArithAddExpr: rhs not on the stack\n");}
     }
     /**
      * {@inheritDoc}
@@ -1150,15 +1180,15 @@ public class DecafListener extends DecafParserBaseListener {
                 IrExpr lhs = (IrExpr) this.irStack.pop();
 
                 // 4) get the type of CondExpr frm the stack
-                if (ctx.cond_op().AND_OP() != null) {
-                    String exprType = ctx.cond_op().AND_OP().getText();
+                if (ctx.AND_OP() != null) {
+                    String exprType = ctx.AND_OP().getText();
 
                     // 5) create the IrOperBinaryCond expr and push to irstack
                     IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
                     this.irStack.push(condExpr);
                 }
-                else if (ctx.cond_op().OR_OP() != null) {
-                    String exprType = ctx.cond_op().OR_OP().getText();
+                else if (ctx.OR_OP() != null) {
+                    String exprType = ctx.OR_OP().getText();
 
                     // 5) create the IrOperBinaryCond expr and push to irstack
                     IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
