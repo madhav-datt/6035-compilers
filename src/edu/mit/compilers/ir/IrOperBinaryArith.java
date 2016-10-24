@@ -25,8 +25,8 @@ public class IrOperBinaryArith extends IrOperBinary {
         errorMessage += this.leftOperand.semanticCheck(scopeStack);
 
         // 2) verify that both lhs and rhs are IrType int
-        if (!(this.rightOperand.getExpressionType() instanceof IrTypeInt)
-                && (this.leftOperand.getExpressionType() instanceof IrTypeInt)) {
+        if (!((this.rightOperand.getExpressionType() instanceof IrTypeInt)
+                && (this.leftOperand.getExpressionType() instanceof IrTypeInt))) {
             errorMessage += "The lhs and rhs of an arithmetic expression must be of type int" +
                     " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
         }

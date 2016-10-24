@@ -25,8 +25,8 @@ public class IrOperBinaryCond extends IrOperBinary {
         errorMessage += this.leftOperand.semanticCheck(scopeStack);
 
         // 2) verify that both lhs and rhs are IrTypeBool
-        if (!(this.rightOperand.getExpressionType() instanceof IrTypeBool)
-                && (this.leftOperand.getExpressionType() instanceof IrTypeBool)) {
+        if (!((this.rightOperand.getExpressionType() instanceof IrTypeBool)
+                && (this.leftOperand.getExpressionType() instanceof IrTypeBool))) {
             errorMessage += "The lhs and rhs of an conditional expression must be of type bool" +
                     " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
         }

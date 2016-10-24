@@ -616,13 +616,13 @@ public class DecafListener extends DecafParserBaseListener {
                                     IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(compoundAssignLocation, incrementerExpr);
 
                                     // 17) create the IrCtrlFlowFor and add it to the stack
-                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, minusEqual, conditionExpr, forLoopBody);
+                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, startingExpValue, minusEqual, conditionExpr, forLoopBody);
                                     this.irStack.push(forLoop);
                                 } else if (ctx.compound_assign_op().ADD_AS_OP() != null) {
                                     IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(compoundAssignLocation, incrementerExpr);
 
                                     // 17) create the IrCtrlFlowFor and add it to the stack
-                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, plusEqual, conditionExpr, forLoopBody);
+                                    IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, startingExpValue, plusEqual, conditionExpr, forLoopBody);
                                     this.irStack.push(forLoop);
                                 }
                                 else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n");}
@@ -1329,15 +1329,36 @@ public class DecafListener extends DecafParserBaseListener {
             // for 0x "hex" ints
             if (intString.contains("0x")) {
                 intString = intString.substring(2);
-                long hexInt = Long.parseLong(intString, 16);
-                IrLiteralInt intLiteral = new IrLiteralInt(hexInt, l.line, l.col);
-                this.irStack.push(intLiteral);
+
+                // 2) handle case for really large integer overflow
+                try {
+                    int hexInt = Integer.parseInt(intString, 16);
+                    IrLiteralInt intLiteral = new IrLiteralInt(hexInt, l.line, l.col);
+                    this.irStack.push(intLiteral);
+                }
+                catch (NumberFormatException exception) {
+                    System.err.print("exitLiteral: int literal too large\n");
+
+                    // this is a dummy intLiteral to avoid disrupting the irStack
+                    IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);
+                    this.irStack.push(intLiteral);
+                }
             }
             // for decimal ints
             else {
-                long decimalInt = Long.parseLong(intString);
-                IrLiteralInt intLiteral = new IrLiteralInt(decimalInt, l.line, l.col);
-                this.irStack.push(intLiteral);
+                // 2) handle case for really large integer overflow
+                try {
+                    int decimalInt = Integer.parseInt(intString);
+                    IrLiteralInt intLiteral = new IrLiteralInt(decimalInt, l.line, l.col);
+                    this.irStack.push(intLiteral);
+                }
+                catch (NumberFormatException exception) {
+                    System.err.print("exitLiteral: int literal too large\n");
+
+                    // this is a dummy intLiteral to avoid disrupting the irStack
+                    IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);
+                    this.irStack.push(intLiteral);
+                }
             }
         }
         else if (ctx.BOOL() != null) {

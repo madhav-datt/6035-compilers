@@ -62,7 +62,7 @@ public class IrProgram extends Ir{
         for (int k = this.methodDecls.size()-1; k >=0 ; k--) {
             IrMethodDecl methodDecl = this.methodDecls.get(k);
             if (scopeStack.checkIfSymbolExistsInGlobalScope(methodDecl.getName())) {
-                errorMessage += "Duplicate method declared in __filename__"+
+                errorMessage += "Duplicate method declared in __filename__" +
                         " line: "+methodDecl.getLineNumber() + " col: " + methodDecl.getColNumber() + "\n";
             }
             scopeStack.addObjectToCurrentScope(methodDecl.getName(), methodDecl);
@@ -80,11 +80,18 @@ public class IrProgram extends Ir{
 
                 // 5) make sure main() has no parameters
                 if (mainMethod.getParamsList().size() > 0) {
-                    errorMessage += "main() method cannot have parameters";
+                    errorMessage += "main() method cannot have parameters" +
+                            " line: "+ mainMethod.getLineNumber() + " col: " + mainMethod.getColNumber() + "\n";
+                }
+
+                // 6) make sure main() is IrTypeVoid
+                if (!(mainMethod.getType() instanceof IrTypeVoid)) {
+                    errorMessage += "main() must be of type void" +
+                            " line: "+ mainMethod.getLineNumber() + " col: " + mainMethod.getColNumber() + "\n";
                 }
             }
             else {
-                errorMessage += "main must be void method with no parameters ";
+                errorMessage += "Ther must be a void main() method with no parameters ";
             }
         }
         else {

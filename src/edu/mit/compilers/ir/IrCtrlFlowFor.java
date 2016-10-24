@@ -8,12 +8,14 @@ import edu.mit.compilers.ScopeStack;
 public class IrCtrlFlowFor extends IrCtrlFlow {
     private final IrLocationVar counter;
     private final IrAssignStmt compoundAssignStmt;
+    private final IrExpr intialIndexExpr;
 
-    public IrCtrlFlowFor(IrLocationVar counter, IrAssignStmt updateCounterStmt,
+    public IrCtrlFlowFor(IrLocationVar counter, IrExpr intialIndexerExpr, IrAssignStmt updateCounterStmt,
                       IrExpr condExpr, IrCodeBlock stmtBody) {
         super(condExpr, stmtBody);
         this.counter = counter;
         this.compoundAssignStmt = updateCounterStmt;
+        this.intialIndexExpr = intialIndexerExpr;
     }
 
     @Override
@@ -31,6 +33,15 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         if (object instanceof IrFieldDeclArray) {
             errorMessage += "For loop index cannot be an array variable" +
                     " line: "+this.counter.getLineNumber() + " col: " +this.counter.getColNumber() + "\n";
+        }
+
+        // 3) make sure that initialIndexExpr is semantically correct
+        errorMessage += this.intialIndexExpr.semanticCheck(scopeStack);
+
+        // 4) verify that the initialIndexExpr is IrTypeInt
+        if (!(this.intialIndexExpr.getExpressionType() instanceof IrTypeInt)) {
+            errorMessage += "Initial index value in for loop must be type int" +
+                    " line: "+this.intialIndexExpr.getLineNumber() + " col: " +this.intialIndexExpr.getColNumber() + "\n";
         }
 
         // 3) verify that the condition is IrTypeBool
