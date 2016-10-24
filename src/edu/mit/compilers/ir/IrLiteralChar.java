@@ -1,6 +1,6 @@
 package edu.mit.compilers.ir;
 
-public class IrLiteralChar extends IrLiteral {
+public class IrLiteralChar extends IrExprLiteral {
     private final char value;
 
     public IrLiteralChar(char value, int lineNumber, int colNumber) {

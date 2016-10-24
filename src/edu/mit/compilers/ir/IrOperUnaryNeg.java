@@ -12,4 +12,7 @@ public class IrOperUnaryNeg extends IrOperUnary{
     public IrType getExpressionType() {
         return new IrTypeInt(this.operand.getLineNumber(), this.operand.getColNumber());
     }
+    public String generateCode(String reg1){
+        return "neg " + reg1;
+    }
 }

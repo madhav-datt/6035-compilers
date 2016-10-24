@@ -7,4 +7,7 @@ public class IrStmtBreak extends IrStatement {
     public IrStmtBreak(int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
     }
+    public String generateCode(String jumpToLable){
+        return "jmp ." + jumpToLable;
+    }
 }

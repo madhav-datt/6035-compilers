@@ -9,7 +9,9 @@ public abstract class IrMemberDecl extends Ir {
         this.name = name;
         this.type = type;
     }
-
+    public IrIdent getIdent(){
+        return this.name;
+    }
     public String getName() {
         return this.name.getValue();
     }
@@ -17,4 +19,14 @@ public abstract class IrMemberDecl extends Ir {
     public IrType getType() {
         return this.type;
     }
+
+//    public String generateCode(int n){
+//        String assembly = "";
+//        String methodName = this.getName() + ":";
+//        assembly += methodName;
+//        assembly += "enter $(8*2), $0"; // what is 2?
+//        assembly += "mov ";
+//        return assembly;
+//
+//    }
 }

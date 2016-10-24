@@ -12,4 +12,7 @@ public class IrIdent extends Ir {
     public String getValue(){
         return this.name;
     }
+    public String toString(){
+        return this.name;
+    }
 }

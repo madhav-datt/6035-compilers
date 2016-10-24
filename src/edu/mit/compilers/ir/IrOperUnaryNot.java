@@ -12,4 +12,8 @@ public class IrOperUnaryNot extends IrOperUnary{
     public IrType getExpressionType() {
         return new IrTypeBool(this.operand.getLineNumber(), this.operand.getColNumber());
     }
+
+    public String generateCode(String reg){
+        return "not " + reg;
+    }
 }

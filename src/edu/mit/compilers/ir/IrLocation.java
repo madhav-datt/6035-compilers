@@ -19,4 +19,7 @@ public abstract class IrLocation extends IrExpr {
     public IrIdent getLocationName() {
         return this.varName;
     }
+    public String toString(){
+        return this.varName.toString();
+    }
 }

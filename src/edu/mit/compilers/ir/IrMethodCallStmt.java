@@ -24,4 +24,7 @@ public class IrMethodCallStmt extends IrStatement{
     public String toString(){
         return this.methodName + "(" +this.argsList.toString()+ ")";
     }
+    public String generateCode(){
+        return "call " + methodName;
+    }
 }

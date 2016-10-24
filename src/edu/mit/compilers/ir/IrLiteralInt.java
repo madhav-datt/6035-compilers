@@ -1,6 +1,8 @@
 package edu.mit.compilers.ir;
 
-public class IrLiteralInt extends IrLiteral {
+import edu.mit.compilers.LocalVariableTable;
+
+public class IrLiteralInt extends IrExprLiteral {
     private final long value;
 
     public IrLiteralInt(long value, int lineNumber, int colNumber) {
@@ -11,5 +13,10 @@ public class IrLiteralInt extends IrLiteral {
     @Override
     public IrType getExpressionType() {
         return new IrTypeInt(this.getLineNumber(), this.getColNumber());
+    }
+
+    public String generateCode(StringBuilder assemblySoFar, LocalVariableTable table){
+
+        return ("$" + Long.toString(value));
     }
 }

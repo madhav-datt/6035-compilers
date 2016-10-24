@@ -85,9 +85,9 @@ class Main {
     }
 
     public static void testDecafListner() {
-        String prefix = "/Users/devinmorgan/Documents/Java_Workspace_6035/6035-compilers/tests/semantics/";
+        String prefix = "/Users/abel/Desktop/Fall2016/com-6.035/6035-compilers/tests/semantics/";
         try {
-            CharStream stream = new ANTLRFileStream(prefix + "legal/custom-01.dcf");
+            CharStream stream = new ANTLRFileStream(prefix + "legal/custom-02.dcf");
             DecafScanner lexer = new DecafScanner(stream);
             TokenStream tokens = new CommonTokenStream(lexer);
             DecafParser parser = new DecafParser(tokens);

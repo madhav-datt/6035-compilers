@@ -231,6 +231,11 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
+//                    System.out.println(newMethod.generateCode(3));
+                    LocalVariableTable table = new LocalVariableTable();
+                    StringBuilder assembly = new StringBuilder();
+                    newMethod.generateCode(assembly, table);
+                    System.out.println(assembly);
                     declareInGlobalScopeOrReportDuplicateDecl(
                             methodName.getValue(),
                             newMethod,
@@ -310,6 +315,7 @@ public class DecafListener extends DecafParserBaseListener {
 
         // 3) Create the actual IrCodeBlock and add it to the stack
         IrCodeBlock newBlock = new IrCodeBlock(fieldDeclsList, statementsList, l.line, l.col);
+
         this.irStack.push(newBlock);
     }
     /**
@@ -395,30 +401,35 @@ public class DecafListener extends DecafParserBaseListener {
                         IrAssignStmt assignStmt = new IrAssignStmtEqual(loc, expr);
                         this.irStack.push(assignStmt);
                     }
+                    else if (ctx.assign_op().compound_assign_op().ADD_AS_OP() != null) { // location += expr
 
-                    // 5) for compound assing ops, make sure they are of type IrTypeInt
-                    if (expr.getExpressionType() instanceof  IrTypeInt) {
-                        if (ctx.assign_op().compound_assign_op().ADD_AS_OP() != null) { // location += expr
+                        // 5) for compound assing ops, make sure they are of type IrTypeInt
+                        if (expr.getExpressionType() instanceof  IrTypeInt) {
 
                             // 6) create the IrAssignStmt and add it to the stack
                             IrAssignStmtPlusEqual plusEqual = new IrAssignStmtPlusEqual(loc, expr);
                             this.irStack.push(plusEqual);
                         }
-                        else if (ctx.assign_op().compound_assign_op().SUB_AS_OP() != null) { // location -= expr
+                        else {System.err.print("exitAssignStmt: must be IrTypeInt in compound assign stmts\n");}
+                    }
+                    else if (ctx.assign_op().compound_assign_op().SUB_AS_OP() != null) { // location -= expr
+
+                        // 5) for compound assing ops, make sure they are of type IrTypeInt
+                        if (expr.getExpressionType() instanceof  IrTypeInt) {
 
                             // 6) create the IrAssignStmt and add it to the stack
                             IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
                             this.irStack.push(minusEqual);
                         }
-                        else {System.out.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
+                        else {System.err.print("exitAssignStmt: must be IrTypeInt in compound assign stmts\n");}
                     }
-                    else {System.out.print("exitAssignStmt: must be IrTypeInt in compound assign stmts\n");}
+                    else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
                 }
-                else {System.out.print("exitAssignStmt: IrLocation and IrExpr are not of matching IrType\n");}
+                else {System.err.print("exitAssignStmt: IrLocation and IrExpr are not of matching IrType\n");}
             }
-            else {System.out.print("exitAssignStmt: IrLocation missing from top of stack\n");}
+            else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n");}
         }
-        else {System.out.print("exitAssignStmt: IrExpression missing from top of stack\n");}
+        else {System.err.print("exitAssignStmt: IrExpression missing from top of stack\n");}
     }
     /**
      * {@inheritDoc}
@@ -1327,8 +1338,8 @@ public class DecafListener extends DecafParserBaseListener {
                 if (object instanceof IrFieldDecl) {
                     IrFieldDecl field = (IrFieldDecl) object;
 
-                    // create the IrSizeOfLocation and add it to the stack
-                    IrSizeOfLocation sizeOfField = new IrSizeOfLocation(field, l.line, l.col);
+                    // create the IrExprSizeOfLocation and add it to the stack
+                    IrExprSizeOfLocation sizeOfField = new IrExprSizeOfLocation(field, l.line, l.col);
                     this.irStack.push(sizeOfField);
                 }
                 else {System.out.print("enterSizeOfVar: sizeof object was not an IrFieldDecl\n");}
@@ -1354,8 +1365,8 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrTypeBool || topOfStack instanceof IrTypeInt) {
             IrType type = (IrType) this.irStack.pop();
 
-            // create the IrSizeOfType object and add it to irStack
-            IrSizeOfType sizeOfType = new IrSizeOfType(type);
+            // create the IrExprSizeOfType object and add it to irStack
+            IrExprSizeOfType sizeOfType = new IrExprSizeOfType(type);
             this.irStack.push(sizeOfType);
         }
         else { System.out.print("exitSizeOfType: argument for sizeof is not IrTypeBool or IrTypeInt\n");}

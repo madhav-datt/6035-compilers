@@ -8,4 +8,8 @@ public class IrFieldDeclArray extends IrFieldDecl {
         this.arraySize = arraySize;
     }
 
+    public int getArraySize(){
+        return this.arraySize;
+    }
+
 }
