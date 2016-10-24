@@ -36,7 +36,8 @@ public class IrAssignStmtPlusEqual extends IrAssignStmt{
         errorMessage += this.incrementBy.semanticCheck(scopeStack);
 
         // 4) make sure that the IrExpr and IrLocation are IrTypeInt
-        if (!(this.incrementBy.getExpressionType() instanceof IrTypeInt)) {
+        if (!((this.incrementBy.getExpressionType() instanceof IrTypeInt) &&
+                this.getStoreLocation().getExpressionType() instanceof IrTypeInt)) {
             errorMessage += "The variable and expression of += must be of type int" +
                     " line: " + this.getLineNumber() + " col: " +this.getColNumber() + "\n";
         }

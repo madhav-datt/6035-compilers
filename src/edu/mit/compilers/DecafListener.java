@@ -1332,12 +1332,13 @@ public class DecafListener extends DecafParserBaseListener {
 
                 // 2) handle case for really large integer overflow
                 try {
-                    int hexInt = Integer.parseInt(intString, 16);
+                    long hexInt = Long.parseLong(intString, 16);
                     IrLiteralInt intLiteral = new IrLiteralInt(hexInt, l.line, l.col);
                     this.irStack.push(intLiteral);
                 }
                 catch (NumberFormatException exception) {
-                    System.err.print("exitLiteral: int literal too large\n");
+                    System.err.print("int literal overflow" +
+                            " line: " + l.line + " col: " + l.col + "\n");
 
                     // this is a dummy intLiteral to avoid disrupting the irStack
                     IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);
@@ -1348,12 +1349,13 @@ public class DecafListener extends DecafParserBaseListener {
             else {
                 // 2) handle case for really large integer overflow
                 try {
-                    int decimalInt = Integer.parseInt(intString);
+                    long decimalInt = Long.parseLong(intString);
                     IrLiteralInt intLiteral = new IrLiteralInt(decimalInt, l.line, l.col);
                     this.irStack.push(intLiteral);
                 }
                 catch (NumberFormatException exception) {
-                    System.err.print("exitLiteral: int literal too large\n");
+                    System.err.print("int literal overflow" +
+                            " line: " + l.line + " col: " + l.col + "\n");
 
                     // this is a dummy intLiteral to avoid disrupting the irStack
                     IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);

@@ -39,10 +39,11 @@ public class IrProgram extends Ir{
                 errorMessage += "Duplicate field_decl in same scope __filename__"+
                         " line: "+fieldDecl.getLineNumber() + " col: " +fieldDecl.getColNumber() + "\n";
             }
-            scopeStack.addObjectToCurrentScope(fieldDecl.getName(), fieldDecl);
-
             // check that each fieldDecl is correct
             errorMessage += fieldDecl.semanticCheck(scopeStack);
+
+            // add the fieldDecl to the stack
+            scopeStack.addObjectToCurrentScope(fieldDecl.getName(), fieldDecl);
         }
 
         // 2) check that no externs are declared twice
@@ -52,10 +53,11 @@ public class IrProgram extends Ir{
                 errorMessage += "Duplicate externs declared __filename__"+
                         " line: "+externDecl.getLineNumber() + " col: " + externDecl.getColNumber() + "\n";
             }
-            scopeStack.addObjectToCurrentScope(externDecl.getName(), externDecl);
-
             // check that each externDecl is correct
             errorMessage += externDecl.semanticCheck(scopeStack);
+
+            // add the extern to the stack
+            scopeStack.addObjectToCurrentScope(externDecl.getName(), externDecl);
         }
 
         // 3) check that no methods are declared twice
@@ -65,10 +67,11 @@ public class IrProgram extends Ir{
                 errorMessage += "Duplicate method declared in __filename__" +
                         " line: "+methodDecl.getLineNumber() + " col: " + methodDecl.getColNumber() + "\n";
             }
-            scopeStack.addObjectToCurrentScope(methodDecl.getName(), methodDecl);
-
             // check that each methodDecl is correct
             errorMessage += methodDecl.semanticCheck(scopeStack);
+
+            // add the method to the stack
+            scopeStack.addObjectToCurrentScope(methodDecl.getName(), methodDecl);
         }
 
         // 4) check for main() method
@@ -91,7 +94,7 @@ public class IrProgram extends Ir{
                 }
             }
             else {
-                errorMessage += "Ther must be a void main() method with no parameters ";
+                errorMessage += "There must be a void main() method with no parameters ";
             }
         }
         else {
