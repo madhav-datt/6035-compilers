@@ -61,8 +61,8 @@ class Main {
                     } catch(Exception e) {
                         // print the error:
                         System.err.println(CLI.infile + " " + e);
-                        //            scanner.consume();
-                        scanner.skip(); // replaces
+                        //scanner.skip(); // replaces
+                        System.exit(1);
                     }
                 }
             } else if (CLI.target == Action.PARSE) {
@@ -72,10 +72,11 @@ class Main {
                 DecafParser parser = new DecafParser(tokenStream);
                 parser.setTrace(CLI.debug);
                 parser.program();
-                //        if(parser.getError()) {
+
                 if (parser.getNumberOfSyntaxErrors() > 0) {
                     System.exit(1);
                 }
+
             } else if (CLI.target == Action.INTER ||
                     CLI.target == Action.DEFAULT) {
                 DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
@@ -85,7 +86,7 @@ class Main {
                 ParseTreeWalker walker = new ParseTreeWalker();
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
-                Trees.inspect(tree, parser); // Makes pretty graph
+//                Trees.inspect(tree, parser); // Makes pretty graph
 
 //                if (listener.getNumberOfSematicErrors() > 0) {
 //                    System.exit(1);
@@ -94,6 +95,7 @@ class Main {
         } catch(Exception e) {
             // print the error:
             System.err.println(CLI.infile + " " + e);
+            System.exit(1);
         }
     }
 
