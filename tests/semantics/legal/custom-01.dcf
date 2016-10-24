@@ -1,8 +1,4 @@
-int foo ( int i, bool b ) {
-  return 3;
-}
+int a[0];
+// bad array size
 void main ( ) {
-  int x;
-  x = foo ( 34, 35 );
-  // types don't match signature
 }
