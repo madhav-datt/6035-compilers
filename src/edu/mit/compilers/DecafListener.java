@@ -16,14 +16,15 @@ import java.util.Stack;
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private ScopeStack scopeStack = new ScopeStack();
-    private int countErrors;
+    private boolean errorFlag = false;
+    private String errorMessage = "";
 
     private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
         if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
             this.scopeStack.addObjectToCurrentScope(id, object);
         }
         else {
-//            System.err.print(errorMsg);
+//            this.errorMessage += errorMsg);
         }
         this.irStack.push(object);
     }
@@ -33,10 +34,14 @@ public class DecafListener extends DecafParserBaseListener {
             this.scopeStack.addSymbolToGlobalScope(id, object);
         }
         else {
-//            System.err.print(errorMsg);
+//            this.errorMessage += errorMsg);
         }
 
         this.irStack.push(object);
+    }
+
+    public boolean detectedSemanticErrors() {
+        return this.errorFlag;
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) {
@@ -72,17 +77,18 @@ public class DecafListener extends DecafParserBaseListener {
         }
 
         if (this.irStack.size() != 0) {
-            System.err.print("irStack not empty after reaching end of program\n");
+            this.errorMessage += "irStack not empty after reaching end of program\n";
         }
 
         // delete the global stack since we have created the program
         this.scopeStack.deleteCurrentScope();
 
         // check the semantics of the final program
-        if (!wholeProgram.semanticCheck(new ScopeStack()).equals("")) {
-            // do something..
+        this.errorMessage += wholeProgram.semanticCheck(new ScopeStack());
+        if (!errorMessage.equals("")) {
+            this.errorFlag = true;
+            System.err.println(errorMessage);
         }
-        System.err.println(wholeProgram.semanticCheck(new ScopeStack()));
     }
     /**
      * {@inheritDoc}
@@ -111,7 +117,7 @@ public class DecafListener extends DecafParserBaseListener {
                     "enterExtern_decl: same extern declared multiple times"
             );
         }
-        else {System.err.print("enterExtern_decl: popped object of wrong type\n");}
+        else {this.errorMessage += "enterExtern_decl: popped object of wrong type\n";}
     }
     /**
      * {@inheritDoc}
@@ -129,7 +135,7 @@ public class DecafListener extends DecafParserBaseListener {
             // pop the IrType because we are done creating fields
             this.irStack.pop();
         }
-        else {System.err.print("exitField_decl: missing IrType from stack\n");}
+        else {this.errorMessage += "exitField_decl: missing IrType from stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -162,7 +168,7 @@ public class DecafListener extends DecafParserBaseListener {
             // after this one
             this.irStack.push(varType);
         }
-        else {System.err.print("exitVarDecl: error with IrType of newVar\n");}
+        else {this.errorMessage += "exitVarDecl: error with IrType of newVar\n";}
     }
     /**
      * {@inheritDoc}
@@ -194,7 +200,7 @@ public class DecafListener extends DecafParserBaseListener {
             // after this one
             this.irStack.push(arrayType);
         }
-        else {System.err.print("exitArrayDecl: error with IrType of newArray\n\n");}
+        else {this.errorMessage += "exitArrayDecl: error with IrType of newArray\n";}
     }
     /**
      * {@inheritDoc}
@@ -242,11 +248,11 @@ public class DecafListener extends DecafParserBaseListener {
                             "exitMethod_decl: duplicate method in same scope"
                     );
                 }
-                else {System.err.print("exitMethod_decl: error with IrType for methodType\n");}
+                else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}
             }
-            else {System.err.print("exitMethod_decl: error with IrIdent for methodName\n");}
+            else {this.errorMessage += "exitMethod_decl: error with IrIdent for methodName\n";}
         }
-        else {System.err.print("exitMethod_decl: error with IrCodeBlock for block\n");}
+        else {this.errorMessage += "exitMethod_decl: error with IrCodeBlock for block\n";}
 
         // delete the current scope since we finished creating the method
         this.scopeStack.deleteCurrentScope();
@@ -278,7 +284,7 @@ public class DecafListener extends DecafParserBaseListener {
                     "exitParam_decl: duplicate parameter in same method signature"
             );
         }
-        else {System.err.print("exitParam_decl: error with IrTypeVar for paramType\n");}
+        else {this.errorMessage += "exitParam_decl: error with IrTypeVar for paramType\n";}
     }
     /**
      * {@inheritDoc}
@@ -409,11 +415,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrAssignStmtMinusEqual minusEqual = new IrAssignStmtMinusEqual(loc, expr);
                     this.irStack.push(minusEqual);
                 }
-                else {System.err.print("exitAssignStmt: problem with type of IrAssignStatement\n");}
+                else {this.errorMessage += "exitAssignStmt: problem with type of IrAssignStatement\n";}
             }
-            else {System.err.print("exitAssignStmt: IrLocation missing from top of stack\n");}
+            else {this.errorMessage += "exitAssignStmt: IrLocation missing from top of stack\n";}
         }
-        else {System.err.print("exitAssignStmt: IrExpression missing from top of stack\n");}
+        else {this.errorMessage += "exitAssignStmt: IrExpression missing from top of stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -462,10 +468,9 @@ public class DecafListener extends DecafParserBaseListener {
                     // create the actual IrMethodCallStmt and add it to the stack
                     IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
                     this.irStack.push(externMethodCall);
-                } else {System.err.print("exitAnyMethodCall: error with object in the stack\n");}
-            }
-        }
-        else {System.err.print("exitAnyMethodCall: ID for methodName is not in irStack\n");}
+                } else {this.errorMessage += "exitAnyMethodCall: error with object in the stack\n";}
+            } else {this.errorMessage += ("Methods must be declared before they are called line: " + l.line + " col: " + l.col + "\n");}
+        } else {this.errorMessage += "exitAnyMethodCall: ID for methodName is not in irStack\n";}
     }
     /**
      * {@inheritDoc}
@@ -495,9 +500,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrCtrlFlowIf ifStmt = new IrCtrlFlowIf(ifCondition, ifBody);
                 this.irStack.push(ifStmt);
             }
-            else {System.err.print("exitIf_stmt: top of stack is not an IrExpr\n");}
+            else {this.errorMessage += "exitIf_stmt: top of stack is not an IrExpr\n";}
         }
-        else {System.err.print("exitIf_stmt: top of stack is not a IrCodeBlock\n");}
+        else {this.errorMessage += "exitIf_stmt: top of stack is not a IrCodeBlock\n";}
 
         // delete the current scope since we are done creating the If-Stmt
         this.scopeStack.deleteCurrentScope();
@@ -523,9 +528,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrCtrlFlowIfElse ifElseStmt = new IrCtrlFlowIfElse(ifStmt, elseBody);
                 this.irStack.push(ifElseStmt);
             }
-            else {System.err.print("exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf\n");}
+            else {this.errorMessage += "exitIfAndElseStmt: top of stack is not an IrCtrlFlowIf\n";}
         }
-        else {System.err.print("exitIfAndElseStmt: top of stack is not a CodeBlock\n");}
+        else {this.errorMessage += "exitIfAndElseStmt: top of stack is not a CodeBlock\n";}
     }
     /**
      * {@inheritDoc}
@@ -560,9 +565,9 @@ public class DecafListener extends DecafParserBaseListener {
                 // 3) put the IrCodeBlock back on the stack
                 this.irStack.push(elseBlock);
             }
-            else {System.err.print("exitElse_stmt: IrResWordElse not on top of stack\n");}
+            else {this.errorMessage += "exitElse_stmt: IrResWordElse not on top of stack\n";}
         }
-        else {System.err.print("exitElse_stmt: else IrCodeBlock not on stack\n");}
+        else {this.errorMessage += "exitElse_stmt: else IrCodeBlock not on stack\n";}
 
         // 4) delete the local scope for the else block
         this.scopeStack.deleteCurrentScope();
@@ -625,19 +630,19 @@ public class DecafListener extends DecafParserBaseListener {
                                     IrCtrlFlowFor forLoop = new IrCtrlFlowFor(regularAssignLocation, startingExpValue, plusEqual, conditionExpr, forLoopBody);
                                     this.irStack.push(forLoop);
                                 }
-                                else {System.err.print("exitForLoop: problem with identifying type of compound_assign_op\n");}
+                                else {this.errorMessage += "exitForLoop: problem with identifying type of compound_assign_op\n";}
                             }
-                            else {System.err.print("exitForLoop: regular assignment var location\n");}
+                            else {this.errorMessage += "exitForLoop: regular assignment var location\n";}
                         }
-                        else {System.err.print("exitForLoop: starting incrementer expression not found on stack\n");}
+                        else {this.errorMessage += "exitForLoop: starting incrementer expression not found on stack\n";}
                     }
-                    else {System.err.print("exitForLoop: condition expr not found on stack\n");}
+                    else {this.errorMessage += "exitForLoop: condition expr not found on stack\n";}
                 }
-                else {System.err.print("exitForLoop: var location for compound assign expr not found on stack\n");}
+                else {this.errorMessage += "exitForLoop: var location for compound assign expr not found on stack\n";}
             }
-            else {System.err.print("exitForLoop: compound assign incrementer expr not found on stack\n");}
+            else {this.errorMessage += "exitForLoop: compound assign incrementer expr not found on stack\n";}
         }
-        else {System.err.print("exitForLoop: for loop body not found on stack\n");}
+        else {this.errorMessage += "exitForLoop: for loop body not found on stack\n";}
 
         this.scopeStack.deleteCurrentScope();
     }
@@ -669,9 +674,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrCtrlFlowWhile whileStmt = new IrCtrlFlowWhile(whileCondition, whileBody);
                 this.irStack.push(whileStmt);
             }
-            else {System.err.print("exitWhileLoop: top of stack is not an IrExpr\n");}
+            else {this.errorMessage += "exitWhileLoop: top of stack is not an IrExpr\n";}
         }
-        else {System.err.print("exitWhileLoop: top of stack is not a IrCodeBlock\n");}
+        else {this.errorMessage += "exitWhileLoop: top of stack is not a IrCodeBlock\n";}
 
         // delete the current scope since we are done creating the whileStmt
         this.scopeStack.deleteCurrentScope();
@@ -697,7 +702,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrStmtReturnExpr returnExpr = new IrStmtReturnExpr(expr);
             this.irStack.push(returnExpr);
         }
-        else {System.err.print("exitReturnExprStmt: problem with IrExpr on topOfStack\n");}
+        else {this.errorMessage += "exitReturnExprStmt: problem with IrExpr on topOfStack\n";}
     }
     /**
      * {@inheritDoc}
@@ -821,9 +826,9 @@ public class DecafListener extends DecafParserBaseListener {
                 IrLocationVar loc = new IrLocationVar(varName, paramType, l.line, l.col);
                 this.irStack.push(loc);
             }
-            else {System.err.print("enterVarLocation: location is not of type IrFieldDecl or IrParamDecl\n");}
+            else {this.errorMessage += "enterVarLocation: location is not of type IrFieldDecl or IrParamDecl\n";}
         }
-        else {System.err.print("enterVarLocation: location accessed without being in any scope\n");}
+        else {this.errorMessage += "enterVarLocation: location accessed without being in any scope\n";}
     }
     /**
      * {@inheritDoc}
@@ -858,11 +863,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrLocationArray locOfArray = new IrLocationArray(expr, varName, arrayType, l.line, l.col);
                     this.irStack.push(locOfArray);
                 }
-                else {System.err.print("exitArrayLocation: object in scope is not an IrFieldDeclArray\n");}
+                else {this.errorMessage += "exitArrayLocation: object in scope is not an IrFieldDeclArray\n";}
             }
-            else {System.err.print("exitArrayLocation: error with Ident; not found in scope\n");}
+            else {this.errorMessage += "exitArrayLocation: error with Ident; not found in scope\n";}
         }
-        else {System.err.print("exitArrayLocation: object on top of stack not an IrExpr\n");}
+        else {this.errorMessage += "exitArrayLocation: object on top of stack not an IrExpr\n";}
     }
     /**
      * {@inheritDoc}
@@ -909,11 +914,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrOperBinaryArith arithExpr = new IrOperBinaryArith(modulus, lhs, rhs);
                     this.irStack.push(arithExpr);
                 }
-                else {System.err.print("exitArithMulExpr: problem with determining exprType\n");}
+                else {this.errorMessage += "exitArithMulExpr: problem with determining exprType\n";}
             }
-            else {System.err.print("exitArithMulExpr: lhs not on the stack\n");}
+            else {this.errorMessage += "exitArithMulExpr: lhs not on the stack\n";}
         }
-        else {System.err.print("exitArithMulExpr: rhs not on the stack\n");}
+        else {this.errorMessage += "exitArithMulExpr: rhs not on the stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -954,11 +959,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrOperBinaryArith arithExpr = new IrOperBinaryArith(subtraction, lhs, rhs);
                     this.irStack.push(arithExpr);
                 }
-                else {System.err.print("exitArithAddExpr: problem with determining exprType\n");}
+                else {this.errorMessage += "exitArithAddExpr: problem with determining exprType\n";}
             }
-            else {System.err.print("exitArithAddExpr: lhs not on the stack\n");}
+            else {this.errorMessage += "exitArithAddExpr: lhs not on the stack\n";}
         }
-        else {System.err.print("exitArithAddExpr: rhs not on the stack\n");}
+        else {this.errorMessage += "exitArithAddExpr: rhs not on the stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -1012,11 +1017,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrOperBinaryRel relExpr = new IrOperBinaryRel(greaterThan, lhs, rhs);
                     this.irStack.push(relExpr);
                 }
-                else {System.err.print("enterRelExpr: problem with determining exprType\n");}
+                else {this.errorMessage += "enterRelExpr: problem with determining exprType\n";}
             }
-            else {System.err.print("enterRelExpr: lhs not on the stack\n");}
+            else {this.errorMessage += "enterRelExpr: lhs not on the stack\n";}
         }
-        else {System.err.print("enterRelExpr: rhs not on the stack\n");}
+        else {this.errorMessage += "enterRelExpr: rhs not on the stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -1039,7 +1044,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrOperUnaryNot negatedExpr = new IrOperUnaryNot(expr);
             this.irStack.push(negatedExpr);
         }
-        else {System.err.print("exitNotExpr: the object on top of the stack was an IrExpr\n");}
+        else {this.errorMessage += "exitNotExpr: the object on top of the stack was an IrExpr\n";}
     }
     /**
      * {@inheritDoc}
@@ -1107,11 +1112,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrMethodCallExpr externMethodCall = new IrMethodCallExpr(methodName, returnType, argsList);
                     this.irStack.push(externMethodCall);
                 }
-                else {System.err.print("exitNonVoidMethodCall: error with instanceof for type of object in the stack\n");}
+                else {this.errorMessage += "exitNonVoidMethodCall: error with instanceof for type of object in the stack\n";}
             }
-            else {System.err.print("exitNonVoidMethodCall: method was not declared/ or is not in scopeStack\n");}
+            else {this.errorMessage += ("Methods must be declared before they are called line: " + l.line + " col: " + l.col + "\n");}
         }
-        else {System.err.print("exitNonVoidMethodCall: ID for methodName is not in irStack\n");}
+        else {this.errorMessage += "exitNonVoidMethodCall: ID for methodName is not in irStack\n";}
     }
     /**
      * {@inheritDoc}
@@ -1150,11 +1155,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrOperBinaryEq notEqualsExpr = new IrOperBinaryEq(notEquals, lhsExpr, rhsExpr);
                     this.irStack.push(notEqualsExpr);
                 }
-                else {System.err.print("exitEquateExpr: problem determining type of equality expr\n");}
+                else {this.errorMessage += "exitEquateExpr: problem determining type of equality expr\n";}
             }
-            else {System.err.print("exitEquateExpr: top of stack isn't IrExpr (for lhs expr)\n");}
+            else {this.errorMessage += "exitEquateExpr: top of stack isn't IrExpr (for lhs expr)\n";}
         }
-        else {System.err.print("exitEquateExpr: top of stack isn't IrExpr (for rhs expr)\n");}
+        else {this.errorMessage += "exitEquateExpr: top of stack isn't IrExpr (for rhs expr)\n";}
     }
     /**
      * {@inheritDoc}
@@ -1194,11 +1199,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrOperBinaryCond condExpr = new IrOperBinaryCond(exprType, lhs, rhs);
                     this.irStack.push(condExpr);
                 }
-                else {System.err.print("exitCondExpr: problem with determining exprType\n");}
+                else {this.errorMessage += "exitCondExpr: problem with determining exprType\n";}
             }
-            else {System.err.print("exitCondExpr: lhs not on the stack\n");}
+            else {this.errorMessage += "exitCondExpr: lhs not on the stack\n";}
         }
-        else {System.err.print("exitCondExpr: rhs not on the stack\n");}
+        else {this.errorMessage += "exitCondExpr: rhs not on the stack\n";}
     }
     /**
      * {@inheritDoc}
@@ -1221,7 +1226,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrOperUnaryNeg negatedExpr = new IrOperUnaryNeg(expr);
             this.irStack.push(negatedExpr);
         }
-        else {System.err.print("exitNegateExpr: object on top of stack was not IrExpr\n");}
+        else {this.errorMessage += "exitNegateExpr: object on top of stack was not IrExpr\n";}
     }
     /**
      * {@inheritDoc}
@@ -1255,11 +1260,11 @@ public class DecafListener extends DecafParserBaseListener {
                     IrSizeOfLocation sizeOfField = new IrSizeOfLocation(field, l.line, l.col);
                     this.irStack.push(sizeOfField);
                 }
-                else {System.err.print("enterSizeOfVar: sizeof object was not an IrFieldDecl\n");}
+                else {this.errorMessage += "enterSizeOfVar: sizeof object was not an IrFieldDecl\n";}
             }
-            else {System.err.print("enterSizeOfVar: sizeof object was in the scope\n");}
+            else {this.errorMessage += "enterSizeOfVar: sizeof object was in the scope\n";}
         }
-        else {System.err.print("enterSizeOfVar: sizeof was has no argument (ID)\n");}
+        else {this.errorMessage += "enterSizeOfVar: sizeof was has no argument (ID)\n";}
     }
     /**
      * {@inheritDoc}
@@ -1282,7 +1287,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrSizeOfType sizeOfType = new IrSizeOfType(type);
             this.irStack.push(sizeOfType);
         }
-        else { System.err.print("exitSizeOfType: argument for sizeof is not IrTypeBool or IrTypeInt\n");}
+        else { this.errorMessage += "exitSizeOfType: argument for sizeof is not IrTypeBool or IrTypeInt\n";}
     }
     /**
      * {@inheritDoc}
@@ -1307,7 +1312,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrArgExpr argExpr = new IrArgExpr(expr, l.line, l.col);
             this.irStack.push(argExpr);
         }
-        else { System.err.print("exitArgExpr: object in the stack was not an IrExpr\n");}
+        else { this.errorMessage += "exitArgExpr: object in the stack was not an IrExpr\n";}
     }
     /**
      * {@inheritDoc}
@@ -1331,7 +1336,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrArgString irArgString = new IrArgString(string, l.line, l.col);
             this.irStack.push(irArgString);
         }
-        else { System.err.print("exitArgString: no string was found in ctx\n");}
+        else { this.errorMessage += "exitArgString: no string was found in ctx\n";}
     }
     /**
      * {@inheritDoc}
@@ -1367,8 +1372,7 @@ public class DecafListener extends DecafParserBaseListener {
                     this.irStack.push(intLiteral);
                 }
                 catch (NumberFormatException exception) {
-                    System.err.print("int literal overflow" +
-                            " line: " + l.line + " col: " + l.col + "\n");
+                    this.errorMessage += ("int literal overflow line: " + l.line + " col: " + l.col + "\n");
 
                     // this is a dummy intLiteral to avoid disrupting the irStack
                     IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);
@@ -1384,8 +1388,7 @@ public class DecafListener extends DecafParserBaseListener {
                     this.irStack.push(intLiteral);
                 }
                 catch (NumberFormatException exception) {
-                    System.err.print("int literal overflow" +
-                            " line: " + l.line + " col: " + l.col + "\n");
+                    this.errorMessage += ("int literal overflow line: " + l.line + " col: " + l.col + "\n");
 
                     // this is a dummy intLiteral to avoid disrupting the irStack
                     IrLiteralInt intLiteral = new IrLiteralInt(-69, l.line, l.col);
@@ -1403,7 +1406,7 @@ public class DecafListener extends DecafParserBaseListener {
             IrLiteralChar charLiteral = new IrLiteralChar(charValue, l.line, l.col);
             this.irStack.push(charLiteral);
         }
-        else {System.err.print("exitLiteral: the ctx did not have a CHAR, BOOL, or INT\n");}
+        else {this.errorMessage += "exitLiteral: the ctx did not have a CHAR, BOOL, or INT\n";}
     }
     /**
      * {@inheritDoc}

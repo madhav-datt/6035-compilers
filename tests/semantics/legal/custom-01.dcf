@@ -1,5 +1,8 @@
+// OK
+bool foo ( ) {
+  return true;
+}
 void main ( ) {
-    int x;
-    x = 5 * 3 - 4;
-    x = 3 - 4 * 5;
+  if ( true || foo ( ) ) {
+  }
 }

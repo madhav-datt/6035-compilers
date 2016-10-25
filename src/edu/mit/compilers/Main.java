@@ -88,9 +88,9 @@ class Main {
                 walker.walk(listener, tree);
 //                Trees.inspect(tree, parser); // Makes pretty graph
 
-//                if (listener.getNumberOfSematicErrors() > 0) {
-//                    System.exit(1);
-//                }
+                if (listener.detectedSemanticErrors()) {
+                    System.exit(1);
+                }
             }
         } catch(Exception e) {
             // print the error:
@@ -99,7 +99,81 @@ class Main {
         }
     }
 
+    private static void runFilesInDirectory(String dirPath) {
+        File dir = new File(dirPath);
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+
+                // get the fileExtension
+                String filePath = child.getPath();
+                String fileExtension = "none";
+                int i = filePath.lastIndexOf('.');
+                if (i > 0) {
+                    fileExtension = filePath.substring(i+1);
+                }
+
+                // run the test in the file
+                if (fileExtension.equals("dcf")) {
+                    try {
+                        System.out.println("\n\n" + child.getPath());
+                        CharStream stream = new ANTLRFileStream(child.getPath());
+                        DecafScanner lexer = new DecafScanner(stream);
+                        TokenStream tokens = new CommonTokenStream(lexer);
+                        DecafParser parser = new DecafParser(tokens);
+                        ParseTree tree = parser.program();
+                        ParseTreeWalker walker = new ParseTreeWalker();
+                        DecafListener listener = new DecafListener();
+                        walker.walk(listener, tree);
+                    }
+                    catch (IOException e) {
+                        System.out.println("There was an error:\n" + e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void runFile(String filePath) {
+        // get the fileExtension
+        String fileExtension = "none";
+        int i = filePath.lastIndexOf('.');
+        if (i > 0) {
+            fileExtension = filePath.substring(i+1);
+        }
+
+        // run the test in the file
+        if (fileExtension.equals("dcf")) {
+            try {
+                System.out.println("\n\n" + filePath);
+                CharStream stream = new ANTLRFileStream(filePath);
+                DecafScanner lexer = new DecafScanner(stream);
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//            Trees.inspect(tree, parser);
+            }
+            catch (IOException e) {
+                System.out.println("There was an error:\n" + e);
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        Main.testParserCode(args);
+        // test the parser
+//        Main.testParserCode(args);
+
+//        // all tests
+//        String legalTests = "./tests/semantics-hidden/legal/";
+//        Main.runFilesInDirectory(legalTests);
+
+//        String illegalTests = "./tests/semantics-hidden/illegal/";
+//        Main.runFilesInDirectory(illegalTests);
+
+        String customTest = "./tests/semantics/legal/custom-01.dcf";
+        Main.runFile(customTest);
     }
 }
