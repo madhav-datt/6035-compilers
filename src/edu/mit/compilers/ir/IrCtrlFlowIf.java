@@ -38,7 +38,7 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
         errorMessage += this.stmtBody.semanticCheck(scopeStack);
 
         // delete the current scope
-        scopeStack.createNewLoopScope();
+        scopeStack.deleteCurrentScope();
 
         return errorMessage;
     }

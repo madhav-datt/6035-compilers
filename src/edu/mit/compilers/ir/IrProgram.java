@@ -67,11 +67,11 @@ public class IrProgram extends Ir{
                 errorMessage += "Duplicate method declared in __filename__" +
                         " line: "+methodDecl.getLineNumber() + " col: " + methodDecl.getColNumber() + "\n";
             }
-            // check that each methodDecl is correct
-            errorMessage += methodDecl.semanticCheck(scopeStack);
-
             // add the method to the stack
             scopeStack.addObjectToCurrentScope(methodDecl.getName(), methodDecl);
+
+            // check that each methodDecl is correct
+            errorMessage += methodDecl.semanticCheck(scopeStack);
         }
 
         // 4) check for main() method
