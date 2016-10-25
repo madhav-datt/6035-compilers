@@ -8,14 +8,14 @@ import edu.mit.compilers.ScopeStack;
 public class IrLocationArray extends IrLocation {
     private final IrExpr elementIndex;
 
-    public IrLocationArray(IrExpr elementIndex, IrIdent varName, IrType varType, int lineNumber, int colNumber) {
-        super(varName, varType, lineNumber, colNumber);
+    public IrLocationArray(IrExpr elementIndex, IrIdent varName, int lineNumber, int colNumber) {
+        super(varName, lineNumber, colNumber);
         this.elementIndex = elementIndex;
     }
 
     @Override
     public IrType getExpressionType() {
-        return this.varType;
+        return this.getExpressionType();
     }
 
     @Override
@@ -29,10 +29,16 @@ public class IrLocationArray extends IrLocation {
         if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
 
             // make sure that var is an array
-            Ir object = scopeStack.getSymbol(this.varName.getValue());
+            Ir object = scopeStack.getSymbol(this.getLocationName().getValue());
             if (!(object instanceof IrFieldDeclArray)) {
                 errorMessage += "Non-array variable be accessed as an array" +
                         " line: " + this.elementIndex.getLineNumber() + " col: " + this.elementIndex.getColNumber() + "\n";
+            }
+            else {
+                IrFieldDeclArray array = (IrFieldDeclArray) object;
+
+                // IMPORTANT: set the IrType of the IrLocationArray
+                this.setLocationType(array.getType());
             }
         }
         else {
@@ -41,7 +47,7 @@ public class IrLocationArray extends IrLocation {
         }
 
         // 3) make sure that the IrExpr offset is an IrTypeInt
-        if (!(elementIndex.getExpressionType() instanceof IrTypeInt)) {
+        if (!(this.elementIndex.getExpressionType() instanceof IrTypeInt)) {
             errorMessage += "Element offset must be of type int" +
                     " line: " + this.elementIndex.getLineNumber() + " col: " + this.elementIndex.getColNumber() + "\n";
         }
