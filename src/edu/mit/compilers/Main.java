@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
 
 
 class Main {
@@ -70,10 +71,18 @@ class Main {
                         new DecafScanner(new ANTLRInputStream(inputStream));
                 CommonTokenStream tokenStream = new CommonTokenStream(scanner); // added for Antlr4
                 DecafParser parser = new DecafParser(tokenStream);
+
+                // Semantic/token recognition error capture mechanism
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                PrintStream p = new PrintStream(bytes, true, "UTF-8");
+                System.setErr(p);
+
                 parser.setTrace(CLI.debug);
                 parser.program();
+                String printedSoFar = bytes.toString("UTF-8");
+                System.out.print(printedSoFar);
 
-                if (parser.getNumberOfSyntaxErrors() > 0) {
+                if (parser.getNumberOfSyntaxErrors() > 0 || printedSoFar.length() > 0) {
                     System.exit(1);
                 }
 
