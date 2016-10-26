@@ -23,7 +23,7 @@ public class IrSizeOfLocation extends IrSizeOf {
         if (scopeStack.checkIfSymbolExistsAtAnyScope(this.fieldName.getValue())) {
             Ir object = scopeStack.getSymbol(this.fieldName.getValue());
 
-            // make sure that argument is a var (and not a method)
+            // 2) make sure that argument is a var (and not a method)
             if (!(object instanceof IrFieldDecl)) {
                 errorMessage += "Argument for sizeof is not a type, variable, or array" +
                         " line: " + this.fieldName.getLineNumber() + " col: " + this.fieldName.getColNumber() + "\n";
