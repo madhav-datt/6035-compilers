@@ -164,7 +164,7 @@ class Main {
 
     public static void main(String[] args) {
         // test the parser
-//        Main.testParserCode(args);
+        Main.testParserCode(args);
 
 //        // all tests
 //        String legalTests = "./tests/semantics-hidden/legal/";
@@ -173,7 +173,7 @@ class Main {
 //        String illegalTests = "./tests/semantics-hidden/illegal/";
 //        Main.runFilesInDirectory(illegalTests);
 
-        String customTest = "./tests/semantics/legal/custom-01.dcf";
-        Main.runFile(customTest);
+//        String customTest = "./tests/semantics/legal/custom-01.dcf";
+//        Main.runFile(customTest);
     }
 }
