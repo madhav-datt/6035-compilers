@@ -3,16 +3,16 @@ package edu.mit.compilers.ir;
 import edu.mit.compilers.ScopeStack;
 
 public class IrSizeOfLocation extends IrSizeOf {
-    private final IrFieldDecl field;
+    private final IrIdent fieldName;
 
-    public IrSizeOfLocation(IrFieldDecl field, int lineNumber, int colNumber) {
+    public IrSizeOfLocation(IrIdent fieldName, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
-        this.field = field;
+        this.fieldName = fieldName;
     }
 
     @Override
     public IrType getExpressionType() {
-        return new IrTypeInt(this.field.getLineNumber(), this.field.getColNumber());
+        return new IrTypeInt(this.fieldName.getLineNumber(), this.fieldName.getColNumber());
     }
 
     @Override
@@ -20,9 +20,18 @@ public class IrSizeOfLocation extends IrSizeOf {
         String errorMessage = "";
 
         // 1) make sure the variable has been declared already
-        if (!scopeStack.checkIfSymbolExistsAtAnyScope(this.field.getName())) {
+        if (scopeStack.checkIfSymbolExistsAtAnyScope(this.fieldName.getValue())) {
+            Ir object = scopeStack.getSymbol(this.fieldName.getValue());
+
+            // make sure that argument is a var (and not a method)
+            if (!(object instanceof IrFieldDecl)) {
+                errorMessage += "Argument for sizeof is not a type, variable, or array" +
+                        " line: " + this.fieldName.getLineNumber() + " col: " + this.fieldName.getColNumber() + "\n";
+            }
+        }
+        else {
             errorMessage += "Argument in sizeof hasn't been declared" +
-                    " line: " + this.field.getLineNumber() + " col: " + this.field.getColNumber() + "\n";
+                    " line: " + this.fieldName.getLineNumber() + " col: " + this.fieldName.getColNumber() + "\n";
         }
 
         return errorMessage;
