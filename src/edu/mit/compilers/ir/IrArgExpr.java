@@ -16,4 +16,8 @@ public class IrArgExpr extends IrArg {
 
         return errorMessage;
     }
+
+    public IrType getArgumentType() {
+        return ((IrExpr) this.getArgValue()).getExpressionType();
+    }
 }
