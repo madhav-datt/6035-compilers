@@ -7,13 +7,12 @@ import java.util.*;
 public class IrMethodCallExpr extends IrExpr{
     private final IrIdent methodName;
     private final List<IrArg> argsList;
-    private final IrType methodType;
+    private IrType methodType;
 
-    public IrMethodCallExpr(IrIdent methodName, IrType methodType, List<IrArg> argsList) {
+    public IrMethodCallExpr(IrIdent methodName, List<IrArg> argsList) {
         super(methodName.getLineNumber(), methodName.getColNumber());
         this.methodName = methodName;
         this.argsList = argsList;
-        this.methodType = methodType;
     }
 
     public IrType getExpressionType() {
@@ -41,20 +40,25 @@ public class IrMethodCallExpr extends IrExpr{
                 if (declParams.size() == this.argsList.size()) {
                     for (int i = 0; i < declParams.size(); i++) {
                         IrParamDecl param = declParams.get(i);
-                        Object unsafeArg = argsList.get(i).getArgValue(); // i.e. a STRING
+                        Object unsafeArg = argsList.get(i); // i.e. a STRING
 
-                        if (unsafeArg instanceof IrExpr) {
-                            IrExpr safeArg = (IrExpr) unsafeArg;
+                        if (unsafeArg instanceof IrArgExpr) {
+                            IrArgExpr safeArg = (IrArgExpr) unsafeArg;
+
+                            // check that the IrArgExpr is semantically correct
+                            errorMessage += safeArg.semanticCheck(scopeStack);
 
                             // 3) check that each argument and param types match
-                            if (!param.getExpressionType().getClass().equals(safeArg.getExpressionType().getClass())) {
-                                errorMessage += "Argument and parameter types don't match" +
-                                        " line: " + safeArg.getLineNumber() + " col: " + safeArg.getColNumber() + "\n";
+                            if (param.getParamType() != null && safeArg.getArgumentType() != null) {
+                                if (!param.getParamType().getClass().equals(safeArg.getArgumentType().getClass())) {
+                                    errorMessage += "Argument and parameter types don't match" +
+                                            " line: " + safeArg.getLineNumber() + " col: " + safeArg.getColNumber() + "\n";
+                                }
                             }
 
                             // 4) check that the argument is not an array_location
-                            if (safeArg instanceof IrLocation) {
-                                IrLocation locArg = (IrLocation) safeArg;
+                            if (safeArg.getArgValue() instanceof IrLocation) {
+                                IrLocation locArg = (IrLocation) safeArg.getArgValue();
                                 Ir possibleArray = scopeStack.getSymbol(locArg.getLocationName().getValue());
 
                                 if (possibleArray instanceof IrFieldDeclArray) {
@@ -64,7 +68,7 @@ public class IrMethodCallExpr extends IrExpr{
                             }
                         }
                         else {
-                            errorMessage += "Invalid argument type" +
+                            errorMessage += "Invalid argument" +
                                     " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                         }
                     }
@@ -74,16 +78,25 @@ public class IrMethodCallExpr extends IrExpr{
                             " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                 }
 
+                // IMPORTANT: set the IrType of the IrMethodCallExpr
+                this.methodType = methodDecl.getType();
+
                 // 5) check that return type is not IrTypeVoid (since this method evaluates to IrExpr)
-                if (methodDecl.getType() instanceof  IrTypeVoid) {
+                if (this.methodType instanceof  IrTypeVoid) {
                     errorMessage += "Void method call cannot be used in an expression" +
                             " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
                 }
             }
-
             // for an extern method_decl
-            if (object instanceof IrExternDecl) {
-                // we don't need to check anything here
+            else if (object instanceof IrExternDecl) {
+
+                // IMPORTANT: set the IrType of the IrMethodCallExpr
+                this.methodType = new IrTypeInt(this.methodName.getLineNumber(), this.methodName.getColNumber());
+            }
+            // for non-method identifiers
+            else {
+                errorMessage += "Non-method identifier being called as a method" +
+                        " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
             }
         }
         else {

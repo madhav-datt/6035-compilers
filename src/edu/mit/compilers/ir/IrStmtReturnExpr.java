@@ -27,9 +27,11 @@ public class IrStmtReturnExpr extends IrStmtReturn{
         if (methodType != null) {
 
             // 2) check if method signature and return type match
-            if (!methodType.getClass().equals(this.getExpressionType().getClass())) {
-                errorMessage += "Return type does not match method return type"+
-                        " line: "+this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+            if (methodType != null && this.getExpressionType() != null) {
+                if (!methodType.getClass().equals(this.getExpressionType().getClass())) {
+                    errorMessage += "Return type does not match method return type" +
+                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                }
             }
 
         }
