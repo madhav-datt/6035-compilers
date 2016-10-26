@@ -15,7 +15,7 @@ public class IrParamDecl extends Ir {
         return paramType.toString() + " " + paramName.toString();
     }
 
-    public IrType getExpressionType() {
+    public IrType getParamType() {
         return this.paramType;
     }
 
