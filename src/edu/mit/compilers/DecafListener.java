@@ -15,39 +15,14 @@ import java.util.Stack;
 
 public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
-    private ScopeStack scopeStack = new ScopeStack();
     private boolean errorFlag = false;
     private String errorMessage = "";
-
-    private void declareInCurrentScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-        if (!this.scopeStack.checkIfSymbolExistsAtCurrentScope(id)) {
-            this.scopeStack.addObjectToCurrentScope(id, object);
-        }
-        else {
-//            this.errorMessage += errorMsg);
-        }
-        this.irStack.push(object);
-    }
-
-    private void declareInGlobalScopeOrReportDuplicateDecl(String id, Ir object, String errorMsg) {
-        if (!this.scopeStack.checkIfSymbolExistsInGlobalScope(id)) {
-            this.scopeStack.addSymbolToGlobalScope(id, object);
-        }
-        else {
-//            this.errorMessage += errorMsg);
-        }
-
-        this.irStack.push(object);
-    }
 
     public boolean detectedSemanticErrors() {
         return this.errorFlag;
     }
 
-    @Override public void enterProgram(DecafParser.ProgramContext ctx) {
-        // creates the global scope
-        this.scopeStack.createNewBlockScope();
-    }
+    @Override public void enterProgram(DecafParser.ProgramContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -80,9 +55,6 @@ public class DecafListener extends DecafParserBaseListener {
             this.errorMessage += "irStack not empty after reaching end of program\n";
         }
 
-        // delete the global stack since we have created the program
-        this.scopeStack.deleteCurrentScope();
-
         // check the semantics of the final program
         this.errorMessage += wholeProgram.semanticCheck(new ScopeStack());
         if (!errorMessage.equals("")) {
@@ -111,11 +83,7 @@ public class DecafListener extends DecafParserBaseListener {
         if (this.irStack.size() > 0 && this.irStack.peek() instanceof IrIdent) {
             IrIdent irIdent = (IrIdent) this.irStack.pop();
             IrExternDecl externDecl = new IrExternDecl(irIdent);
-            declareInCurrentScopeOrReportDuplicateDecl(
-                    irIdent.getValue(),
-                    externDecl,
-                    "enterExtern_decl: same extern declared multiple times"
-            );
+            this.irStack.push(externDecl);
         }
         else {this.errorMessage += "enterExtern_decl: popped object of wrong type\n";}
     }
@@ -158,11 +126,7 @@ public class DecafListener extends DecafParserBaseListener {
             // pop the varType so we know what type of var this is
             IrType varType = (IrType) this.irStack.pop();
             IrFieldDeclVar newVar = new IrFieldDeclVar(varName, varType);
-            declareInCurrentScopeOrReportDuplicateDecl(
-                    varName.getValue(),
-                    newVar,
-                    "exitVarDecl: duplicate var declared in same scope\n"
-            );
+            this.irStack.push(newVar);
 
             // put the varType back on the stack in case there are more fields
             // after this one
@@ -190,11 +154,7 @@ public class DecafListener extends DecafParserBaseListener {
             // pop the arrayType so we know what type of var this is
             IrType arrayType = (IrType) this.irStack.pop();
             IrFieldDeclArray newArray = new IrFieldDeclArray(arraySize, arrayName, arrayType);
-            declareInCurrentScopeOrReportDuplicateDecl(
-                    arrayName.getValue(),
-                    newArray,
-                    "exitArrayDecl: duplicate var declared in same scope"
-            );
+            this.irStack.push(newArray);
 
             // put the arrayType back on the stack in case there are more fields
             // after this one
@@ -209,9 +169,6 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void enterMethod_decl(DecafParser.Method_declContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-
-        // create a new scope for the method_decl
-        this.scopeStack.createNewBlockScope();
 
         // push the IrIdent onto the stack
         IrIdent methodName = new IrIdent(ctx.ID().getText(), l.line, l.col);
@@ -242,20 +199,13 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
-                    declareInGlobalScopeOrReportDuplicateDecl(
-                            methodName.getValue(),
-                            newMethod,
-                            "exitMethod_decl: duplicate method in same scope"
-                    );
+                    this.irStack.push(newMethod);
                 }
                 else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}
             }
             else {this.errorMessage += "exitMethod_decl: error with IrIdent for methodName\n";}
         }
         else {this.errorMessage += "exitMethod_decl: error with IrCodeBlock for block\n";}
-
-        // delete the current scope since we finished creating the method
-        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
@@ -274,15 +224,8 @@ public class DecafListener extends DecafParserBaseListener {
 
         if (this.irStack.size() > 0 && this.irStack.peek() instanceof IrType) {
             IrType paramType = (IrType) this.irStack.pop();
-
-            // parameters are part of the local scope of the method so
-            // we will add them to the stack and to the current scope
             IrParamDecl paramDecl = new IrParamDecl(paramType, paramName);
-            declareInCurrentScopeOrReportDuplicateDecl(
-                    paramName.getValue(),
-                    paramDecl,
-                    "exitParam_decl: duplicate parameter in same method signature"
-            );
+            this.irStack.push(paramDecl);
         }
         else {this.errorMessage += "exitParam_decl: error with IrTypeVar for paramType\n";}
     }
@@ -291,11 +234,7 @@ public class DecafListener extends DecafParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterBlock(DecafParser.BlockContext ctx) {
-        // we won't create a new scope here. Instead we will create
-        // the new scope upon entering pieces of code that have blocks
-        // associated with them (i.e. if-stmt, method_decl, etc.)
-    }
+    @Override public void enterBlock(DecafParser.BlockContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -448,38 +387,18 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrIdent) {
             IrIdent methodName = (IrIdent) this.irStack.pop();
 
-            // 3) make the method has been previously declared
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
-
-                Ir object = this.scopeStack.getSymbol(methodName.getValue());
-                if (object instanceof IrMethodDecl) {
-                    IrMethodDecl method = (IrMethodDecl) object;
-                    IrType returnType = method.getType();
-
-                    // create the actual IrMethodCallStmt and add it to the stack
-                    IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, returnType, argsList);
-                    this.irStack.push(methodCall);
-                } else if (object instanceof IrExternDecl) {
-                    IrType returnType = new IrTypeInt(l.line, l.col);
-                    // we don't need to check whether the params are correct
-                    // for IrExternDecl (or the number of args)
-                    // also all IrExtern's return ints so they are all valid IrExpr
-
-                    // create the actual IrMethodCallStmt and add it to the stack
-                    IrMethodCallStmt externMethodCall = new IrMethodCallStmt(methodName, returnType, argsList);
-                    this.irStack.push(externMethodCall);
-                } else {this.errorMessage += "exitAnyMethodCall: error with object in the stack\n";}
-            } else {this.errorMessage += ("Methods must be declared before they are called line: " + l.line + " col: " + l.col + "\n");}
-        } else {this.errorMessage += "exitAnyMethodCall: ID for methodName is not in irStack\n";}
+            // create the actual IrMethodCallStmt and add it to the stack
+            IrMethodCallStmt methodCall = new IrMethodCallStmt(methodName, argsList);
+            this.irStack.push(methodCall);
+        }
+        else {this.errorMessage += "exitAnyMethodCall: ID for methodName is not in irStack\n";}
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIf_stmt(DecafParser.If_stmtContext ctx) {
-        this.scopeStack.createNewBlockScope();
-    }
+    @Override public void enterIf_stmt(DecafParser.If_stmtContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -503,9 +422,6 @@ public class DecafListener extends DecafParserBaseListener {
             else {this.errorMessage += "exitIf_stmt: top of stack is not an IrExpr\n";}
         }
         else {this.errorMessage += "exitIf_stmt: top of stack is not a IrCodeBlock\n";}
-
-        // delete the current scope since we are done creating the If-Stmt
-        this.scopeStack.deleteCurrentScope();
     }
     @Override public void enterIfAndElseStmt(DecafParser.IfAndElseStmtContext ctx) { }
     /**
@@ -544,9 +460,6 @@ public class DecafListener extends DecafParserBaseListener {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrResWordElse resWorldElse = new IrResWordElse(l.line, l.col);
         this.irStack.push(resWorldElse);
-
-        // 2) create a new scope for the else block
-        this.scopeStack.createNewBlockScope();
     }
     /**
      * {@inheritDoc}
@@ -568,18 +481,13 @@ public class DecafListener extends DecafParserBaseListener {
             else {this.errorMessage += "exitElse_stmt: IrResWordElse not on top of stack\n";}
         }
         else {this.errorMessage += "exitElse_stmt: else IrCodeBlock not on stack\n";}
-
-        // 4) delete the local scope for the else block
-        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterForLoop(DecafParser.ForLoopContext ctx) {
-        this.scopeStack.createNewBlockScope();
-    }
+    @Override public void enterForLoop(DecafParser.ForLoopContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -643,17 +551,13 @@ public class DecafListener extends DecafParserBaseListener {
             else {this.errorMessage += "exitForLoop: compound assign incrementer expr not found on stack\n";}
         }
         else {this.errorMessage += "exitForLoop: for loop body not found on stack\n";}
-
-        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) {
-        this.scopeStack.createNewBlockScope();
-    }
+    @Override public void enterWhileLoop(DecafParser.WhileLoopContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -677,9 +581,6 @@ public class DecafListener extends DecafParserBaseListener {
             else {this.errorMessage += "exitWhileLoop: top of stack is not an IrExpr\n";}
         }
         else {this.errorMessage += "exitWhileLoop: top of stack is not a IrCodeBlock\n";}
-
-        // delete the current scope since we are done creating the whileStmt
-        this.scopeStack.deleteCurrentScope();
     }
     /**
      * {@inheritDoc}
@@ -801,34 +702,9 @@ public class DecafListener extends DecafParserBaseListener {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
-        // make sure that the variable has already been declared
-        if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
-            Ir object = this.scopeStack.getSymbol(varName.getValue());
-
-            // make sure that the variable is var or a param (not a methodCall or an array)
-            if (object instanceof IrFieldDeclVar) {
-                IrFieldDeclVar var = (IrFieldDeclVar) object;
-
-                // now we can get the type of the variable
-                IrType varType = var.getType();
-
-                // create the actual IrLocation now and add it to the stack
-                IrLocationVar loc = new IrLocationVar(varName, varType, l.line, l.col);
-                this.irStack.push(loc);
-            }
-            else if (object instanceof IrParamDecl) {
-                IrParamDecl param = (IrParamDecl) object;
-
-                // now we get the type of the param
-                IrType paramType = param.getExpressionType();
-
-                // create the actual IrLocation now and add it to the stack
-                IrLocationVar loc = new IrLocationVar(varName, paramType, l.line, l.col);
-                this.irStack.push(loc);
-            }
-            else {this.errorMessage += "enterVarLocation: location is not of type IrFieldDecl or IrParamDecl\n";}
-        }
-        else {this.errorMessage += "enterVarLocation: location accessed without being in any scope\n";}
+        // create the actual IrLocation now and add it to the stack
+        IrLocationVar loc = new IrLocationVar(varName, l.line, l.col);
+        this.irStack.push(loc);
     }
     /**
      * {@inheritDoc}
@@ -848,24 +724,11 @@ public class DecafListener extends DecafParserBaseListener {
         Ir topOfStack = this.irStack.peek();
         if (topOfStack instanceof IrExpr) {
             IrExpr expr = (IrExpr) this.irStack.pop();
-
-            // look up the the variable to make sure it was declared
             IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
-                Ir object = this.scopeStack.getSymbol(varName.getValue());
 
-                // check to make sure that the variable is an array
-                if (object instanceof IrFieldDeclArray) {
-                    IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) object;
-                    IrType arrayType = fieldDeclArray.getType();
-
-                    // create the actual IrLocationArray and add it to irStack
-                    IrLocationArray locOfArray = new IrLocationArray(expr, varName, arrayType, l.line, l.col);
-                    this.irStack.push(locOfArray);
-                }
-                else {this.errorMessage += "exitArrayLocation: object in scope is not an IrFieldDeclArray\n";}
-            }
-            else {this.errorMessage += "exitArrayLocation: error with Ident; not found in scope\n";}
+            // create the actual IrLocationArray and add it to irStack
+            IrLocationArray locOfArray = new IrLocationArray(expr, varName, l.line, l.col);
+            this.irStack.push(locOfArray);
         }
         else {this.errorMessage += "exitArrayLocation: object on top of stack not an IrExpr\n";}
     }
@@ -1088,33 +951,9 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrIdent) {
             IrIdent methodName = (IrIdent) this.irStack.pop();
 
-            // 3) look up the method in scope to make sure it was declared
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(methodName.getValue())) {
-
-                // a) determine if the method is an extern (or not)
-                Ir object = this.scopeStack.getSymbol(methodName.getValue());
-                if (object instanceof IrMethodDecl) {
-                    IrMethodDecl method = (IrMethodDecl) object;
-                    IrType returnType = method.getType();
-
-                    // create the actual IrMethodCallExpr and add it to the stack
-                    IrMethodCallExpr methodCall = new IrMethodCallExpr(methodName, returnType, argsList);
-                    this.irStack.push(methodCall);
-                }
-                else if (object instanceof IrExternDecl) {
-                    IrType returnType = new IrTypeInt(l.line, l.col);
-
-                    // we don't need to check whether the params are correct
-                    // for IrExternDecl (or the number of args)
-                    // also all IrExtern's return ints so they are all valid IrExpr
-
-                    // create the actual IrMethodCallExpr and add it to the stack
-                    IrMethodCallExpr externMethodCall = new IrMethodCallExpr(methodName, returnType, argsList);
-                    this.irStack.push(externMethodCall);
-                }
-                else {this.errorMessage += "exitNonVoidMethodCall: error with instanceof for type of object in the stack\n";}
-            }
-            else {this.errorMessage += ("Methods must be declared before they are called line: " + l.line + " col: " + l.col + "\n");}
+            // create the actual IrMethodCallExpr and add it to the stack
+            IrMethodCallExpr methodCall = new IrMethodCallExpr(methodName, argsList);
+            this.irStack.push(methodCall);
         }
         else {this.errorMessage += "exitNonVoidMethodCall: ID for methodName is not in irStack\n";}
     }
@@ -1248,23 +1087,11 @@ public class DecafListener extends DecafParserBaseListener {
         if (topOfStack instanceof IrIdent) {
             IrIdent varName = (IrIdent) this.irStack.pop();
 
-            // check that the var is in the stack (has already been declared)
-            if (this.scopeStack.checkIfSymbolExistsAtAnyScope(varName.getValue())) {
-                Ir object = this.scopeStack.getSymbol(varName.getValue());
-
-                // make sure the object is an IrFieldDecl (array or var)
-                if (object instanceof IrFieldDecl) {
-                    IrFieldDecl field = (IrFieldDecl) object;
-
-                    // create the IrSizeOfLocation and add it to the stack
-                    IrSizeOfLocation sizeOfField = new IrSizeOfLocation(field, l.line, l.col);
-                    this.irStack.push(sizeOfField);
-                }
-                else {this.errorMessage += "enterSizeOfVar: sizeof object was not an IrFieldDecl\n";}
-            }
-            else {this.errorMessage += "enterSizeOfVar: sizeof object was in the scope\n";}
+            // create the IrSizeOfLocation and add it to the stack
+            IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
+            this.irStack.push(sizeOfField);
         }
-        else {this.errorMessage += "enterSizeOfVar: sizeof was has no argument (ID)\n";}
+        else {this.errorMessage += "enterSizeOfVar: sizeof has no argument (ID)\n";}
     }
     /**
      * {@inheritDoc}
