@@ -12,7 +12,7 @@ public class IrLocationVar extends IrLocation {
 
     @Override
     public IrType getExpressionType() {
-        return this.getExpressionType();
+        return this.varType;
     }
 
     @Override
@@ -22,14 +22,22 @@ public class IrLocationVar extends IrLocation {
         // 1) make sure the variable has been declared already
         if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getLocationName().getValue())) {
             Ir object = scopeStack.getSymbol(this.getLocationName().getValue());
-            if (object instanceof IrFieldDecl) {
+
+            // make sure that the identifier is a field, param, or array (but not a method)
+            if (object instanceof IrFieldDeclVar) {
                 IrFieldDecl var = (IrFieldDecl) object;
 
                 // IMPORTANT: set the IrType of the IrLocationVar
                 this.setLocationType(var.getType());
             }
+            else if (object instanceof IrParamDecl) {
+                IrParamDecl var = (IrParamDecl) object;
+
+                // IMPORTANT: set the IrType of the IrLocationVar
+                this.setLocationType(var.getParamType());
+            }
             else {
-                errorMessage += "Missing parenthesis for method call" +
+                errorMessage += "Invalid method call or array assignment" +
                         " line: " + this.getLocationName().getLineNumber() + " col: " + this.getLocationName().getColNumber() + "\n";
             }
         }

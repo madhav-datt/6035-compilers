@@ -7,8 +7,8 @@ import edu.mit.compilers.ir.IrIdent;
  * Created by devinmorgan on 10/5/16.
  */
 public abstract class IrLocation extends IrExpr {
-    private IrIdent varName;
-    private IrType varType;
+    protected IrIdent varName;
+    protected IrType varType;
 
     public IrLocation(IrIdent varName, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
