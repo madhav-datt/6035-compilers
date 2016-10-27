@@ -109,6 +109,9 @@ public class IrProgram extends Ir{
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
+        for(IrMethodDecl method : methodDecls){
+            method.generateCode(assembly, register, stackFrame);
+        }
         return assembly;
     }
 }
