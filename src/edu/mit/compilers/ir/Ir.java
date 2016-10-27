@@ -25,7 +25,9 @@ public abstract class Ir {
     }
 
     public abstract String semanticCheck(ScopeStack scopeStack);
+
     public abstract AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame);
 
+    public abstract String prettyPrint(String indentSpace);
 
 }

@@ -43,4 +43,9 @@ public class IrArgExpr extends IrArg {
         }
         return false;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return indentSpace + ((IrExpr) this.getArgValue()).prettyPrint(indentSpace);
+    }
 }

@@ -1,0 +1,6 @@
+
+void main() {
+    bool t,f;
+    t = true;
+    f = t == t;
+}

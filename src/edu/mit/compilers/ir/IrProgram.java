@@ -97,18 +97,42 @@ public class IrProgram extends Ir{
                             " line: "+ mainMethod.getLineNumber() + " col: " + mainMethod.getColNumber() + "\n";
                 }
             }
-            else {
-                this.errorMessage += "There must be a void main() method with no parameters ";
-            }
+            else { this.errorMessage += "There must be a void main() method with no parameters ";}
         }
-        else {
-            this.errorMessage += "Program must contain a main() method";
-        }
+        else {this.errorMessage += "Program must contain a main() method";}
 
         return this.errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
         return assembly;
+    }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String newIndentSpace = indentSpace + "  ";
+
+        // program header
+        String prettyString = "Program:\n";
+
+        // pretty print extern_decls
+        prettyString += "|__extern_decl:\n";
+        for (IrExternDecl externDecl: this.externDecls) {
+            prettyString += (newIndentSpace + "|__" + externDecl.prettyPrint(newIndentSpace));
+        }
+
+        // pretty print field_decls
+        prettyString += "|__field_decl:\n";
+        for (IrFieldDecl fieldDecl: this.fieldDecls) {
+            prettyString += (newIndentSpace + "|__" + fieldDecl.prettyPrint(newIndentSpace));
+        }
+
+        // pretty print method_decls
+        prettyString += "|__method_decl:\n";
+        for (IrMethodDecl methodDecl: this.methodDecls) {
+            prettyString += (newIndentSpace + "|__" + methodDecl.prettyPrint(newIndentSpace));
+        }
+
+        return prettyString;
     }
 }
