@@ -6,15 +6,10 @@
     arg count --> 0, 1, >1
     arg types --> String, array object (no index offset), array element, var location, expr
 
-// 8) fieldDecl
-    type --> int, bool, int[], bool[]
-    scope --> global, method, IrCtrl, nested IrCtrl
 // 9) literals
     type --> char, int, bool
 
-// 10) Method calls
-    as a statement --> void, bool, int
-    as an expr --> bool, int
+
 
 
 
