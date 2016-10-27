@@ -18,8 +18,22 @@ public abstract class IrLocation extends IrExpr {
     public IrIdent getLocationName() {
         return this.varName;
     }
+    public IrType getLocationType() {
+        return this.varType;
+    }
 
     protected void setLocationType(IrType type) {
         this.varType = type;
+    }
+    @Override
+    public boolean equals(Object that) {
+        if (that == this) {
+            return true;
+        }
+        if (!(that instanceof IrLocation)) {
+            return false;
+        }
+        Ir otherIr = (IrLocation)that;
+        return (this.getLocationName().equals(((IrLocation)otherIr).getLocationName())) && (this.getLocationType().equals(((IrLocation)otherIr).getLocationType()));
     }
 }

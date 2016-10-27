@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 public class IrParamDecl extends Ir {
     private final IrType paramType;
@@ -26,5 +29,9 @@ public class IrParamDecl extends Ir {
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
+        return assembly;
     }
 }

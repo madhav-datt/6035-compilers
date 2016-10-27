@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 public class IrLiteralInt extends IrLiteral {
     private final long value;
@@ -18,5 +21,9 @@ public class IrLiteralInt extends IrLiteral {
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        assembly.putOnFootNote("$" + Long.toString(value));
+        return assembly;
     }
 }

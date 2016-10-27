@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 import java.util.*;
 
@@ -49,19 +52,35 @@ public class IrMethodDecl extends IrMemberDecl {
         return errorMessage;
     }
 
-//    public String generateCode(int n){
-//        String assembly = "";
-//        String methodName = this.getName() + ":\n";
-//        assembly += methodName;
-//        assembly += "enter $(8*2), $0 \n"; // what is 2?
-//        String registers[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-//        int m =  paramsList.size();
-//        for(int i = 0; i < paramsList.size(); i++){
-//            assembly += "mov " + registers[i] + ", " + (-8*(m-i)) +  " (%rbp) \n";
-//        }
-//        assembly +=  "... \n";//this.methodBody.generateCode();
-//        assembly += "leave\nret\n";
-//        return assembly;
-//
-//    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        // Construct the method body
+        // Access the params and stuff.
+        String asm = "";
+        String methodName = this.getName() + ":\n";
+        String paramRegisters[] = register.getParamRegisters();
+        int m =  paramsList.size();
+
+        AssemblyBuilder asb = new AssemblyBuilder();
+        StackFrame frame = new StackFrame();
+        this.methodBody.generateCode(asb, register, frame);
+        String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
+        assembly.addLine(0, methodName);
+        assembly.addLine(5, enterStatement);
+        for(int i = 0; i < paramsList.size(); i++){
+            if(i < 6){
+                assembly.addLine(5, "mov "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
+                stackFrame.pushToRegisterStackFrame(paramRegisters[i]);
+            }
+            else{
+                assembly.addLine(5,"mov "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine(5, "mov %r10, " + stackFrame.getNextStackLocation());
+                stackFrame.pushToStackFrame(paramsList.get(i));
+            }
+        }
+        assembly.concat(asb);
+        assembly.addLine(5, "leave");
+        assembly.addLine(5, "ret");
+
+        return assembly;
+    }
 }

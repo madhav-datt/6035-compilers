@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 public class IrFieldDeclArray extends IrFieldDecl {
     private final int arraySize;
@@ -21,5 +24,9 @@ public class IrFieldDeclArray extends IrFieldDecl {
         }
 
         return errorMessage;
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
+        return assembly;
     }
 }

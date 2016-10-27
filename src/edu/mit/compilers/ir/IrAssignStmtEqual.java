@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -46,5 +49,19 @@ public class IrAssignStmtEqual extends IrAssignStmt {
         }
 
         return errorMessage;
+    }
+
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        String asm = "";
+        // compute the value of the expression and figure out where it is stored
+        String exprResultStorageLoc = this.newValue.generateCode(assembly, register, stackFrame).getFootNote();
+        asm  += "mov " + exprResultStorageLoc + " , %r10" + "\n";
+        String nextStackLocation = stackFrame.getNextStackLocation();
+        asm += "mov %r10, " + nextStackLocation+"\n";
+        // make sure to store the identity of the variable which is just assigned value.
+        stackFrame.pushToStackFrame(this.getStoreLocation());
+        assembly.addLine(0, asm);
+        assembly.putOnFootNote(nextStackLocation);
+        return assembly;
     }
 }

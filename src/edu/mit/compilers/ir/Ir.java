@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 public abstract class Ir {
     // keep track of the line & column number for
@@ -22,4 +25,7 @@ public abstract class Ir {
     }
 
     public abstract String semanticCheck(ScopeStack scopeStack);
+    public abstract AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame);
+
+
 }

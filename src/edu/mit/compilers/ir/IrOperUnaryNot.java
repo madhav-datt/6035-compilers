@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -29,5 +32,9 @@ public class IrOperUnaryNot extends IrOperUnary{
         }
 
         return errorMessage;
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
+        return assembly;
     }
 }

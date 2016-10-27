@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -33,4 +36,34 @@ public class IrOperBinaryCond extends IrOperBinary {
 
         return errorMessage;
     }
+    private String getCommand(String operation){
+        String retCommand = "";
+        switch (operation){
+            case "&&":
+                retCommand = "and ";
+                break;
+            case "||":
+                retCommand = "or ";
+                break;
+            default:
+                System.err.print("Runtime Error: Unrecognized Operation");
+                break;
+        }
+        return retCommand;
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
+        String leftValue = leftRegister.getFootNote();
+        AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
+        String rightValue = leftRegister.getFootNote();
+        assembly.addLine(5, "mov " + leftValue + ", %r10");
+        assembly.addLine(5, "mov " + rightValue + ", %r11");
+        assembly.addLine(5, this.getCommand(this.getOperation()) + "%r10, %r11");
+        String resultTemp = stackFrame.getNextStackLocation();
+        assembly.addLine(5, "mov %r11, " + resultTemp);
+        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.putOnFootNote(resultTemp);
+        return assembly;
+    }
+
 }

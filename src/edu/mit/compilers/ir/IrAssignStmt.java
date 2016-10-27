@@ -14,4 +14,5 @@ public abstract class IrAssignStmt extends IrStatement{
     public IrLocation getStoreLocation() {
         return this.storeLocation;
     }
+
 }

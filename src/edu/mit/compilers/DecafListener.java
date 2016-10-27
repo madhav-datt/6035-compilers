@@ -199,6 +199,11 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
+                    AssemblyBuilder asm = new AssemblyBuilder(new StringBuilder());
+                    Register reg = new Register();
+                    StackFrame frame = new StackFrame();
+                    newMethod.generateCode(asm, reg, frame);
+                    System.out.println(asm.generateAssembly());
                     this.irStack.push(newMethod);
                 }
                 else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}
