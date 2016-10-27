@@ -13,7 +13,10 @@ public class IrTypeBool extends IrType {
             return false;
         }
         return true;
+    }
 
-
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return indentSpace + "|__type: bool\n";
     }
 }
