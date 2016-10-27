@@ -120,22 +120,22 @@ void lhsVar_rhsArrayIndex() {
     int rhsArray[2];
     
     // initialize
-    lhsArray[0] = 1;
+    lhsVar = 1;
     rhsArray[0] = 3;
     rhsArray[1] = 5;
-    
+
     // +=
     lhsVar += rhsArray[0];
     printf("1 + 3 = %d\n", 4);
-    
+
     // -=
     lhsVar -= rhsArray[0];
     printf("4 - 3 = %d\n", 1);
-    
+
     // =
     lhsVar = rhsArray[1];
     printf("5 = %d\n", 5);
-    
+
     // = (same location)
     lhsVar = lhsVar;
     printf("5 = %d\n", 5);
@@ -144,24 +144,24 @@ void lhsVar_rhsArrayIndex() {
 void lhsVar_rhsVarLocation() {
     int lhsVar;
     int rhs1, rhs2;
-    
+
     // initialize
-    lhsArray[0] = 1;
+    lhsVar = 1;
     rhs1 = 3;
     rhs2 = 5;
-    
+
     // +=
     lhsVar += rhs1;
     printf("1 + 3 = %d\n", 4);
-    
+
     // -=
     lhsVar -= rhs1;
     printf("4 - 3 = %d\n", 1);
-    
+
     // =
     lhsVar = rhs2;
     printf("5 = %d\n", 5);
-    
+
     // = (same location)
     lhsVar = lhsVar;
     printf("5 = %d\n", 5);
@@ -169,22 +169,22 @@ void lhsVar_rhsVarLocation() {
 
 void lhsVar_rhsLiteral() {
     int lhsVar;
-    
+
     // initialize
     lhsVar = 1;
-    
+
     // +=
     lhsVar += 3;
     printf("1 + 3 = %d\n", 4);
-    
+
     // -=
     lhsVar -= 3;
     printf("4 - 3 = %d\n", 1);
-    
+
     // =
     lhsVar = 5;
     printf("5 = %d\n", 5);
-    
+
     // = (same location)
     lhsVar = lhsVar;
     printf("5 = %d\n", 5);
@@ -192,9 +192,9 @@ void lhsVar_rhsLiteral() {
 
 void lhsVar_rhsMethod() {
     int lhsVar;
-    
+
     // initialize
-    lhsArray[0] = 1;
+    lhsVar = 1;
     
     // +=
     lhsVar += rhsMethod1();

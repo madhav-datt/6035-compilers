@@ -26,7 +26,7 @@ void methodVoid(int varInt, bool varBool) { // parameters count +1
     arrayBool[0] = true;
 
     if (true) {
-    
+
         // allocated but not initialized in this scope
         int varInt;
         bool varBool;
@@ -35,7 +35,7 @@ void methodVoid(int varInt, bool varBool) { // parameters count +1
 
         if (false) { }
         else {
-        
+
             // allocated and initialized in this scope
             int varInt;
             bool varBool;
@@ -53,14 +53,14 @@ void methodVoid(int varInt, bool varBool) { // parameters count +1
             printf("arrayInt[0] = %d\n", arrayInt[0]);
             printf("arrayBool[0] = %d\n", arrayBool[0]);
         }
-        
+
         // these variables should not have a value in this scope
         printf("varInt = %d\n", varInt);
         printf("varBool = %d\n", varBool);
         printf("arrayInt[0] = %d\n", arrayInt[0]);
         printf("arrayBool[0] = %d\n", arrayBool[0]);
     }
-    
+
     // these variables should have a value in this scope
     printf("varInt = %d\n", varInt);
     printf("varBool = %d\n", varBool);
@@ -85,17 +85,17 @@ void main() {
     dummyVarInt = 1;
     dummyVarBool = true;
     methodVoid(dummyVarInt, dummyVarBool);
-    
+
     // these varaibles should not have a value in this scope
     printf("varInt = %d\n", varInt);
     printf("varBool = %d\n", varBool);
     printf("arrayInt[0] = %d\n", arrayInt[0]);
     printf("arrayBool[0] = %d\n", arrayBool[0]);
-    
+
     // tests for methods as statements
     methodInt();
     methodBool();
-    
+
     // tests for methods as expressions
     printf("methodInt() = %d\n", methodInt());
     printf("methodBool() = %d\n", methodBool());
