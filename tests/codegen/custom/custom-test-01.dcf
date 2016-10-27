@@ -1,14 +1,7 @@
 // 1) Using Args
     type --> String, array object (no index offset), IrExpr
 
-// 3) if
-    cases --> nested, not nested
-// 4) if else
-    cases--> nested, not nested
-// 5) while
-    cases --> nested, not nested
-// 6) for
-    cases --> nested, not nested
+
 // 7) externDecls
     arg count --> 0, 1, >1
     arg types --> String, array object (no index offset), array element, var location, expr
@@ -36,4 +29,6 @@
 // 15) return
     nothing --> return only
     something --> return int, return bool
+
+
 

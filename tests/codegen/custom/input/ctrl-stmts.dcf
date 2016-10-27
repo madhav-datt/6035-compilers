@@ -1,0 +1,132 @@
+// 3) if
+//    nested: yes, no
+//    cond: true, false
+// 4) if else
+//    nested: yes, no
+//    cond: true, false
+// 5) while
+//    cases --> nested, not nested
+//    iterate --> 0, 1+
+// 6) for
+//    cases --> nested, not nested
+//    iterate --> 0, 1+
+
+extern printf();
+
+bool t,f;
+t = true;
+f = false;
+
+void ifMethod() {
+    if (t) {
+        // not nested, true
+        printf("ifMethod: good1!\n");
+
+        if (t) {
+            // nested, true
+            printf("ifMethod: good2!\n");
+        }
+        if (f) {
+            // nested, false
+            print("ifMethod: BAD\n");
+        }
+    }
+
+    if (f) {
+        // not nested, false
+        print("ifMethod: BAD\n");
+    }
+}
+
+void ifElseMethod() {
+    if (t) {
+        // not nested, true
+        printf("ifElseMethod: good1!\n");
+
+        if (t) {
+            // nested, true
+            printf("ifElseMethod: good2!\n");
+        }
+        else {
+            // nested, false
+            printf("ifElseMethod: BAD1\n");
+        }
+    }
+    else {
+        // not nested, false
+        printf("ifElseMethod: BAD2\n");
+    }
+
+    if (f) {
+        // not nested, false
+        printf("ifElseMethod: BAD3\n");
+    }
+    else {
+        // not nested, true
+        printf("ifElseMethod: good3!\n");
+
+        if (f) {
+            // nested, false
+            printf("ifElseMethod: BAD4\n");
+        }
+        else {
+            // nested, true
+            printf("ifElseMethod: good4!\n");
+        }
+    }
+}
+
+void whileMethod() {
+    bool test;
+    test = t;
+
+    int i,j;
+    i = 0;
+    j = 0;
+
+    while (f) {
+        // not nested, 0
+        printf("whileMethod: BAD1\n");
+    }
+
+    while (j < 2) {
+        // not nested, 1+
+        printf("whileMethod: good1!\n");
+        j += 1;
+
+        while (i < 2) {
+            // nested, 1+
+            printf("whileMethod: good2!\n");
+            i += 1;
+        }
+    }
+}
+
+void forMethod() {
+    bool test;
+    test = t;
+
+    int i,j;
+
+    for (i = 0; i < 0; i += 1 ) {
+        // not nested, 0
+        printf("forMethod: BAD1\n");
+    }
+
+    for (i = 0; i < 2; i += 1) {
+        // not nested, 1+
+        printf("forMethod: good1!\n");
+
+        for (j = 0; j < 2; j += 1) {
+            // nested, 1+
+            printf("forMethod: good2!\n");
+        }
+    }
+}
+
+void main() {
+    ifMethod();
+    ifElseMethod();
+    whileMethod();
+    forMethod();
+}
