@@ -1,0 +1,22 @@
+varInt = 1
+varBool = 1
+arrayInt[0] = 1
+arrayBool[0] = 1
+varInt = 0
+varBool = 0
+arrayInt[0] = 0
+arrayBool[0] = 0
+varInt = 1
+varBool = 1
+arrayInt[0] = 1
+arrayBool[0] = 1
+varInt = 0
+varBool = 0
+arrayInt[0] = 0
+arrayBool[0] = 0
+methodInt() called
+methodBool() called
+methodInt() called
+methodInt() = 1
+methodBool() called
+methodBool() = 1

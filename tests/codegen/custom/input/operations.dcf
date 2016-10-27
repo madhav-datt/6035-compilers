@@ -1,0 +1,92 @@
+// 11) Operations
+//     type --> +, -, /, *, %, ==, !=, -a, !a, <, >, <=, >=, &&, ||
+//     order of ops --> parenthesis, no parenthesis
+
+extern printf();
+
+void arithOps() {
+    // %
+    printf("10 % 9 = %d\n", (10 % 9));
+
+    // +
+    printf("7 + 8 = %d\n", (7 + 8));
+
+    // -
+    printf("6 - 5 = %d\n", (6 - 5));
+
+    // *
+    printf("4 * 3 = %d\n", (4 * 3));
+
+    // /
+    printf("2 / 1 = %d\n", (2 / 1));
+}
+
+void equateOps() {
+    // ==
+    printf("(true == true) = %d\n", (true == true));
+    printf("(true == false) = %d\n", (true == false));
+    printf("(false == false) = %d\n", (false == false));
+
+    // !=
+    printf("(true != true) = %d\n", (true != true));
+    printf("(true != false) = %d\n", (true != false));
+    printf("(false != false) = %d\n", (false != false));
+}
+
+void relOps() {
+    // <
+    printf("(0 < 1) = %d\n", (0 < 1));
+    printf("(1 < 1) = %d\n", (1 < 1));
+
+    // >
+    printf("(1 > 0) = %d\n", (1 > 0));
+    printf("(1 > 1) = %d\n", (1 > 1));
+
+    // <=
+    printf("(1 <= 0) = %d\n", (1 <= 0));
+    printf("(1 <= 1) = %d\n", (1 <= 1));
+    printf("(0 <= 1) = %d\n", (0 <= 1));
+
+    // >=
+    printf("(0 >= 1) = %d\n", (0 >= 1));
+    printf("(1 >= 1) = %d\n", (1 >= 1));
+    printf("(0 >= 1) = %d\n", (0 >= 1));
+}
+
+void boolOps() {
+    // &&
+    printf("(true && true) = %d\n", (true && true));
+    printf("(true && false) = %d\n", (true && false));
+    printf("(false && false) = %d\n", (false && false));
+
+    // ||
+    printf("(true || true) = %d\n", (true || true));
+    printf("(true || false) = %d\n", (true || false));
+    printf("(false || false) = %d\n", (false || false));
+}
+
+void unaryOps() {
+    // -
+    printf("--1 = %d\n", --1);
+
+    // !
+    printf("!!true = %d\n", !!true);
+}
+
+void compoundArith() {
+    // order of ops (+*%)
+    printf("1 + 5 * 3 % 4 = %d\n", (1 + 5 * 3 % 4));
+    printf("1 + 5 * (3 % 4) = %d\n", (1 + 5 * (3 % 4)));
+
+    // order of ops (-/%)
+    printf("1 - 6 / 2 % 3 = %d\n", (1 - 6 / 2 % 3));
+    printf("1 - 6 / (2 % 3) = %d\n", (1 - 6 / (2 % 3)));
+}
+
+void main() {
+    arithOps();
+    equateOps();
+    relOps();
+    boolOps();
+    unaryOps();
+}

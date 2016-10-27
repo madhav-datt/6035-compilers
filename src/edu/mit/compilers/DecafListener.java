@@ -30,25 +30,30 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitProgram(DecafParser.ProgramContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
-        IrProgram wholeProgram = new IrProgram(l.line, l.col);
+        ArrayList<IrFieldDecl> fieldDecls = new ArrayList<>();
+        ArrayList<IrMethodDecl> methodDecls = new ArrayList<>();
+        ArrayList<IrExternDecl> externDecls = new ArrayList<>();
+
+
+
 
         // 1) method_decls will be on the top of the stack so collect them
         // first
         while (this.irStack.size() > 0 && this.irStack.peek() instanceof IrMethodDecl) {
             IrMethodDecl newMethodDecl = (IrMethodDecl) this.irStack.pop();
-            wholeProgram.addMethodDecl(newMethodDecl);
+            methodDecls.add(newMethodDecl);
         }
 
         // 2) now collect the field_decls
         while (this.irStack.size() > 0 && this.irStack.peek() instanceof IrFieldDecl) {
             IrFieldDecl newFieldDecl = (IrFieldDecl) this.irStack.pop();
-            wholeProgram.addFieldDecl(newFieldDecl);
+            fieldDecls.add(newFieldDecl);
         }
 
         // 3) lastly, collect the extern_decls
         while (this.irStack.size() > 0 && this.irStack.peek() instanceof IrExternDecl) {
             IrExternDecl newExternDecl = (IrExternDecl) this.irStack.pop();
-            wholeProgram.addExternDecl(newExternDecl);
+            externDecls.add(newExternDecl);
         }
 
         if (this.irStack.size() != 0) {
@@ -56,6 +61,8 @@ public class DecafListener extends DecafParserBaseListener {
         }
 
         // check the semantics of the final program
+        IrProgram wholeProgram = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
+
         this.errorMessage += wholeProgram.semanticCheck(new ScopeStack());
         if (!errorMessage.equals("")) {
             this.errorFlag = true;
@@ -1080,18 +1087,11 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitSizeOfVar(DecafParser.SizeOfVarContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
-        // 1) look up the location that corresponds to the ID in the
-        // sizeof expression (int, bool, or array)
-        Ir topOfStack = this.irStack.peek();
-        if (topOfStack instanceof IrIdent) {
-            IrIdent varName = (IrIdent) this.irStack.pop();
-
-            // create the IrSizeOfLocation and add it to the stack
-            IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
-            this.irStack.push(sizeOfField);
-        }
-        else {this.errorMessage += "enterSizeOfVar: sizeof has no argument (ID)\n";}
+        // create the IrSizeOfLocation and add it to the stack
+        IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
+        this.irStack.push(sizeOfField);
     }
     /**
      * {@inheritDoc}

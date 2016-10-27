@@ -13,27 +13,25 @@ void sizeofResWord() {
 }
 
 void sizeofArray() {
-    int arrayInt[10];
-    bool arrayBool[10];
-
     // array (int)
+    int arrayInt[10];
     printf("sizeof arrayInt = %d\n", (sizeof (arrayInt)));
-
+    
     // array (bool)
+    bool arrayBool[10];
     printf("sizeof arrayBool = %d\n", (sizeof (arrayBool)));
 }
 
 void sizeofVariable() {
-    bool varBool;
-    int varInt;
-
     // var (int)
+    int varInt;
     varInt = 1;
-    printf("sizeof varInt = %d\n", (sizeof (varInt)));
-
+    printf("sizeof varInt = %d\n", (sizeof varInt));
+    
     // var (bool)
+    bool varBool;
     varBool = true;
-    printf("sizeof varBool = %d\n", (sizeof (varBool)));
+    printf("sizeof varBool = %d\n", (sizeof varBool)):
 }
 
 void main() {
