@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 import java.util.ArrayList;
 
@@ -103,5 +106,9 @@ public class IrProgram extends Ir{
         }
 
         return this.errorMessage;
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
+        return assembly;
     }
 }

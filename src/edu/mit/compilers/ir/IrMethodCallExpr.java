@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 import java.util.*;
 
@@ -105,5 +108,33 @@ public class IrMethodCallExpr extends IrExpr{
         }
 
         return errorMessage;
+    }
+    // The only difference between this and IrMethodCallStmt is
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        String asm = "";
+        String methodName = this.methodName.getValue();
+        String registers[] = register.getParamRegisters();
+        for(int i = 0; i < argsList.size(); i++){
+            String irLocation = stackFrame.getIrLocation(argsList.get(i));
+            if(i < 6){
+                // find where the argument is stored in the stackFrame. The argument might be
+                // a constant or an expression
+                asm += "     mov " + irLocation + ", " + registers[i]+ "\n";
+            }
+            else{
+                asm += "     mov " + irLocation + ", " + "%r10"+ "\n";
+                String nextStackFrameLocation = stackFrame.getNextStackLocation();
+                asm += "     mov %r10, " + nextStackFrameLocation + "\n";
+
+            }
+//            stackFrame.pushToStackFrame(argsList.get(i));
+        }
+        asm  += "     call " + methodName + "\n";
+        String nextStackFrameLocation = stackFrame.getNextStackLocation();
+        asm  += "     mov %rax, " + nextStackFrameLocation+ "\n";
+        stackFrame.pushToRegisterStackFrame("%rax");
+        assembly.putOnFootNote(nextStackFrameLocation);
+        assembly.addLine(0, asm);
+        return  assembly;
     }
 }

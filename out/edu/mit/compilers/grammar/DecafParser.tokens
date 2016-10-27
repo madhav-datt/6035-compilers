@@ -43,6 +43,7 @@ STRING=42
 INT=43
 ID=44
 HEX_PREFIX=45
+HEX_INT=46
 '['=3
 ']'=4
 '('=5

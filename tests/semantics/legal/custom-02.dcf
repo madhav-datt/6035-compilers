@@ -1,0 +1,15 @@
+ int foo(int x) {
+        return x + 3;
+    }
+
+ void main() {
+    int y;
+    int z;
+    y = 8;
+    z = foo(y);
+    if (y > 15) {
+
+    } else {
+
+    }
+ }

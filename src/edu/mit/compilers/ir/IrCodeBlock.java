@@ -1,9 +1,11 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class IrCodeBlock extends Ir {
     private final ArrayList<IrFieldDecl> fieldsList;
@@ -38,5 +40,17 @@ public class IrCodeBlock extends Ir {
         }
 
         return errorMessage;
+    }
+    /*
+        Doesn't mutate the assembly builder object because a block never exists on its own. Instead it creates a new assembly builder and returns it
+        to the owning Ir. I.e. method, conditional statement ...
+     */
+    @Override
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
+
+        for(IrStatement statement : stmtsList){
+            statement.generateCode(assembly, register, frame);
+        }
+        return assembly;
     }
 }

@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -47,5 +50,29 @@ public class IrLocationVar extends IrLocation {
         }
 
         return errorMessage;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that == this) {
+            return true;
+        }
+        if (that instanceof IrArgExpr) {
+            // if that is an instance of IrLocationVar
+            if(((IrArgExpr) that).getArgValue() instanceof IrLocation)
+                return this.getLocationName().equals(((IrLocationVar) ((IrArgExpr) that).getArgValue()).getLocationName());
+        }
+        if (that instanceof IrLocationVar) {
+            Ir otherIr = (IrLocationVar) that;
+            return (this.getLocationName().equals(((IrLocationVar) otherIr).getLocationName())) && (this.getLocationType().equals(((IrLocationVar) otherIr).getLocationType()));
+
+        }
+        return false;
+    }
+
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        stackFrame.pushToStackFrame(this.getLocationName());
+        assembly.putOnFootNote( stackFrame.getIrLocation(this.getLocationName()));
+        return assembly;
     }
 }

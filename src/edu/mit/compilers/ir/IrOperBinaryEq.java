@@ -1,6 +1,9 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.Register;
 import edu.mit.compilers.ScopeStack;
+import edu.mit.compilers.StackFrame;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -35,5 +38,29 @@ public class IrOperBinaryEq extends IrOperBinary {
         }
 
         return errorMessage;
+    }
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
+        String leftValue = leftRegister.getFootNote();
+        AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
+        String rightValue = leftRegister.getFootNote();
+        assembly.addLine(5, "mov " + leftValue + ", %r10");
+        assembly.addLine(5, "mov " + rightValue + ", %r11");
+        assembly.addLine(5, "cmp %r10, %r11");
+        assembly.addLine(5, "mov $0, %r11");
+        assembly.addLine(5, "mov $1, %r10");
+        assembly.addLine(5, "cmove %r10, %r11");
+        assembly.addLine(5, "mov %r11, %r10");
+        String condResultTemp = stackFrame.getNextStackLocation();
+        assembly.addLine(5, "mov %r11, " + condResultTemp);
+        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine(5, "mov " + condResultTemp + ", %r10");
+        assembly.addLine(5, "mov $1, %r10");
+        assembly.addLine(5, "cmp %r10, %r11");
+        String label = assembly.getLabelName();
+        assembly.addLine(5, "je ." + label);
+        assembly.putOnFootNote(label);
+       // assembly.putOnFootNote(condResultTemp);
+        return assembly;
     }
 }
