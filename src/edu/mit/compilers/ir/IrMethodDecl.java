@@ -83,4 +83,24 @@ public class IrMethodDecl extends IrMemberDecl {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__method\n";
+
+        // print the name
+        prettyString += ("  " + indentSpace + "|__name: " + this.getName() + "\n");
+
+        // print the params
+        prettyString += ("  " + indentSpace + "|__params:\n");
+        for (IrParamDecl paramDecl: this.paramsList) {
+            prettyString += paramDecl.prettyPrint("    " + indentSpace);
+        }
+
+        // print the block
+        prettyString += ("  " + indentSpace + "|__body:\n");
+        prettyString += this.methodBody.prettyPrint("    " + indentSpace);
+
+        return prettyString;
+    }
 }
