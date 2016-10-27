@@ -1087,18 +1087,11 @@ public class DecafListener extends DecafParserBaseListener {
      */
     @Override public void exitSizeOfVar(DecafParser.SizeOfVarContext ctx) {
         DecafListener.ProgramLocation l = this.new ProgramLocation(ctx);
+        IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
-        // 1) look up the location that corresponds to the ID in the
-        // sizeof expression (int, bool, or array)
-        Ir topOfStack = this.irStack.peek();
-        if (topOfStack instanceof IrIdent) {
-            IrIdent varName = (IrIdent) this.irStack.pop();
-
-            // create the IrSizeOfLocation and add it to the stack
-            IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
-            this.irStack.push(sizeOfField);
-        }
-        else {this.errorMessage += "enterSizeOfVar: sizeof has no argument (ID)\n";}
+        // create the IrSizeOfLocation and add it to the stack
+        IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
+        this.irStack.push(sizeOfField);
     }
     /**
      * {@inheritDoc}
