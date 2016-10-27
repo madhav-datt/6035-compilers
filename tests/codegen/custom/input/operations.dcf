@@ -1,0 +1,92 @@
+// 11) Operations
+//     type --> +, -, /, *, %, ==, !=, -a, !a, <, >, <=, >=, &&, ||
+//     order of ops --> parenthesis, no parenthesis
+
+extern printf();
+
+void arithOps() {
+    // %
+    printf("10 % 9 = %d", (10 % 9));
+
+    // +
+    printf("7 + 8 = %d", (7 + 8));
+
+    // -
+    printf("6 - 5 = %d", (6 - 5));
+
+    // *
+    printf("4 * 3 = %d", (4 * 3));
+
+    // /
+    printf("2 / 1" = %d", (2 / 1));
+}
+
+void equateOps() {
+    // ==
+    printf("(true == true) = %d", (true == true));
+    printf("(true == false) = %d", (true == false));
+    printf("(false == false) = %d", (false == false));
+
+    // !=
+    printf("(true != true) = %d", (true != true));
+    printf("(true != false) = %d", (true != false));
+    printf("(false != false) = %d", (false != false));
+}
+
+void relOps() {
+    // <
+    printf("(0 < 1) = %d", (0 < 1));
+    printf("(1 < 1) = %d", (1 < 1));
+
+    // >
+    printf("(1 > 0) = %d", (1 > 0));
+    printf("(1 > 1) = %d", (1 > 1));
+
+    // <=
+    printf("(1 <= 0) = %d", (1 <= 0));
+    printf("(1 <= 1) = %d", (1 <= 1));
+    printf("(0 <= 1) = %d", (0 <= 1));
+
+    // >=
+    printf("(0 >= 1) = %d", (0 >= 1));
+    printf("(1 >= 1) = %d", (1 >= 1));
+    printf("(0 >= 1) = %d", (0 >= 1));
+}
+
+void boolOps() {
+    // &&
+    printf("(true && true) = %d", (true && true));
+    printf("(true && false) = %d", (true && false));
+    printf("(false && false) = %d", (false && false));
+
+    // ||
+    printf("(true || true) = %d", (true || true));
+    printf("(true || false) = %d", (true || false));
+    printf("(false || false) = %d", (false || false));
+}
+
+void unaryOps() {
+    // -
+    printf("--1 = %d", --1);
+
+    // !
+    printf("!!true = %d", !!true);
+}
+
+void compoundArith() {
+    // order of ops (+*%)
+    printf("1 + 5 * 3 % 4 = %d", (1 + 5 * 3 % 4));
+    printf("1 + 5 * (3 % 4) = %d", (1 + 5 * (3 % 4)));
+
+    // order of ops (-/%)
+    printf("1 - 6 / 2 % 3 = %d", (1 - 6 / 2 % 3));
+    printf("1 - 6 / (2 % 3) = %d", (1 - 6 / (2 % 3));
+}
+
+void main() {
+    arithOps();
+    equateOps();
+    relOps();
+    boolOps();
+    unaryOps();
+}

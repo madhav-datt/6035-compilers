@@ -16,9 +16,7 @@
     as a statement --> void, bool, int
     as an expr --> bool, int
 
-// 11) Operations
-    type --> +, -, /, *, ==, !=, -a, !a, <, >, <=, >=, %, &&, ||
-    order of ops --> parenthesis, no parenthesis
+
 
 // 13) break
     use case --> for, while
