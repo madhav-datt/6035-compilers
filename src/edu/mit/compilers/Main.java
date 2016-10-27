@@ -2,19 +2,19 @@ package edu.mit.compilers;
 
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
-import edu.mit.compilers.ir.IrArg;
-import edu.mit.compilers.ir.IrArgExpr;
-import edu.mit.compilers.ir.IrExpr;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.gui.Trees;
+import java.io.File;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
 
 
 class Main {
@@ -39,9 +39,7 @@ class Main {
                             String type = "";
                             String text = token.getText();
 
-                            //              System.out.println("\n\n"+token.getType());
                             switch (token.getType()) {
-                                // TODO: add strings for the other types here...
                                 case DecafScanner.CHAR:
                                     type = " CHARLITERAL";
                                     break;
@@ -64,31 +62,131 @@ class Main {
                     } catch(Exception e) {
                         // print the error:
                         System.err.println(CLI.infile + " " + e);
-                        //            scanner.consume();
-                        scanner.skip(); // replaces
+                        //scanner.skip(); // replaces
+                        System.exit(1);
                     }
                 }
-            } else if (CLI.target == Action.PARSE ||
-                    CLI.target == Action.DEFAULT) {
+            } else if (CLI.target == Action.PARSE) {
                 DecafScanner scanner =
                         new DecafScanner(new ANTLRInputStream(inputStream));
                 CommonTokenStream tokenStream = new CommonTokenStream(scanner); // added for Antlr4
                 DecafParser parser = new DecafParser(tokenStream);
+
+                // Semantic/token recognition error capture mechanism
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                PrintStream p = new PrintStream(bytes, true, "UTF-8");
+                System.setErr(p);
+
                 parser.setTrace(CLI.debug);
                 parser.program();
-                //        if(parser.getError()) {
-                if (parser.getNumberOfSyntaxErrors() > 0) {
+                String printedSoFar = bytes.toString("UTF-8");
+                System.out.print(printedSoFar);
+
+                if (parser.getNumberOfSyntaxErrors() > 0 || printedSoFar.length() > 0) {
                     System.exit(1);
                 }
+
+            } else if (CLI.target == Action.INTER) {
+                DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//                Trees.inspect(tree, parser); // Makes pretty graph
+
+                if (listener.detectedSemanticErrors()) {
+                    System.exit(1);
+                }
+            } else if (CLI.target == Action.ASSEMBLY || CLI.target == Action.DEFAULT) {
+                DecafScanner lexer = new DecafScanner(new ANTLRInputStream(inputStream));
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//            Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
             // print the error:
-            System.err.println(CLI.infile+" "+e);
+            System.err.println(CLI.infile + " " + e);
+            System.exit(1);
         }
     }
 
+    // TODO: Function for testing purposes only
+    // TODO: Remove in final program
+    private static void runFilesInDirectory(String dirPath) {
+        File dir = new File(dirPath);
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+
+                // get the fileExtension
+                String filePath = child.getPath();
+                String fileExtension = "none";
+                int i = filePath.lastIndexOf('.');
+                if (i > 0) {
+                    fileExtension = filePath.substring(i+1);
+                }
+
+                // run the test in the file
+                if (fileExtension.equals("dcf")) {
+                    try {
+                        System.out.println("\n\n" + child.getPath());
+                        CharStream stream = new ANTLRFileStream(child.getPath());
+                        DecafScanner lexer = new DecafScanner(stream);
+                        TokenStream tokens = new CommonTokenStream(lexer);
+                        DecafParser parser = new DecafParser(tokens);
+                        ParseTree tree = parser.program();
+                        ParseTreeWalker walker = new ParseTreeWalker();
+                        DecafListener listener = new DecafListener();
+                        walker.walk(listener, tree);
+                    }
+                    catch (IOException e) {
+                        System.out.println("There was an error:\n" + e);
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO: Function for testing purposes only
+    // TODO: Remove in final program
+    private static void runFile(String filePath) {
+        // get the fileExtension
+        String fileExtension = "none";
+        int i = filePath.lastIndexOf('.');
+        if (i > 0) {
+            fileExtension = filePath.substring(i+1);
+        }
+
+        // run the test in the file
+        if (fileExtension.equals("dcf")) {
+            try {
+                System.out.println("\n\n" + filePath);
+                CharStream stream = new ANTLRFileStream(filePath);
+                DecafScanner lexer = new DecafScanner(stream);
+                TokenStream tokens = new CommonTokenStream(lexer);
+                DecafParser parser = new DecafParser(tokens);
+                ParseTree tree = parser.program();
+                ParseTreeWalker walker = new ParseTreeWalker();
+                DecafListener listener = new DecafListener();
+                walker.walk(listener, tree);
+//            Trees.inspect(tree, parser);
+            }
+            catch (IOException e) {
+                System.out.println("There was an error:\n" + e);
+            }
+        }
+    }
+
+    // TODO: Function for testing purposes only
+    // TODO: Remove in final program
     public static void testDecafListner() {
-        String prefix = "/Users/abel/Desktop/node/6035-compilers/tests/semantics/";
+        String prefix = "tests/semantics/";
 
         try {
             CharStream stream = new ANTLRFileStream(prefix + "legal/custom-02.dcf");
@@ -107,8 +205,20 @@ class Main {
     }
 
     public static void main(String[] args) {
+        // Run program based on CLI and shell scripts
+        Main.testParserCode(args);
 
-//        Main.testParserCode(args);
-        Main.testDecafListner();
+//        // Code generation tests
+//        Main.testDecafListner();
+
+//        // Semantic analysis tests
+//        String legalTests = "./tests/semantics-hidden/legal/";
+//        Main.runFilesInDirectory(legalTests);
+
+//        String illegalTests = "./tests/semantics-hidden/illegal/";
+//        Main.runFilesInDirectory(illegalTests);
+
+//        String customTest = "./tests/semantics/legal/custom-01.dcf";
+//        Main.runFile(customTest);
     }
 }
