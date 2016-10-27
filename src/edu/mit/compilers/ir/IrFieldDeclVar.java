@@ -21,4 +21,13 @@ public class IrFieldDeclVar extends IrFieldDecl {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__variable\n";
+        prettyString += ("  " + indentSpace + "|__name: " + this.getName() + "\n");
+        prettyString += this.getType().prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

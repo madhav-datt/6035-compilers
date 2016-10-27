@@ -110,27 +110,25 @@ public class IrProgram extends Ir{
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String newIndentSpace = indentSpace + "  ";
-
         // program header
-        String prettyString = "Program:\n";
+        String prettyString = "IrProgram:\n";
 
         // pretty print extern_decls
-        prettyString += "|__extern_decl:\n";
+        prettyString += "|__externs:\n";
         for (IrExternDecl externDecl: this.externDecls) {
-            prettyString += (newIndentSpace + "|__" + externDecl.prettyPrint(newIndentSpace));
+            prettyString += externDecl.prettyPrint("  " + indentSpace);
         }
 
         // pretty print field_decls
-        prettyString += "|__field_decl:\n";
+        prettyString += "|__fields:\n";
         for (IrFieldDecl fieldDecl: this.fieldDecls) {
-            prettyString += (newIndentSpace + "|__" + fieldDecl.prettyPrint(newIndentSpace));
+            prettyString += fieldDecl.prettyPrint("  " + indentSpace);
         }
 
         // pretty print method_decls
-        prettyString += "|__method_decl:\n";
+        prettyString += "|__methods:\n";
         for (IrMethodDecl methodDecl: this.methodDecls) {
-            prettyString += (newIndentSpace + "|__" + methodDecl.prettyPrint(newIndentSpace));
+            prettyString += methodDecl.prettyPrint("  " + indentSpace);
         }
 
         return prettyString;
