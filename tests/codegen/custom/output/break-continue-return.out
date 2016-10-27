@@ -1,0 +1,16 @@
+breakAndContinue(): i = 1 for-good!
+breakAndContinue(): i = 2 for-good!
+breakAndContinue(): i = 1 while-good!
+breakAndContinue(): i = 2 while-good!
+returnIntFromForLoop(): i = 1 good!
+returnIntFromForLoop(): i = 2 good!
+returnIntFromWhileLoop(): i = 1 good!
+returnIntFromWhileLoop(): i = 2 good!
+returnBoolFromForLoop(): i = 1 good!
+returnBoolFromForLoop(): i = 2 good!
+returnBoolFromWhileLoop(): i = 1 good!
+returnBoolFromWhileLoop(): i = 2 good!
+returnVoidFromForLoop(): i = 1 good!
+returnVoidFromForLoop(): i = 2 good!
+returnVoidFromWhileLoop(): i = 1 good!
+returnVoidFromWhileLoop(): i = 2 good!

@@ -1,0 +1,157 @@
+// 13) break
+//     use case --> for, while
+// 14) continue
+//     use case --> for while
+// 15) return
+//     nothing --> return only
+//     something --> return int, return bool
+
+extern printf();
+
+void breakAndContinue() {
+    // for loop: break and continue
+    int i;
+    for (i = 0; i < 10; i += 1) {
+    
+        if (i == 1) {
+            printf("breakAndContinue(): i = 1 for-good!\n"); // prove that it got here
+            continue;
+            printf("breakAndContinue(): i = 1 for-BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("breakAndContinue(): i = 2 for-good!\n"); // prove that it got here
+            break;
+            printf("breakAndContinue(): i = 2 for-BAD\n"); // this statement should not print
+        }
+    }
+    printf("breakAndContinue(): for-i = %d", i); // should be 2
+    
+    // while loop: break and continue
+    i = 0;
+    while (i < 10) {
+        if (i == 1) {
+            printf("breakAndContinue(): i = 1 while-good!\n"); // prove that it got here
+            continue;
+            printf("breakAndContinue(): i = 1 while-BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("breakAndContinue(): i = 2 while-good!\n"); // prove that it got here
+            break;
+            printf("breakAndContinue(): i = 2 while-BAD\n"); // this statement should not print
+        }
+        i += 1;
+    }
+    printf("breakAndContinue(): while-i = %d", i); // should be 2
+}
+
+int returnIntFromForLoop() {
+    int i;
+    for (i = 0; i < 10; i += 1) {
+    
+        if (i == 1) {
+            printf("returnIntFromForLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnIntFromForLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnIntFromForLoop(): i = 2 good!\n"); // prove that it got here
+            return i;
+            printf("returnIntFromForLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+    }
+}
+
+int returnIntFromWhileLoop() {
+    i = 0;
+    while (i < 10) {
+        if (i == 1) {
+            printf("returnIntFromWhileLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnIntFromWhileLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnIntFromWhileLoop(): i = 2 good!\n"); // prove that it got here
+            return i;
+            printf("returnIntFromWhileLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+        i += 1;
+    }
+}
+
+bool returnBoolFromForLoop() {
+    int i;
+    for (i = 0; i < 10; i += 1) {
+    
+        if (i == 1) {
+            printf("returnBoolFromForLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnBoolFromForLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnBoolFromForLoop(): i = 2 good!\n"); // prove that it got here
+            return true;
+            printf("returnBoolFromForLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+    }
+}
+
+bool returnBoolFromWhileLoop() {
+    i = 0;
+    while (i < 10) {
+        if (i == 1) {
+            printf("returnBoolFromWhileLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnBoolFromWhileLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnBoolFromWhileLoop(): i = 2 good!\n"); // prove that it got here
+            return true;
+            printf("returnBoolFromWhileLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+        i += 1;
+    }
+}
+
+void returnVoidFromForLoop() {
+    int i;
+    for (i = 0; i < 10; i += 1) {
+    
+        if (i == 1) {
+            printf("returnVoidFromForLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnVoidFromForLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnVoidFromForLoop(): i = 2 good!\n"); // prove that it got here
+            return;
+            printf("returnVoidFromForLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+    }
+}
+
+void returnVoidFromWhileLoop() {
+    i = 0;
+    while (i < 10) {
+        if (i == 1) {
+            printf("returnVoidFromWhileLoop(): i = 1 good!\n"); // prove that it got here
+            continue;
+            printf("returnVoidFromWhileLoop(): i = 1 BAD\n"); // this statement should not print
+        }
+        if (i == 2) {
+            printf("returnVoidFromWhileLoop(): i = 2 good!\n"); // prove that it got here
+            return;
+            printf("returnVoidFromWhileLoop(): i = 2 BAD\n"); // this statement should not print
+        }
+        i += 1;
+    }
+}
+
+void main() {
+    breakAndContinue();
+    returnIntFromForLoop();
+    returnIntFromWhileLoop();
+    returnBoolFromForLoop();
+    returnBoolFromWhileLoop();
+    returnVoidFromForLoop();
+    returnVoidFromWhileLoop();
+}
