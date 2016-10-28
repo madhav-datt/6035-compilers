@@ -46,4 +46,14 @@ public class IrFieldDeclArray extends IrFieldDecl {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--arrayDecl\n";
+        prettyString += ("  " + indentSpace + "|--name: " + this.getName() + "\n");
+        prettyString += this.getType().prettyPrint("  " + indentSpace);
+        prettyString += ("  " + indentSpace + "|--size: " + this.arraySize + "\n");
+
+        return prettyString;
+    }
 }

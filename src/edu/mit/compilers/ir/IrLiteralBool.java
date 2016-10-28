@@ -26,4 +26,11 @@ public class IrLiteralBool extends IrLiteral {
         assembly.putOnFootNote(this.value ? "$1" : "$0");
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyPrint = indentSpace + "|--boolLiteral\n";
+        prettyPrint += "  " + indentSpace + "|--value: " + this.value + "\n";
+        return prettyPrint;
+    }
 }

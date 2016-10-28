@@ -56,4 +56,19 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
         assembly.addLine("movq %r10, " + registerLocation);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--assignStmtMinusEquals\n";
+
+        // pretty print the lhs
+        prettyString += ("  " + indentSpace + "|--lhs\n");
+        prettyString += this.getStoreLocation().prettyPrint("    " +indentSpace);
+
+        // print the rhs
+        prettyString += ("  " + indentSpace + "|--rhs\n");
+        prettyString += this.decrementBy.prettyPrint("    " + indentSpace);
+
+        return prettyString;
+    }
 }

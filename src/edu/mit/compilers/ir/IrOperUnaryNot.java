@@ -51,4 +51,14 @@ public class IrOperUnaryNot extends IrOperUnary{
         return assembly;
 
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--unaryNotOp\n";
+
+        // pretty print the operand
+        prettyString += this.operand.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

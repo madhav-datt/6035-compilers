@@ -116,4 +116,17 @@ public class IrLocationArray extends IrLocation {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__arrayAccess\n";
+
+        // print the name
+        prettyString += ("  " + indentSpace + "|__name: " + this.varName.getValue() + "\n");
+
+        // print the type
+        prettyString += this.varType.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

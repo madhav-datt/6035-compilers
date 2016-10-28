@@ -74,4 +74,22 @@ public class IrOperBinaryArith extends IrOperBinary {
         assembly.putOnFootNote(resultTemp);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--binaryArithOper\n";
+
+        // pretty print the lhs
+        prettyString += "  " + indentSpace + "|--lhs\n";
+        prettyString += this.leftOperand.prettyPrint("    " + indentSpace);
+
+        // print the operator
+        prettyString += "  " + indentSpace + "|--op: " + this.operation + "\n";
+
+        // pretty print the rhs
+        prettyString += "  " + indentSpace + "|--rhs\n";
+        prettyString += this.rightOperand.prettyPrint("    " + indentSpace);
+
+        return prettyString;
+    }
 }

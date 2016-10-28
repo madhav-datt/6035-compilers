@@ -13,7 +13,10 @@ public class IrTypeInt extends IrType {
             return false;
         }
         return true;
+    }
 
-
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return indentSpace + "|--type: int\n";
     }
 }

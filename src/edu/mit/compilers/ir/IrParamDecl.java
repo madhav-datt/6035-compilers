@@ -34,4 +34,17 @@ public class IrParamDecl extends Ir {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--param:\n";
+
+        // print the parameter's name
+        prettyString += ("  " + indentSpace + "|--name: " + this.paramName.getValue() + "\n");
+
+        // print the parameter's type
+        prettyString += this.paramType.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

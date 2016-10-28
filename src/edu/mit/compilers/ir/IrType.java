@@ -8,7 +8,7 @@ import edu.mit.compilers.StackFrame;
 /**
  * Created by devinmorgan on 10/11/16.
  */
-public class IrType extends Ir{
+public abstract class IrType extends Ir{
     public IrType(int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
     }
@@ -23,5 +23,7 @@ public class IrType extends Ir{
 
         return assembly;
     }
+
+
 
 }

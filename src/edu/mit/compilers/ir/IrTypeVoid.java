@@ -13,7 +13,10 @@ public class IrTypeVoid extends IrType {
             return false;
         }
         return true;
+    }
 
-
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return indentSpace + "|--type: void\n";
     }
 }

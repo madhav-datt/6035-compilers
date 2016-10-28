@@ -26,4 +26,11 @@ public class IrLiteralInt extends IrLiteral {
         assembly.putOnFootNote("$" + Long.toString(value));
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyPrint = indentSpace + "|--IntLiteral\n";
+        prettyPrint += ("  " + indentSpace + "|--value: " + this.value + "\n");
+        return prettyPrint;
+    }
 }

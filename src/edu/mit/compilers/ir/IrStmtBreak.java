@@ -32,4 +32,10 @@ public class IrStmtBreak extends IrStatement {
         assembly.addLine();
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--breakStmt";
+        return prettyString;
+    }
 }

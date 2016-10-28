@@ -100,4 +100,17 @@ public class IrLocationVar extends IrLocation {
         assembly.putOnFootNote( stackFrame.getIrLocation(this.getLocationName()));
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--locationVar\n";
+
+        // pretty print name
+        prettyString += "  " + indentSpace + "|--name: " + this.varName.getValue() + "\n";
+
+        // pretty print the type
+        prettyString += this.varType.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

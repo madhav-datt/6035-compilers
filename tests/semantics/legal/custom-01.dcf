@@ -1,43 +1,4 @@
-// 12) sizeof
-//     res_word --> bool, int,
-//     variable --> array object (no index offset), var object
-
-extern printf();
-
-void sizeofResWord() {
-    // bool
-    printf("sizeof bool = %d\n", (sizeof (bool)));
-
-    // int
-    printf("sizeof int = %d\n", (sizeof (int)));
-}
-
-void sizeofArray() {
-    int arrayInt[10];
-    bool arrayBool[10];
-
-    // array (int)
-    printf("sizeof arrayInt = %d\n", (sizeof (arrayInt)));
-
-    // array (bool)
-    printf("sizeof arrayBool = %d\n", (sizeof (arrayBool)));
-}
-
-void sizeofVariable() {
-    bool varBool;
-    int varInt;
-
-    // var (int)
-    varInt = 1;
-    printf("sizeof varInt = %d\n", (sizeof (varInt)));
-
-    // var (bool)
-    varBool = true;
-    printf("sizeof varBool = %d\n", (sizeof (varBool)));
-}
-
 void main() {
-    sizeofResWord();
-    sizeofArray();
-    sizeofVariable();
+    int i;
+    i = 5;
 }

@@ -107,4 +107,14 @@ public class IrSizeOfLocation extends IrSizeOf {
         return assembly;
 
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--sizeOfLocation\n";
+
+        // pretty print the location
+        prettyString += ("  " + indentSpace + "|--name: " + this.fieldName.getValue() + "\n");
+
+        return prettyString;
+    }
 }

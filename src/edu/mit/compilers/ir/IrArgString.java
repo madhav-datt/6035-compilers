@@ -42,4 +42,14 @@ public class IrArgString extends IrArg {
         assembly.putOnFootNote(label);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--argString:\n";
+
+        // pretty print the expression
+        prettyString += ("  " + indentSpace + "|--string: \"" + (this.getArgValue() + "\"\n"));
+
+        return prettyString;
+    }
 }

@@ -47,6 +47,9 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
                     " line: "+this.intialIndexExpr.getLineNumber() + " col: " +this.intialIndexExpr.getColNumber() + "\n";
         }
 
+        // 5) verify that the condition is semantically correct
+        errorMessage += this.condExpr.semanticCheck(scopeStack);
+
         // 3) verify that the condition is IrTypeBool
         if (!(this.condExpr.getExpressionType() instanceof IrTypeBool)) {
             errorMessage += "For loop condition does not evaluate to bool" +
@@ -89,5 +92,30 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         assembly.addLine();
         assembly.addLabel(String.format(".%s_DONE", ifConditionLabel));
         return assembly;
+    }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--forLoop\n";
+
+        // print the counter initialize stmt
+        prettyString += ("  " + indentSpace + "|--counter\n");
+        prettyString += (this.counter.prettyPrint("    " + indentSpace));
+        prettyString += ("    " + indentSpace + "|--=\n");
+        prettyString += (this.intialIndexExpr.prettyPrint("    " + indentSpace));
+
+        // print the condition expr
+        prettyString += ("  " + indentSpace + "|--condExpr\n");
+        prettyString += (this.condExpr.prettyPrint("    " + indentSpace));
+
+        // print the compound assign stmt
+        prettyString += ("  " + indentSpace + "|--compoundExpr\n");
+        prettyString += (this.compoundAssignStmt.prettyPrint("    " + indentSpace));
+
+        // print the for loop body
+        prettyString += "  " + indentSpace + "|--body\n";
+        prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
+
+        return prettyString;
     }
 }

@@ -58,4 +58,19 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
         assembly.addLabel(String.format(".%s_DONE", ifConditionLabel));
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--whileLoop\n";
+
+        // print the condition expr
+        prettyString += ("  " + indentSpace + "|--condExpr\n");
+        prettyString += (this.condExpr.prettyPrint("    " + indentSpace));
+
+        // print the for loop body
+        prettyString += "  " + indentSpace + "|--body\n";
+        prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
+
+        return prettyString;
+    }
 }

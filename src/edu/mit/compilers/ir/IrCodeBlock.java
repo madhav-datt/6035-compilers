@@ -58,4 +58,21 @@ public class IrCodeBlock extends Ir {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--codeBlock:\n";
+
+        // pretty print statement
+        for (IrFieldDecl fieldDecl: this.fieldsList) {
+            prettyString += fieldDecl.prettyPrint("  " + indentSpace);
+        }
+
+        // pretty print field decl
+        for (IrStatement statement: this.stmtsList) {
+            prettyString += statement.prettyPrint("  " + indentSpace);
+        }
+
+        return prettyString;
+    }
 }

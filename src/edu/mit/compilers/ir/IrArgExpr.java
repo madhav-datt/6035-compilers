@@ -43,4 +43,14 @@ public class IrArgExpr extends IrArg {
         }
         return false;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--argExpr:\n";
+
+        // pretty print the expression
+        prettyString += ((IrExpr) this.getArgValue()).prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

@@ -26,6 +26,9 @@ public class DecafListener extends DecafParserBaseListener {
     public IrProgram getGeneratedProgram() {
         return this.program;
     }
+    public String prettyPrintProgram() {
+        return this.program.prettyPrint("");
+    }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) { }
     /**
@@ -38,9 +41,6 @@ public class DecafListener extends DecafParserBaseListener {
         ArrayList<IrFieldDecl> fieldDecls = new ArrayList<>();
         ArrayList<IrMethodDecl> methodDecls = new ArrayList<>();
         ArrayList<IrExternDecl> externDecls = new ArrayList<>();
-
-
-
 
         // 1) method_decls will be on the top of the stack so collect them
         // first
@@ -211,7 +211,6 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
-
                     this.irStack.push(newMethod);
                 }
                 else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}

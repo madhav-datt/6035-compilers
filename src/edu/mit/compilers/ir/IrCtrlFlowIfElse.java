@@ -51,4 +51,18 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         assembly.putOnFootNote(label);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = "";
+
+        // print the if statement
+        prettyString += this.ifStmt.prettyPrint(indentSpace);
+
+        // print the else body
+        prettyString += indentSpace + "|--elseBody\n";
+        prettyString += this.stmtBody.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

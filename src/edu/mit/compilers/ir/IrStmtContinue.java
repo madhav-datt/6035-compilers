@@ -32,4 +32,10 @@ public class IrStmtContinue extends IrStatement {
         assembly.addLine();
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--continueStmt";
+        return prettyString;
+    }
 }

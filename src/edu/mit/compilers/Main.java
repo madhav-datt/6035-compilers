@@ -112,6 +112,8 @@ class Main {
                 ParseTreeWalker walker = new ParseTreeWalker();
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
+
+                // write assembly output to file
                 AssemblyBuilder asm = new AssemblyBuilder();
                 StackFrame stackFrame = new StackFrame();
                 Register register = new Register();
@@ -149,7 +151,7 @@ class Main {
                 }
 
                 if (CLI.debug) {
-                    // System.out.println(listener.prettyPrintProgram());
+                     System.out.println(listener.prettyPrintProgram());
                 }
 
 //            Trees.inspect(tree, parser); // Makes pretty graph
