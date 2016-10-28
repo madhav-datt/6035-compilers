@@ -26,4 +26,13 @@ public class IrSizeOfType extends IrSizeOf {
 
         return assembly;
     }
+
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__sizeOfType\n";
+
+        // pretty print the location
+        prettyString += this.type.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }

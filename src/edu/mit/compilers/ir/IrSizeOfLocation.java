@@ -43,4 +43,14 @@ public class IrSizeOfLocation extends IrSizeOf {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__sizeOfLocation\n";
+
+        // pretty print the location
+        prettyString += ("  " + indentSpace + "|__name: " + this.fieldName.getValue() + "\n");
+
+        return prettyString;
+    }
 }
