@@ -111,6 +111,7 @@ class Main {
                 if (CLI.debug) {
                     System.out.println(listener.prettyPrintProgram());
                 }
+                CLI.fil
 
 //            Trees.inspect(tree, parser); // Makes pretty graph
             }

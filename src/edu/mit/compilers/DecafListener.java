@@ -212,7 +212,7 @@ public class DecafListener extends DecafParserBaseListener {
                     Register reg = new Register();
                     StackFrame frame = new StackFrame();
                     newMethod.generateCode(asm, reg, frame);
-                    System.out.println(asm.generateAssembly());
+//                    System.out.println(asm.generateAssembly());
                     this.irStack.push(newMethod);
                 }
                 else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}
