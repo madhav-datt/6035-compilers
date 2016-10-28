@@ -63,8 +63,7 @@ public class IrLocationVar extends IrLocation {
 
                 // IMPORTANT: set the IrDecl of the IrLocationVar
                 this.setIrDecl(arrayObject);
-            }
-            else {
+
                 errorMessage += "Invalid method call or array assignment" +
                         " line: " + this.getLocationName().getLineNumber() + " col: " + this.getLocationName().getColNumber() + "\n";
             }

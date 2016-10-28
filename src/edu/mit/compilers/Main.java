@@ -263,7 +263,7 @@ class Main {
 
 //        String illegalTests = "./tests/semantics-hidden/illegal/";
 //        Main.runFilesInDirectory(illegalTests);
-
+//
 //        String customTest = "./tests/semantics/legal/custom-01.dcf";
 //        Main.runFile(customTest);
     }
