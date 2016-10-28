@@ -31,8 +31,8 @@ public class IrLiteralChar extends IrLiteral {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyPrint = indentSpace + "|__charLiteral\n";
-        prettyPrint += "  " + indentSpace + "|__value: " + this.value + "\n";
+        String prettyPrint = indentSpace + "|--charLiteral\n";
+        prettyPrint += "  " + indentSpace + "|--value: " + this.value + "\n";
         return prettyPrint;
     }
 }

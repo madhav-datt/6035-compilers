@@ -42,7 +42,7 @@ public class IrStmtReturnVoid extends IrStmtReturn {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__returnVoid";
+        String prettyString = indentSpace + "|--returnVoid";
         return prettyString;
     }
 }

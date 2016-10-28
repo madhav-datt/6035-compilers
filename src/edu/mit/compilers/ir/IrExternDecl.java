@@ -22,7 +22,7 @@ public class IrExternDecl extends IrMemberDecl {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__" + this.getName() + "\n";
+        String prettyString = indentSpace + "|--" + this.getName() + "\n";
         return prettyString;
     }
 }

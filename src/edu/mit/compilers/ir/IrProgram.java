@@ -114,19 +114,19 @@ public class IrProgram extends Ir{
         String prettyString = "IrProgram:\n";
 
         // pretty print extern_decls
-        prettyString += "|__externs:\n";
+        prettyString += "|--externs:\n";
         for (IrExternDecl externDecl: this.externDecls) {
             prettyString += externDecl.prettyPrint("  " + indentSpace);
         }
 
         // pretty print field_decls
-        prettyString += "|__fields:\n";
+        prettyString += "|--fields:\n";
         for (IrFieldDecl fieldDecl: this.fieldDecls) {
             prettyString += fieldDecl.prettyPrint("  " + indentSpace);
         }
 
         // pretty print method_decls
-        prettyString += "|__methods:\n";
+        prettyString += "|--methods:\n";
         for (IrMethodDecl methodDecl: this.methodDecls) {
             prettyString += methodDecl.prettyPrint("  " + indentSpace);
         }

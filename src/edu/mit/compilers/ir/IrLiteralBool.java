@@ -29,8 +29,8 @@ public class IrLiteralBool extends IrLiteral {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyPrint = indentSpace + "|__boolLiteral\n";
-        prettyPrint += "  " + indentSpace + "|__value: " + this.value + "\n";
+        String prettyPrint = indentSpace + "|--boolLiteral\n";
+        prettyPrint += "  " + indentSpace + "|--value: " + this.value + "\n";
         return prettyPrint;
     }
 }

@@ -78,10 +78,10 @@ public class IrLocationVar extends IrLocation {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__locationVar\n";
+        String prettyString = indentSpace + "|--locationVar\n";
 
         // pretty print name
-        prettyString += "  " + indentSpace + "|__name: " + this.varName.getValue() + "\n";
+        prettyString += "  " + indentSpace + "|--name: " + this.varName.getValue() + "\n";
 
         // pretty print the type
         prettyString += this.varType.prettyPrint("  " + indentSpace);

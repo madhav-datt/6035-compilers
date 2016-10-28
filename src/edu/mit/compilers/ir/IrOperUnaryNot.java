@@ -40,7 +40,7 @@ public class IrOperUnaryNot extends IrOperUnary{
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__unaryNotOp\n";
+        String prettyString = indentSpace + "|--unaryNotOp\n";
 
         // pretty print the operand
         prettyString += this.operand.prettyPrint("  " + indentSpace);

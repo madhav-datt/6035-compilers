@@ -37,10 +37,10 @@ public class IrParamDecl extends Ir {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__param:\n";
+        String prettyString = indentSpace + "|--param:\n";
 
         // print the parameter's name
-        prettyString += ("  " + indentSpace + "|__name: " + this.paramName.getValue() + "\n");
+        prettyString += ("  " + indentSpace + "|--name: " + this.paramName.getValue() + "\n");
 
         // print the parameter's type
         prettyString += this.paramType.prettyPrint("  " + indentSpace);

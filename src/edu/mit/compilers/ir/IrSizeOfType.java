@@ -28,7 +28,7 @@ public class IrSizeOfType extends IrSizeOf {
     }
 
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__sizeOfType\n";
+        String prettyString = indentSpace + "|--sizeOfType\n";
 
         // pretty print the location
         prettyString += this.type.prettyPrint("  " + indentSpace);

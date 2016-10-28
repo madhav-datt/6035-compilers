@@ -59,7 +59,7 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__returnExpr";
+        String prettyString = indentSpace + "|--returnExpr";
 
         // pretty print the expression
         indentSpace += this.result.prettyPrint("  " + indentSpace);

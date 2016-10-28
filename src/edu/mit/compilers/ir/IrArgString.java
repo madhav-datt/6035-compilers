@@ -39,10 +39,10 @@ public class IrArgString extends IrArg {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__argString:\n";
+        String prettyString = indentSpace + "|--argString:\n";
 
         // pretty print the expression
-        prettyString += ("  " + indentSpace + "|__string: \"" + (this.getArgValue() + "\"\n"));
+        prettyString += ("  " + indentSpace + "|--string: \"" + (this.getArgValue() + "\"\n"));
 
         return prettyString;
     }

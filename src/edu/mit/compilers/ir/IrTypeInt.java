@@ -17,6 +17,6 @@ public class IrTypeInt extends IrType {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        return indentSpace + "|__type: int\n";
+        return indentSpace + "|--type: int\n";
     }
 }

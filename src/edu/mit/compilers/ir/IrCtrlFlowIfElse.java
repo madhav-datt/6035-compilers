@@ -60,7 +60,7 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         prettyString += this.ifStmt.prettyPrint(indentSpace);
 
         // print the else body
-        prettyString += indentSpace + "|__elseBody\n";
+        prettyString += indentSpace + "|--elseBody\n";
         prettyString += this.stmtBody.prettyPrint("  " + indentSpace);
 
         return prettyString;

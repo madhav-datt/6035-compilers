@@ -46,10 +46,10 @@ public class IrSizeOfLocation extends IrSizeOf {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__sizeOfLocation\n";
+        String prettyString = indentSpace + "|--sizeOfLocation\n";
 
         // pretty print the location
-        prettyString += ("  " + indentSpace + "|__name: " + this.fieldName.getValue() + "\n");
+        prettyString += ("  " + indentSpace + "|--name: " + this.fieldName.getValue() + "\n");
 
         return prettyString;
     }

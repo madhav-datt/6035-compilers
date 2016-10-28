@@ -33,7 +33,7 @@ public class IrStmtBreak extends IrStatement {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__breakStmt";
+        String prettyString = indentSpace + "|--breakStmt";
         return prettyString;
     }
 }

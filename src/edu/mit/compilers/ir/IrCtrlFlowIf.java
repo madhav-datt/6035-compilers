@@ -59,14 +59,14 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__ifStmt\n";
+        String prettyString = indentSpace + "|--ifStmt\n";
 
         // print the condition expr
-        prettyString += ("  " + indentSpace + "|__condExpr\n");
+        prettyString += ("  " + indentSpace + "|--condExpr\n");
         prettyString += (this.condExpr.prettyPrint("    " + indentSpace));
 
         // print the if loop body
-        prettyString += "  " + indentSpace + "|__body\n";
+        prettyString += "  " + indentSpace + "|--body\n";
         prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
 
         return prettyString;

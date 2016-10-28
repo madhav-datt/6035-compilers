@@ -33,7 +33,7 @@ public class IrStmtContinue extends IrStatement {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__continueStmt";
+        String prettyString = indentSpace + "|--continueStmt";
         return prettyString;
     }
 }

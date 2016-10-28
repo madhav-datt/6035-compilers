@@ -29,8 +29,8 @@ public class IrLiteralInt extends IrLiteral {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyPrint = indentSpace + "|__IntLiteral\n";
-        prettyPrint += "  " + indentSpace + "|__value: " + this.value + "\n";
+        String prettyPrint = indentSpace + "|--IntLiteral\n";
+        prettyPrint += ("  " + indentSpace + "|--value: " + this.value + "\n");
         return prettyPrint;
     }
 }

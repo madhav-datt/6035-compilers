@@ -56,7 +56,7 @@ public class IrCodeBlock extends Ir {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__codeBlock:\n";
+        String prettyString = indentSpace + "|--codeBlock:\n";
 
         // pretty print statement
         for (IrFieldDecl fieldDecl: this.fieldsList) {

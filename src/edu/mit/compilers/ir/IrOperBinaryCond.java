@@ -68,17 +68,17 @@ public class IrOperBinaryCond extends IrOperBinary {
 
     @Override
     public String prettyPrint(String indentSpace) {
-        String prettyString = indentSpace + "|__binaryCondOper\n";
+        String prettyString = indentSpace + "|--binaryCondOper\n";
 
         // pretty print the lhs
-        prettyString += "  " + indentSpace + "|__lhs\n";
+        prettyString += "  " + indentSpace + "|--lhs\n";
         prettyString += this.leftOperand.prettyPrint("    " + indentSpace);
 
         // print the operator
-        prettyString += "  " + indentSpace + "|__op: " + this.operation + "\n";
+        prettyString += "  " + indentSpace + "|--op: " + this.operation + "\n";
 
         // pretty print the rhs
-        prettyString += "  " + indentSpace + "|__rhs\n";
+        prettyString += "  " + indentSpace + "|--rhs\n";
         prettyString += this.rightOperand.prettyPrint("    " + indentSpace);
 
         return prettyString;
