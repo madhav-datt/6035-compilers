@@ -7,6 +7,7 @@ import edu.mit.compilers.StackFrame;
 
 public class IrSizeOfLocation extends IrSizeOf {
     private final IrIdent fieldName;
+    private Ir irDecl; // IrFieldDeclArray, IrFieldDeclVar, IrParamDecl
 
     public IrSizeOfLocation(IrIdent fieldName, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
@@ -27,9 +28,13 @@ public class IrSizeOfLocation extends IrSizeOf {
             Ir object = scopeStack.getSymbol(this.fieldName.getValue());
 
             // 2) make sure that argument is a var (and not a method)
-            if (!(object instanceof IrFieldDecl)) {
+            if (!(object instanceof IrFieldDecl) && !(object instanceof IrFieldDecl)) {
                 errorMessage += "Argument for sizeof is not a type, variable, or array" +
                         " line: " + this.fieldName.getLineNumber() + " col: " + this.fieldName.getColNumber() + "\n";
+            }
+            else {
+                // IMPORTANT: set the irDecl for the IrSizeOfLocation
+                this.irDecl = object;
             }
         }
         else {
@@ -39,8 +44,67 @@ public class IrSizeOfLocation extends IrSizeOf {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+    public String getTypeString(){
+        if(this.irDecl instanceof IrFieldDeclArray){
+            return "array";
+        }
+        if(this.irDecl instanceof IrFieldDeclVar){
+            if(((IrFieldDeclVar) this.irDecl).getType() instanceof IrTypeInt){
+                return "int";
+            }
+            if(((IrFieldDeclVar) this.irDecl).getType() instanceof IrTypeBool){
+                return "bool";
+            }
 
+        }
+        if(this.irDecl instanceof IrParamDecl){
+            if(((IrParamDecl) this.irDecl).getParamType() instanceof IrTypeInt){
+                return "int";
+            }
+            if(((IrParamDecl) this.irDecl).getParamType() instanceof IrTypeBool){
+                return "bool";
+            }
+        }
+
+        return "void";
+    }
+
+    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        String type = this.getTypeString();
+
+        switch (type){
+            case "array":
+                Ir arrayType = ((IrFieldDeclArray)this.irDecl).getType();
+                int arraySize = ((IrFieldDeclArray)this.irDecl).getArraySize();
+                String arraySizeStr;
+                if(arrayType instanceof IrTypeBool)
+                {
+                    arraySizeStr = "$" +Integer.toString(arraySize);
+                    assembly.addLine("mov "+ arraySizeStr + ", %r11");
+
+                }
+                if(arrayType instanceof IrTypeInt)
+                {
+                    arraySizeStr = "$" + Integer.toString(arraySize*8);
+                    assembly.addLine("mov "+ arraySizeStr + ", %r11");
+                }
+
+                break;
+
+            case "bool":
+                assembly.addLine("mov $1, %r11");
+                break;
+            case "int":
+                assembly.addLine("mov $8, %r11");
+                break;
+
+        }
+        String stackLocation = stackFrame.getNextStackLocation();
+        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine("mov %r11, " + stackLocation);
+        assembly.putOnFootNote(stackLocation);
+        assembly.addLine("");
         return assembly;
+
     }
 }

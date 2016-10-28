@@ -206,7 +206,7 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
-                    AssemblyBuilder asm = new AssemblyBuilder(new StringBuilder());
+                    AssemblyBuilder asm = new AssemblyBuilder();
                     Register reg = new Register();
                     StackFrame frame = new StackFrame();
                     newMethod.generateCode(asm, reg, frame);

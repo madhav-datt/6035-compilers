@@ -49,10 +49,13 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
         this.condExpr.generateCode(assembly, register, stackFrame);
         // go to the last part of the done block
         String label = assembly.getFootNote();
-        assembly.addLine(5, String.format("jmp .%s_DONE", label));
-        assembly.addLine(0, String.format("%s: ", label));
+
+        assembly.addLine(String.format("jmp .%s_DONE", label));
+        assembly.addLabel(label + ":");
+        assembly.getInBlock(label);
         this.getIfBodyBlock().generateCode(assembly, register, stackFrame);
-        assembly.addLine(5, String.format("jmp .%s_DONE", label));
+        assembly.addLine(String.format("jmp .%s_DONE", label));
+        assembly.getOutOfBlock();
         assembly.putOnFootNote(label);
         return assembly;
     }

@@ -2,18 +2,22 @@ package edu.mit.compilers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by abel on 10/26/16.
  */
 public class AssemblyBuilder {
+
     private StringBuilder assemblyHeader;
     private StringBuilder assemblyBody;
     private StringBuilder assemblyBottom;
-    private String footNote;
-    private List<String> label = new ArrayList<String>();
 
-    private StringBuilder addFormatedLine(int offset, String asm){
+    private String footNote;
+
+    private int labelCount;
+    private Stack<String> currentBlockLabel = new Stack<>();
+    private StringBuilder getFormatedLine(int offset, String asm){
         StringBuilder tempAsm = new StringBuilder();
         for(int i = 0; i < offset; i ++){
             tempAsm.append(" ");
@@ -24,35 +28,34 @@ public class AssemblyBuilder {
         return tempAsm;
     };
 
-    private StringBuilder getAssemblyBody(){
-        return new StringBuilder(this.assemblyBody.toString());
-    }
 
     public AssemblyBuilder(){
         this.assemblyHeader = new StringBuilder("");
-        this.assemblyBody = new StringBuilder("");
-        this.assemblyBottom = new StringBuilder("");
-        this.footNote = "";
-    }
-    public AssemblyBuilder(StringBuilder header){
-        this.assemblyHeader = header;
         this.assemblyBody = new StringBuilder("");
         this.assemblyBottom = new StringBuilder("");
     }
 
     public void append(StringBuilder asm){
         this.assemblyBody.append(asm);
-
     }
     public void concat(AssemblyBuilder other){
-        this.assemblyBody.append("\n");
         this.assemblyBody.append(other.getAssemblyBody());
+        this.assemblyBottom.append(other.getAssemblyBottom());
     }
-    public void addLine(int offset, String asm){
-       this.assemblyBody.append(this.addFormatedLine(offset, asm));
+    public void addLine(String asm){
+       this.assemblyBody.append(this.getFormatedLine(5, asm));
     }
-    public void appendToBottom(String s ){
-        this.assemblyBottom.append(s);
+    public void addLine(){
+        this.assemblyBody.append(this.getFormatedLine(5, ""));
+    }
+    public void addLabel(String label){
+        this.assemblyBody.append(this.getFormatedLine(0, label + ":"));
+    }
+    public void appendLineToBottom(String bottom){
+        this.assemblyBottom.append(this.getFormatedLine(5, bottom));
+    }
+    public void appendLableToBottom(String bottom){
+        this.assemblyBottom.append(this.getFormatedLine(0, bottom + ":"));
     }
 
     public void putOnFootNote(String string){
@@ -72,14 +75,39 @@ public class AssemblyBuilder {
         return finalAsm;
     }
     public String getLabelName(){
-        return "L" + this.label.size();
+        return "L" + labelCount++;
     }
     public String getStringLabel(){
-        return "STR_" + this.label.size();
+        return "STR_" + labelCount++;
     }
 
     @Override
     public String toString() {
         return this.getAssemblyBody().toString();
+    }
+
+    public StringBuilder getAssemblyBottom() {
+        return assemblyBottom;
+    }
+    public StringBuilder getAssemblyBody() {
+        return assemblyBody;
+    }
+    public StringBuilder getAssemblyHeader() {
+        return assemblyHeader;
+    }
+    // Call this before you get into any block.
+    public void getInBlock(String loopLabel){
+        currentBlockLabel.push(loopLabel);
+    }
+
+    // Call this when you get out of a block.
+    public void getOutOfBlock(){
+        currentBlockLabel.pop();
+    }
+    public String getCurrentBlock(){
+        if(currentBlockLabel.size() > 0){
+            return currentBlockLabel.peek();
+        }
+        return null;
     }
 }

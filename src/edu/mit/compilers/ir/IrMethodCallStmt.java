@@ -111,24 +111,25 @@ public class IrMethodCallStmt extends IrStatement{
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
         for(int i = 0; i < argsList.size(); i++){
+            argsList.get(i).generateCode(assembly, register, stackFrame);
             String irLocation = stackFrame.getIrLocation(argsList.get(i));
             if(i < 6){
                 // find where the argument is stored in the stackFrame. The argument might be
                 // a constant or an expression
-                asm += "     mov " + irLocation + ", " + registers[i]+ "\n";
+                assembly.addLine("mov " + irLocation + ", " + registers[i]);
             }
             else{
-                asm += "     mov " + irLocation + ", " + "%r10"+ "\n";
+                assembly.addLine("mov " + irLocation + ", " + "%r10");
                 String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                asm += "     mov %r10, " + nextStackFrameLocation + "\n";
+                assembly.addLine("mov %r10, " + nextStackFrameLocation);
 
             }
-//            stackFrame.pushToStackFrame(argsList.get(i));
+
         }
-        asm  += "     call " + methodName + "\n";
-        asm  += "     mov %rax, " + stackFrame.getNextStackLocation()+ "\n";
+        assembly.addLine("call " + methodName);
+        assembly.addLine("mov %rax, " + stackFrame.getNextStackLocation()+ "\n");
         stackFrame.pushToRegisterStackFrame("%rax");
-        assembly.addLine(0, asm);
+        assembly.addLine(asm);
         return  assembly;
 
     }

@@ -24,6 +24,20 @@ public class IrSizeOfType extends IrSizeOf {
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
+
+            if(this.type instanceof IrTypeInt){
+                assembly.addLine("mov $8, %r11");
+            }
+            if(type instanceof IrTypeBool){
+                assembly.addLine("mov $1, %r11");
+            }
+        String stackLocation = stackFrame.getNextStackLocation();
+        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine("mov %r11, " + stackLocation);
+        assembly.putOnFootNote("%r11");
+        assembly.addLine();
         return assembly;
+
+
     }
 }

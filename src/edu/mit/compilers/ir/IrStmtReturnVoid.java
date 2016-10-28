@@ -34,7 +34,7 @@ public class IrStmtReturnVoid extends IrStmtReturn {
 
         return errorMessage;
     }
-    // Doesnt need to do anything.
+    // Doesnt need to do anything... (check!!)
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
         return assembly;

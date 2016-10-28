@@ -9,8 +9,18 @@ import edu.mit.compilers.StackFrame;
  * Created by devinmorgan on 10/5/16.
  */
 public class IrLocationVar extends IrLocation {
+    protected Ir irDeclObject; // IrFieldDeclArray, IrFieldDeclVar, IrParamDecl
+
     public IrLocationVar(IrIdent varName, int lineNumber, int colNumber) {
         super(varName, lineNumber, colNumber);
+    }
+
+    protected void setIrDecl(Ir irDeclObject) {
+        this.irDeclObject = irDeclObject;
+    }
+
+    public Ir getIrDecl() {
+        return this.irDeclObject;
     }
 
     @Override
@@ -32,12 +42,27 @@ public class IrLocationVar extends IrLocation {
 
                 // IMPORTANT: set the IrType of the IrLocationVar
                 this.setLocationType(var.getType());
+
+                // IMPORTANT: set the IrDecl of the IrLocationVar
+                this.setIrDecl(object);
             }
             else if (object instanceof IrParamDecl) {
                 IrParamDecl var = (IrParamDecl) object;
 
                 // IMPORTANT: set the IrType of the IrLocationVar
                 this.setLocationType(var.getParamType());
+
+                // IMPORTANT: set the IrDecl of the IrLocationVar
+                this.setIrDecl(object);
+            }
+            else if (object instanceof IrFieldDeclArray) {
+                IrFieldDeclArray arrayObject = (IrFieldDeclArray) object;
+
+                // IMPORTANT: set the IrType of the IrLocationVar
+                this.setLocationType(arrayObject.getType());
+
+                // IMPORTANT: set the IrDecl of the IrLocationVar
+                this.setIrDecl(arrayObject);
             }
             else {
                 errorMessage += "Invalid method call or array assignment" +
@@ -64,7 +89,7 @@ public class IrLocationVar extends IrLocation {
         }
         if (that instanceof IrLocationVar) {
             Ir otherIr = (IrLocationVar) that;
-            return (this.getLocationName().equals(((IrLocationVar) otherIr).getLocationName())) && (this.getLocationType().equals(((IrLocationVar) otherIr).getLocationType()));
+            return (this.getLocationName().equals(((IrLocationVar) otherIr).getLocationName()));
 
         }
         return false;

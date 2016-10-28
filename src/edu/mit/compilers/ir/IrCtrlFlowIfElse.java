@@ -44,10 +44,10 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         //
         String label = assembly.getFootNote();
         this.elseBlock.generateCode(assembly, register, stackFrame);
-        assembly.addLine(5, String.format("jmp .%s_DONE", label));
-        assembly.addLine(0, String.format("%s: ", label));
+        assembly.addLine(String.format("jmp .%s_DONE", label));
+        assembly.addLine(String.format("%s: ", label));
         this.ifStmt.getIfBodyBlock().generateCode(assembly, register, stackFrame);
-        assembly.addLine(5, String.format("jmp .%s_DONE", label));
+        assembly.addLine(String.format("jmp .%s_DONE", label));
         assembly.putOnFootNote(label);
         return assembly;
     }

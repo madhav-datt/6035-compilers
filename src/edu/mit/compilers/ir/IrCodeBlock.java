@@ -48,9 +48,14 @@ public class IrCodeBlock extends Ir {
     @Override
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
 
+        for(IrFieldDecl fieldDecl : fieldsList){
+            fieldDecl.generateCode(assembly, register, frame);
+        }
+
         for(IrStatement statement : stmtsList){
             statement.generateCode(assembly, register, frame);
         }
+
         return assembly;
     }
 }

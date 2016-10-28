@@ -39,6 +39,23 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
+        String ifConditionLabel = assembly.getLabelName();
+        assembly.addLabel("." + ifConditionLabel);
+        this.condExpr.generateCode(assembly, register, stackFrame);
+
+
+        String condResult = assembly.getFootNote();
+        assembly.addLine("mov " + condResult + ", %r10");
+        assembly.addLine("mov $1, %r11");
+        assembly.addLine("cmp $r10, %r11");
+        assembly.addLine(String.format("jne .%s_DONE", ifConditionLabel));
+
+        assembly.getInBlock(ifConditionLabel);
+        this.stmtBody.generateCode(assembly, register, stackFrame);
+        assembly.addLine(String.format("jmp .%s", ifConditionLabel));
+        assembly.getOutOfBlock();
+        assembly.addLine();
+        assembly.addLabel(String.format(".%s_DONE", ifConditionLabel));
         return assembly;
     }
 }

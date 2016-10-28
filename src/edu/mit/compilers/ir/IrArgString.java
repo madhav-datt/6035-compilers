@@ -32,8 +32,12 @@ public class IrArgString extends IrArg {
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
         String label = assembly.getStringLabel();
-        String strConst = String .format(".%s: \n%s", label, this.getArgValue());
-        assembly.appendToBottom(strConst);
+        String strConst = String .format(".string %s ", this.getArgValue().toString());
+        assembly.appendLableToBottom(label);
+        assembly.appendLineToBottom(strConst);
+        String strLoc = frame.getNextStackLocation();
+        frame.pushToStackFrame(this);
+        assembly.putOnFootNote(label);
         return assembly;
     }
 }

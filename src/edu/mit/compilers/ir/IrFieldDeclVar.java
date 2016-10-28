@@ -18,7 +18,18 @@ public class IrFieldDeclVar extends IrFieldDecl {
         return "";
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
+        IrType type = this.getType();
+        String varLocationInStack = stackFrame.getNextStackLocation();
+        if(type instanceof IrTypeBool){
+            assembly.addLine("mov $0, %r10");
+        }
+        if(type instanceof IrTypeInt){
+            assembly.addLine("mov $0, %r10");
+        }
+        assembly.addLine("mov %r10, " + varLocationInStack);
+        stackFrame.pushToStackFrame(this.getIdentName());
+        assembly.putOnFootNote(varLocationInStack);
+        assembly.addLine();
         return assembly;
     }
 }

@@ -27,7 +27,9 @@ public class IrStmtContinue extends IrStatement {
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
+        String currentLoopLabel = assembly.getCurrentBlock();
+        assembly.addLine(String.format("jmp .%s", currentLoopLabel));
+        assembly.addLine();
         return assembly;
     }
 }

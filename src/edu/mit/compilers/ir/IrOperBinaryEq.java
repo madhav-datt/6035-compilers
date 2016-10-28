@@ -43,24 +43,18 @@ public class IrOperBinaryEq extends IrOperBinary {
         AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
         String leftValue = leftRegister.getFootNote();
         AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-        String rightValue = leftRegister.getFootNote();
-        assembly.addLine(5, "mov " + leftValue + ", %r10");
-        assembly.addLine(5, "mov " + rightValue + ", %r11");
-        assembly.addLine(5, "cmp %r10, %r11");
-        assembly.addLine(5, "mov $0, %r11");
-        assembly.addLine(5, "mov $1, %r10");
-        assembly.addLine(5, "cmove %r10, %r11");
-        assembly.addLine(5, "mov %r11, %r10");
+        String rightValue = rightRegister.getFootNote();
+        assembly.addLine("mov " + leftValue + ", %r10");
+        assembly.addLine("mov " + rightValue + ", %r11");
+        assembly.addLine("cmp %r10, %r11");
+        assembly.addLine("mov $0, %r11");
+        assembly.addLine("mov $1, %r10");
+        assembly.addLine("cmove %r10, %r11");
         String condResultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine(5, "mov %r11, " + condResultTemp);
+        assembly.addLine("mov %r11, " + condResultTemp);
         stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine(5, "mov " + condResultTemp + ", %r10");
-        assembly.addLine(5, "mov $1, %r10");
-        assembly.addLine(5, "cmp %r10, %r11");
-        String label = assembly.getLabelName();
-        assembly.addLine(5, "je ." + label);
-        assembly.putOnFootNote(label);
-       // assembly.putOnFootNote(condResultTemp);
+        assembly.putOnFootNote(condResultTemp);
+        assembly.addLine("");
         return assembly;
     }
 }

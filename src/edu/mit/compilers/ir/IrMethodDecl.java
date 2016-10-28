@@ -56,7 +56,7 @@ public class IrMethodDecl extends IrMemberDecl {
         // Construct the method body
         // Access the params and stuff.
         String asm = "";
-        String methodName = this.getName() + ":\n";
+        String methodName = this.getName();
         String paramRegisters[] = register.getParamRegisters();
         int m =  paramsList.size();
 
@@ -64,22 +64,41 @@ public class IrMethodDecl extends IrMemberDecl {
         StackFrame frame = new StackFrame();
         this.methodBody.generateCode(asb, register, frame);
         String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
-        assembly.addLine(0, methodName);
-        assembly.addLine(5, enterStatement);
+        if(methodName.equals("main")){
+            assembly.addLine(".globl main");
+        }
+        assembly.addLabel(methodName);
+        assembly.addLine();
+        assembly.addLine(enterStatement);
         for(int i = 0; i < paramsList.size(); i++){
             if(i < 6){
-                assembly.addLine(5, "mov "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
+                assembly.addLine("mov "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
                 stackFrame.pushToRegisterStackFrame(paramRegisters[i]);
             }
             else{
-                assembly.addLine(5,"mov "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
-                assembly.addLine(5, "mov %r10, " + stackFrame.getNextStackLocation());
+                assembly.addLine("mov "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine("mov %r10, " + stackFrame.getNextStackLocation());
                 stackFrame.pushToStackFrame(paramsList.get(i));
             }
         }
         assembly.concat(asb);
-        assembly.addLine(5, "leave");
-        assembly.addLine(5, "ret");
+
+        assembly.addLine("leave");
+        assembly.addLine("ret");
+        assembly.addLine();
+
+        // Handle error messages
+        String errorLable = ".OUT_OF_RANGE";
+        String errorStringLabel = ".STR_OUT_OF_RANGE";
+        assembly.addLabel(errorLable);
+        assembly.appendLableToBottom(errorStringLabel);
+        assembly.appendLineToBottom(".string \"Argument Out of range!! \"");
+        assembly.addLine("mov $"+ errorStringLabel + ", %r10");
+        assembly.addLine("mov %r10, %rdi");
+        assembly.addLine("call printf");
+
+        assembly.addLine("leave");
+        assembly.addLine("ret");
 
         return assembly;
     }

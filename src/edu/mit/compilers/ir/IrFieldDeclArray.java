@@ -13,6 +13,10 @@ public class IrFieldDeclArray extends IrFieldDecl {
         this.arraySize = arraySize;
     }
 
+    public int getArraySize(){
+        return arraySize;
+    }
+
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
         String errorMessage = "";
@@ -26,6 +30,19 @@ public class IrFieldDeclArray extends IrFieldDecl {
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        // Allocate a contagious block of memory for use by the array.
+
+        String start = stackFrame.getNextStackLocation();
+
+        assembly.addLine("mov $," + Integer.toString(this.arraySize)+" %r10");
+        assembly.addLine("mov %r10, " + start);
+        stackFrame.pushToStackFrame(this.getIdentName());
+        for(int i = 0; i < this.arraySize; i ++){
+            String nextLocation = stackFrame.getNextStackLocation();
+            assembly.addLine("mov $0, %r10");
+            assembly.addLine("mov %r10, " + nextLocation);
+            stackFrame.pushToRegisterStackFrame("$0");
+        }
 
         return assembly;
     }

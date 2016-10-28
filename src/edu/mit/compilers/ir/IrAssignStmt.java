@@ -1,5 +1,8 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.AssemblyBuilder;
+import edu.mit.compilers.StackFrame;
+
 /**
  * Created by devinmorgan on 10/5/16.
  */

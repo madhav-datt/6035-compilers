@@ -65,12 +65,54 @@ public class IrLocationArray extends IrLocation {
         if (!(that instanceof IrLocation)) {
             return false;
         }
-        Ir otherIr = (IrLocation)that;
-        return (this.getLocationName().equals(((IrLocation)otherIr).getLocationName())) && (this.getLocationType().equals(((IrLocation)otherIr).getLocationType()));
+        return (this.getLocationName().equals(((IrLocation) that).getLocationName()));
     }
 
-
+     /*
+        adds a block of code to the assembly builder and return a location on the stack where the
+        requested array element resides.
+     */
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
+        // first compute the index and get the stackLocation where it might be stored.
+        this.elementIndex.generateCode(assembly, register, stackFrame);
+        String computedIndex = assembly.getFootNote();
+        // The error codes will have special labels.
+        String errorLable = ".OUT_OF_RANGE";
+        // make the bounds check.
+        String startLocation = stackFrame.getIrLocation(this.getLocationName()); // the size of teh array is stored in the first location in the array block.
+
+        // first make sure the computedIndex is greater than zero
+        assembly.addLine("mov " + computedIndex + ", %r10");
+        assembly.addLine("mov $0, %r11");
+        assembly.addLine("cmovl %r10, %r11");
+        assembly.addLine("mov $1, %r10");
+        assembly.addLine("cmp %r10, %r11");
+        assembly.addLine("jmp " + errorLable);
+        assembly.addLine();
+
+        // then make sure the index is less than the length of the array
+        assembly.addLine("mov " + computedIndex + ", %r10");
+        assembly.addLine("mov "+ startLocation +", %r11");
+        assembly.addLine("cmovge %r10, %r11");
+        assembly.addLine("mov $1, %r10");
+        assembly.addLine("cmp %r10, %r11");
+        assembly.addLine("jmp " + errorLable);
+        assembly.addLine();
+
+        // multiply the index by 8 and add it to the start location of the array.
+
+        assembly.addLine("mov " + computedIndex + ", %r10");
+        assembly.addLine("mov " + startLocation + ", %r11");
+        assembly.addLine("mov (%r10, %r11, 8), %r11");
+        assembly.addLine("");
+
+        // Store the found location in the stackFrame and return it.
+        String stackLocation = stackFrame.getNextStackLocation();
+        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine("mov %r11, " + stackLocation);
+        assembly.addLine("");
+        assembly.putOnFootNote(stackLocation);
 
         return assembly;
     }

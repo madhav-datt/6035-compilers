@@ -13,6 +13,8 @@ public class IrType extends Ir{
         super(lineNumber, colNumber);
     }
 
+
+
     @Override
     public String semanticCheck(ScopeStack scopeStack) {
         return "";

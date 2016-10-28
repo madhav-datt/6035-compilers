@@ -1,15 +1,16 @@
- int foo(int x) {
-        return x + 3;
-    }
+
 
  void main() {
-    int y;
-    int z;
-    y = 8;
-    z = foo(y);
-    if (y > 15) {
+    int i;
+    int j;
 
-    } else {
+    for(i = 5; i < 10; i+=1){
+        while(i > 0){
+            j = 5;
+            continue;
+            j = 6;
 
+        }
     }
+
  }

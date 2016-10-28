@@ -34,6 +34,19 @@ public class IrOperUnaryNeg extends IrOperUnary{
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        // Compute the value of the operand and save it on to a register
+        this.operand.generateCode(assembly, register, stackFrame);
+        String operandReg = assembly.getFootNote();
+
+        assembly.addLine("mov "+ operandReg +" %r10");
+        assembly.addLine("neg %r10");
+
+        String resultTemp = stackFrame.getNextStackLocation();
+        assembly.addLine("mov %r10, " + resultTemp);
+
+        stackFrame.pushToRegisterStackFrame("%r10");
+        assembly.putOnFootNote(resultTemp);
+        assembly.addLine("");
 
         return assembly;
     }
