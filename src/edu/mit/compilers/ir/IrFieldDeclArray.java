@@ -34,13 +34,13 @@ public class IrFieldDeclArray extends IrFieldDecl {
 
         String start = stackFrame.getNextStackLocation();
 
-        assembly.addLine("mov $," + Integer.toString(this.arraySize)+" %r10");
-        assembly.addLine("mov %r10, " + start);
+        assembly.addLine("movq $," + Integer.toString(this.arraySize)+" %r10");
+        assembly.addLine("movq %r10, " + start);
         stackFrame.pushToStackFrame(this.getIdentName());
         for(int i = 0; i < this.arraySize; i ++){
             String nextLocation = stackFrame.getNextStackLocation();
-            assembly.addLine("mov $0, %r10");
-            assembly.addLine("mov %r10, " + nextLocation);
+            assembly.addLine("movq $0, %r10");
+            assembly.addLine("movq %r10, " + nextLocation);
             stackFrame.pushToRegisterStackFrame("$0");
         }
 

@@ -70,8 +70,8 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         this.intialIndexExpr.generateCode(assembly, register, stackFrame);
         String registerForAssignment = assembly.getFootNote();
         String variableLocation = stackFrame.getIrLocation(counter.getLocationName());
-        assembly.addLine(("mov " +  registerForAssignment + ", %r10"));
-        assembly.addLine(("mov %r10, " + variableLocation));
+        assembly.addLine(("movq " +  registerForAssignment + ", %r10"));
+        assembly.addLine(("movq %r10, " + variableLocation));
         String ifConditionLabel = assembly.getLabelName();
         assembly.addLabel("." + ifConditionLabel);
         this.condExpr.generateCode(assembly, register, stackFrame);

@@ -83,34 +83,34 @@ public class IrLocationArray extends IrLocation {
         String startLocation = stackFrame.getIrLocation(this.getLocationName()); // the size of teh array is stored in the first location in the array block.
 
         // first make sure the computedIndex is greater than zero
-        assembly.addLine("mov " + computedIndex + ", %r10");
-        assembly.addLine("mov $0, %r11");
+        assembly.addLine("movq " + computedIndex + ", %r10");
+        assembly.addLine("movq $0, %r11");
         assembly.addLine("cmovl %r10, %r11");
-        assembly.addLine("mov $1, %r10");
+        assembly.addLine("movq $1, %r10");
         assembly.addLine("cmp %r10, %r11");
         assembly.addLine("jmp " + errorLable);
         assembly.addLine();
 
         // then make sure the index is less than the length of the array
-        assembly.addLine("mov " + computedIndex + ", %r10");
-        assembly.addLine("mov "+ startLocation +", %r11");
-        assembly.addLine("cmovge %r10, %r11");
-        assembly.addLine("mov $1, %r10");
+        assembly.addLine("movq " + computedIndex + ", %r10");
+        assembly.addLine("movq "+ startLocation +", %r11");
+        assembly.addLine("cmovqge %r10, %r11");
+        assembly.addLine("movq $1, %r10");
         assembly.addLine("cmp %r10, %r11");
         assembly.addLine("jmp " + errorLable);
         assembly.addLine();
 
         // multiply the index by 8 and add it to the start location of the array.
 
-        assembly.addLine("mov " + computedIndex + ", %r10");
-        assembly.addLine("mov " + startLocation + ", %r11");
-        assembly.addLine("mov (%r10, %r11, 8), %r11");
+        assembly.addLine("movq " + computedIndex + ", %r10");
+        assembly.addLine("movq " + startLocation + ", %r11");
+        assembly.addLine("movq (%r10, %r11, 8), %r11");
         assembly.addLine("");
 
         // Store the found location in the stackFrame and return it.
         String stackLocation = stackFrame.getNextStackLocation();
         stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("mov %r11, " + stackLocation);
+        assembly.addLine("movq %r11, " + stackLocation);
         assembly.addLine("");
         assembly.putOnFootNote(stackLocation);
 

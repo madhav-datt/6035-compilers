@@ -119,17 +119,17 @@ public class IrMethodCallExpr extends IrExpr{
             String irLocation = stackFrame.getIrLocation(argsList.get(i));
             if(i < 6){
 
-                asm += "     mov " + irLocation + ", " + registers[i]+ "\n";
+                asm += "     movq " + irLocation + ", " + registers[i]+ "\n";
             }
             else{
-                asm += "     mov " + irLocation + ", " + "%r10"+ "\n";
+                asm += "     movq " + irLocation + ", " + "%r10"+ "\n";
                 String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                asm += "     mov %r10, " + nextStackFrameLocation + "\n";
+                asm += "     movq %r10, " + nextStackFrameLocation + "\n";
             }
         }
         asm  += "     call " + methodName + "\n";
         String nextStackFrameLocation = stackFrame.getNextStackLocation();
-        asm  += "     mov %rax, " + nextStackFrameLocation+ "\n";
+        asm  += "     movq %rax, " + nextStackFrameLocation+ "\n";
         stackFrame.pushToRegisterStackFrame("%rax");
         assembly.putOnFootNote(nextStackFrameLocation);
         assembly.addLine(asm);

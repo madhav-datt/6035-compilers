@@ -33,9 +33,11 @@ public class IrArgString extends IrArg {
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
         String label = assembly.getStringLabel();
         String strConst = String .format(".string %s ", this.getArgValue().toString());
-        assembly.appendLableToBottom(label);
+
+        assembly.appendLableToBottom("."+label);
         assembly.appendLineToBottom(strConst);
         String strLoc = frame.getNextStackLocation();
+        assembly.addLine("movq $."+label +","+ strLoc);
         frame.pushToStackFrame(this);
         assembly.putOnFootNote(label);
         return assembly;

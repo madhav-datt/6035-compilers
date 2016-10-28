@@ -72,12 +72,12 @@ public class IrMethodDecl extends IrMemberDecl {
         assembly.addLine(enterStatement);
         for(int i = 0; i < paramsList.size(); i++){
             if(i < 6){
-                assembly.addLine("mov "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
+                assembly.addLine("movq "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
                 stackFrame.pushToRegisterStackFrame(paramRegisters[i]);
             }
             else{
-                assembly.addLine("mov "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
-                assembly.addLine("mov %r10, " + stackFrame.getNextStackLocation());
+                assembly.addLine("movq "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine("movq %r10, " + stackFrame.getNextStackLocation());
                 stackFrame.pushToStackFrame(paramsList.get(i));
             }
         }
@@ -93,8 +93,8 @@ public class IrMethodDecl extends IrMemberDecl {
         assembly.addLabel(errorLable);
         assembly.appendLableToBottom(errorStringLabel);
         assembly.appendLineToBottom(".string \"Argument Out of range!! \"");
-        assembly.addLine("mov $"+ errorStringLabel + ", %r10");
-        assembly.addLine("mov %r10, %rdi");
+        assembly.addLine("movq $"+ errorStringLabel + ", %r10");
+        assembly.addLine("movq %r10, %rdi");
         assembly.addLine("call printf");
 
         assembly.addLine("leave");

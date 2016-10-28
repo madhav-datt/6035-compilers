@@ -80,28 +80,28 @@ public class IrSizeOfLocation extends IrSizeOf {
                 if(arrayType instanceof IrTypeBool)
                 {
                     arraySizeStr = "$" +Integer.toString(arraySize);
-                    assembly.addLine("mov "+ arraySizeStr + ", %r11");
+                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
 
                 }
                 if(arrayType instanceof IrTypeInt)
                 {
                     arraySizeStr = "$" + Integer.toString(arraySize*8);
-                    assembly.addLine("mov "+ arraySizeStr + ", %r11");
+                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
                 }
 
                 break;
 
             case "bool":
-                assembly.addLine("mov $1, %r11");
+                assembly.addLine("movq $1, %r11");
                 break;
             case "int":
-                assembly.addLine("mov $8, %r11");
+                assembly.addLine("movq $8, %r11");
                 break;
 
         }
         String stackLocation = stackFrame.getNextStackLocation();
         stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("mov %r11, " + stackLocation);
+        assembly.addLine("movq %r11, " + stackLocation);
         assembly.putOnFootNote(stackLocation);
         assembly.addLine("");
         return assembly;

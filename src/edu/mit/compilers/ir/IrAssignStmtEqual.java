@@ -55,9 +55,9 @@ public class IrAssignStmtEqual extends IrAssignStmt {
         String asm = "";
         // compute the value of the expression and figure out where it is stored
         String exprResultStorageLoc = this.newValue.generateCode(assembly, register, stackFrame).getFootNote();
-        assembly.addLine("mov " + exprResultStorageLoc + " , %r10");
+        assembly.addLine("movq " + exprResultStorageLoc + " , %r10");
         String nextStackLocation = stackFrame.getNextStackLocation();
-        assembly.addLine("mov %r10, " + nextStackLocation);
+        assembly.addLine("movq %r10, " + nextStackLocation);
         // make sure to store the identity of the variable which is just assigned value.
         stackFrame.pushToStackFrame(this.getStoreLocation().getLocationName());
 

@@ -45,8 +45,8 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
 
 
         String condResult = assembly.getFootNote();
-        assembly.addLine("mov " + condResult + ", %r10");
-        assembly.addLine("mov $1, %r11");
+        assembly.addLine("movq " + condResult + ", %r10");
+        assembly.addLine("movq $1, %r11");
         assembly.addLine("cmp $r10, %r11");
         assembly.addLine(String.format("jne .%s_DONE", ifConditionLabel));
 

@@ -116,18 +116,18 @@ public class IrMethodCallStmt extends IrStatement{
             if(i < 6){
                 // find where the argument is stored in the stackFrame. The argument might be
                 // a constant or an expression
-                assembly.addLine("mov " + irLocation + ", " + registers[i]);
+                assembly.addLine("movq " + irLocation + ", " + registers[i]);
             }
             else{
-                assembly.addLine("mov " + irLocation + ", " + "%r10");
+                assembly.addLine("movq " + irLocation + ", " + "%r10");
                 String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                assembly.addLine("mov %r10, " + nextStackFrameLocation);
+                assembly.addLine("movq %r10, " + nextStackFrameLocation);
 
             }
 
         }
         assembly.addLine("call " + methodName);
-        assembly.addLine("mov %rax, " + stackFrame.getNextStackLocation()+ "\n");
+        assembly.addLine("movq %rax, " + stackFrame.getNextStackLocation()+ "\n");
         stackFrame.pushToRegisterStackFrame("%rax");
         assembly.addLine(asm);
         return  assembly;

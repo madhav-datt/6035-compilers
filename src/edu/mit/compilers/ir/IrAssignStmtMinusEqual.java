@@ -49,11 +49,11 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
         String registerLocation = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
-        assembly.addLine("mov "+ registerLocation+ ", %r10");
+        assembly.addLine("movq "+ registerLocation+ ", %r10");
         this.decrementBy.generateCode(assembly, register, stackFrame);
         String expressionResult = assembly.getFootNote();
         assembly.addLine("sub "+ expressionResult+ ", %r10");
-        assembly.addLine("mov %r10, " + registerLocation);
+        assembly.addLine("movq %r10, " + registerLocation);
         return assembly;
     }
 }

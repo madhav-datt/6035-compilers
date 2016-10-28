@@ -65,11 +65,11 @@ public class IrOperBinaryArith extends IrOperBinary {
         String leftValue = leftRegister.getFootNote();
         AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
         String rightValue = leftRegister.getFootNote();
-        assembly.addLine("mov " + leftValue + ", %r10");
-        assembly.addLine("mov " + rightValue + ", %r11");
+        assembly.addLine("movq " + leftValue + ", %r10");
+        assembly.addLine("movq " + rightValue + ", %r11");
         assembly.addLine(this.getCommand(this.getOperation()) + "%r10, %r11");
         String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("mov %r11, " + resultTemp);
+        assembly.addLine("movq %r11, " + resultTemp);
         stackFrame.pushToRegisterStackFrame("%r11");
         assembly.putOnFootNote(resultTemp);
         return assembly;

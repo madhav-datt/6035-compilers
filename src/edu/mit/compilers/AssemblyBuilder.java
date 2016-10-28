@@ -41,6 +41,7 @@ public class AssemblyBuilder {
     public void concat(AssemblyBuilder other){
         this.assemblyBody.append(other.getAssemblyBody());
         this.assemblyBottom.append(other.getAssemblyBottom());
+        this.assemblyHeader.append(other.assemblyHeader);
     }
     public void addLine(String asm){
        this.assemblyBody.append(this.getFormatedLine(5, asm));
@@ -52,10 +53,10 @@ public class AssemblyBuilder {
         this.assemblyBody.append(this.getFormatedLine(0, label + ":"));
     }
     public void appendLineToBottom(String bottom){
-        this.assemblyBottom.append(this.getFormatedLine(5, bottom));
+        this.assemblyHeader.append(this.getFormatedLine(5, bottom));
     }
     public void appendLableToBottom(String bottom){
-        this.assemblyBottom.append(this.getFormatedLine(0, bottom + ":"));
+        this.assemblyHeader.append(this.getFormatedLine(0, bottom + ":"));
     }
 
     public void putOnFootNote(String string){
@@ -66,7 +67,8 @@ public class AssemblyBuilder {
     }
 
     public StringBuilder generateAssembly(){
-        StringBuilder finalAsm = this.assemblyHeader;
+        StringBuilder finalAsm = new StringBuilder();
+        finalAsm.append(this.assemblyHeader);
         finalAsm.append("\n");
         finalAsm.append(assemblyBody);
         finalAsm.append("\n");

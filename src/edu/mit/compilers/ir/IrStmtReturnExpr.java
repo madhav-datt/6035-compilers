@@ -55,7 +55,7 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
         AssemblyBuilder asm = this.result.generateCode(assembly, register, stackFrame);
         String resultReg = asm.getFootNote();
-        String retStr = "mov " + resultReg + ", %rax";
+        String retStr = "movq " + resultReg + ", %rax";
         asm.addLine(retStr);
 
         return asm;
