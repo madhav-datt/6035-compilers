@@ -41,4 +41,19 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__whileLoop\n";
+
+        // print the condition expr
+        prettyString += ("  " + indentSpace + "|__condExpr\n");
+        prettyString += (this.condExpr.prettyPrint("    " + indentSpace));
+
+        // print the for loop body
+        prettyString += "  " + indentSpace + "|__body\n";
+        prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
+
+        return prettyString;
+    }
 }
