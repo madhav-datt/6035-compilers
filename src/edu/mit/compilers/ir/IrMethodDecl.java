@@ -92,7 +92,7 @@ public class IrMethodDecl extends IrMemberDecl {
         prettyString += ("  " + indentSpace + "|__name: " + this.getName() + "\n");
 
         // print the params
-        prettyString += ("  " + indentSpace + "|__params:\n");
+        prettyString += ("  " + indentSpace + "|__paramsList:\n");
         for (IrParamDecl paramDecl: this.paramsList) {
             prettyString += paramDecl.prettyPrint("    " + indentSpace);
         }

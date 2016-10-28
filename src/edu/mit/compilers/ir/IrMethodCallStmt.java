@@ -132,4 +132,23 @@ public class IrMethodCallStmt extends IrStatement{
         return  assembly;
 
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__methodCallStmt\n";
+
+        // print the method name
+        prettyString += ("  " + indentSpace + "|__name: " + this.methodName.getValue() + "\n");
+
+        // print the method type
+        prettyString += this.methodType.prettyPrint("  " + indentSpace);
+
+        // print the method args_list
+        prettyString += ("  " + indentSpace + "|__argsList:\n");
+        for (IrArg arg: this.argsList) {
+            prettyString += arg.prettyPrint("    " + indentSpace);
+        }
+
+        return prettyString;
+    }
 }
