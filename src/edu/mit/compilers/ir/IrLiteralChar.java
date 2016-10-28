@@ -28,4 +28,11 @@ public class IrLiteralChar extends IrLiteral {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyPrint = indentSpace + "|__charLiteral\n";
+        prettyPrint += "  " + indentSpace + "|__value: " + this.value + "\n";
+        return prettyPrint;
+    }
 }
