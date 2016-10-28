@@ -111,6 +111,7 @@ class Main {
                 if (CLI.debug) {
                     System.out.println(listener.prettyPrintProgram());
                 }
+
 //            Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
@@ -210,7 +211,7 @@ class Main {
 
     public static void main(String[] args) {
         // Run program based on CLI and shell scripts
-//        Main.testParserCode(args);
+        Main.testParserCode(args);
 
 //        // Code generation tests
 //        Main.testDecafListner();
@@ -222,7 +223,7 @@ class Main {
 //        String illegalTests = "./tests/semantics-hidden/illegal/";
 //        Main.runFilesInDirectory(illegalTests);
 
-        String customTest = "./tests/semantics/legal/custom-01.dcf";
-        Main.runFile(customTest);
+//        String customTest = "./tests/semantics/legal/custom-01.dcf";
+//        Main.runFile(customTest);
     }
 }

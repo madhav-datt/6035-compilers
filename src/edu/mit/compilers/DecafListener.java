@@ -70,7 +70,6 @@ public class DecafListener extends DecafParserBaseListener {
             this.errorFlag = true;
             System.err.println(errorMessage);
         }
-        System.out.println(this.prettyPrintProgram());
     }
     /**
      * {@inheritDoc}
