@@ -64,4 +64,17 @@ public class IrAssignStmtEqual extends IrAssignStmt {
         assembly.putOnFootNote(nextStackLocation);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__assignStmtEquals\n";
+
+        // pretty print the lhs
+        prettyString += this.getStoreLocation().prettyPrint("  " +indentSpace);
+
+        // print the rhs
+        prettyString += this.newValue.prettyPrint("  " + prettyString);
+
+        return prettyString;
+    }
 }

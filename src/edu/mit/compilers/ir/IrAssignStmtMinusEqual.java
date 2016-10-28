@@ -51,4 +51,17 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__assignStmtMinusEquals\n";
+
+        // pretty print the lhs
+        prettyString += this.getStoreLocation().prettyPrint("  " +indentSpace);
+
+        // print the rhs
+        prettyString += this.decrementBy.prettyPrint("  " + prettyString);
+
+        return prettyString;
+    }
 }
