@@ -37,4 +37,9 @@ public class IrIdent extends Ir {
         return(this.getValue().equals(((IrIdent)that).getValue()));
 
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return "";
+    }
 }

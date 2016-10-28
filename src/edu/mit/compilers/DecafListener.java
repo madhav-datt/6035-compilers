@@ -17,9 +17,14 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private boolean errorFlag = false;
     private String errorMessage = "";
+    private IrProgram program;
 
     public boolean detectedSemanticErrors() {
         return this.errorFlag;
+    }
+
+    public String prettyPrintProgram() {
+        return this.program.prettyPrint("");
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) { }
@@ -33,9 +38,6 @@ public class DecafListener extends DecafParserBaseListener {
         ArrayList<IrFieldDecl> fieldDecls = new ArrayList<>();
         ArrayList<IrMethodDecl> methodDecls = new ArrayList<>();
         ArrayList<IrExternDecl> externDecls = new ArrayList<>();
-
-
-
 
         // 1) method_decls will be on the top of the stack so collect them
         // first
@@ -61,9 +63,9 @@ public class DecafListener extends DecafParserBaseListener {
         }
 
         // check the semantics of the final program
-        IrProgram wholeProgram = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
+        this.program = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
 
-        this.errorMessage += wholeProgram.semanticCheck(new ScopeStack());
+        this.errorMessage += this.program.semanticCheck(new ScopeStack());
         if (!errorMessage.equals("")) {
             this.errorFlag = true;
             System.err.println(errorMessage);

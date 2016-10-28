@@ -107,6 +107,10 @@ class Main {
                 ParseTreeWalker walker = new ParseTreeWalker();
                 DecafListener listener = new DecafListener();
                 walker.walk(listener, tree);
+
+                if (CLI.debug) {
+                    System.out.println(listener.prettyPrintProgram());
+                }
 //            Trees.inspect(tree, parser); // Makes pretty graph
             }
         } catch(Exception e) {
