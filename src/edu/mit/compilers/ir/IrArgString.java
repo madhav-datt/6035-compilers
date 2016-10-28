@@ -36,4 +36,14 @@ public class IrArgString extends IrArg {
         assembly.appendToBottom(strConst);
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__argString:\n";
+
+        // pretty print the expression
+        prettyString += ("  " + indentSpace + "|__string: \"" + (this.getArgValue() + "\"\n"));
+
+        return prettyString;
+    }
 }
