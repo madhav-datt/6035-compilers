@@ -17,9 +17,14 @@ public class DecafListener extends DecafParserBaseListener {
     private Stack<Ir> irStack = new Stack<>();
     private boolean errorFlag = false;
     private String errorMessage = "";
+    private IrProgram program;
 
     public boolean detectedSemanticErrors() {
         return this.errorFlag;
+    }
+
+    public IrProgram getGeneratedProgram() {
+        return this.program;
     }
 
     @Override public void enterProgram(DecafParser.ProgramContext ctx) { }
@@ -61,9 +66,9 @@ public class DecafListener extends DecafParserBaseListener {
         }
 
         // check the semantics of the final program
-        IrProgram wholeProgram = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
+        this.program = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
 
-        this.errorMessage += wholeProgram.semanticCheck(new ScopeStack());
+        this.errorMessage += this.program.semanticCheck(new ScopeStack());
         if (!errorMessage.equals("")) {
             this.errorFlag = true;
             System.err.println(errorMessage);
@@ -206,11 +211,7 @@ public class DecafListener extends DecafParserBaseListener {
                 if (topOfStack instanceof IrIdent) {
                     IrIdent methodName = (IrIdent) this.irStack.pop();
                     IrMethodDecl newMethod = new IrMethodDecl(methodType, paramsList, block, methodName);
-                    AssemblyBuilder asm = new AssemblyBuilder();
-                    Register reg = new Register();
-                    StackFrame frame = new StackFrame();
-                    newMethod.generateCode(asm, reg, frame);
-                    System.out.println(asm.generateAssembly());
+
                     this.irStack.push(newMethod);
                 }
                 else {this.errorMessage += "exitMethod_decl: error with IrType for methodType\n";}
