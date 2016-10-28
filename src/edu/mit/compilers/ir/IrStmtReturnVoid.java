@@ -39,4 +39,10 @@ public class IrStmtReturnVoid extends IrStmtReturn {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__returnVoid";
+        return prettyString;
+    }
 }

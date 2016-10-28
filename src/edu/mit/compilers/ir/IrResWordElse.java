@@ -21,4 +21,9 @@ public class IrResWordElse extends Ir {
 
         return assembly;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        return "";
+    }
 }

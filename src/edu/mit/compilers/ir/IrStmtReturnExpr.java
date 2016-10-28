@@ -56,4 +56,14 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
         return asm;
     }
+
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|__returnExpr";
+
+        // pretty print the expression
+        indentSpace += this.result.prettyPrint("  " + indentSpace);
+
+        return prettyString;
+    }
 }
