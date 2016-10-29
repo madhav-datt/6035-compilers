@@ -28,7 +28,7 @@ public class IrArgString extends IrArg {
             return false;
         }
         Ir otherIr = (IrArgString)that;
-        return ((IrArgString) this.getArgValue()).equals(((IrArgString) otherIr).getArgValue());
+        return ((String) this.getArgValue()).equals(((IrArgString) otherIr).getArgValue());
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
         String label = assembly.getStringLabel();
