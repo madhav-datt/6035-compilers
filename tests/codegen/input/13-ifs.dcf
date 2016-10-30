@@ -1,8 +1,13 @@
 #include <stdbool.h>
+
 extern printf();
 bool not2 ( bool a ) {
   bool b;
-  b = a? false : true;
+  if (a) {
+    b = false;
+  } else {
+    b = true;
+  }
   return b;
 }
 void phw ( bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h, bool i, bool j ) {

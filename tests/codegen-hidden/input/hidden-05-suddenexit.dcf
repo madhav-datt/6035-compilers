@@ -1,0 +1,22 @@
+#define int long long
+
+extern exit();
+extern printf();
+
+int inception(int level) {
+  if (level == 7) {
+    int i;
+    for (i = 0; i != printf("Synchronized kick!\n") + exit(level - 7) * exit(i + 100); i += inception(i)) {
+      printf("????");
+    }
+    return i;
+  } else {
+    printf("Entering inception level %lld ...\n", level);
+    inception(level + 1);
+  }
+  printf("You are trapped in the limbo!");
+}
+
+void main() {
+  inception(1);
+}

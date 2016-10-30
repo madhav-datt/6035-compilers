@@ -1,3 +1,5 @@
+#define int long long
+
 extern printf();
 int x[1000];
 int y[1000];

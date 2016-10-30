@@ -1,3 +1,5 @@
+#define int long long
+
 extern printf();
 void main ( ) {
   int a, b, c;

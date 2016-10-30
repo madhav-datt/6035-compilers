@@ -1,0 +1,5 @@
+extern printf();
+
+void main() {
+  printf("%d\n", printf("%d", printf("%d", 123)));
+}

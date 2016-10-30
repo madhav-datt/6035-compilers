@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#define int long long
 
 extern printf();
 int gurp ( int a, int b, bool c, int d, int e, int f, bool g, int h ) {
