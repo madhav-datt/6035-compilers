@@ -48,6 +48,7 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         String registerLocation = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
         assembly.addLine("movq "+ registerLocation+ ", %r10");
         this.decrementBy.generateCode(assembly, register, stackFrame);

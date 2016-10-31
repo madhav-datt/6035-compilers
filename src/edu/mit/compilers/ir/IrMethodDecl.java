@@ -53,6 +53,7 @@ public class IrMethodDecl extends IrMemberDecl {
     }
 
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         // Construct the method body
         // Access the params and stuff.
         String asm = "";
@@ -66,6 +67,17 @@ public class IrMethodDecl extends IrMemberDecl {
         String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
         if(methodName.equals("main")){
             assembly.addLine(".globl main");
+            String errorLable = ".OUT_OF_RANGE";
+            String errorStringLabel = ".STR_OUT_OF_RANGE";
+            assembly.addLabel(errorLable);
+            assembly.appendLableToBottom(errorStringLabel);
+            assembly.appendLineToBottom(".string \"Argument Out of range!! \"");
+            assembly.addLine("movq $"+ errorStringLabel + ", %r10");
+            assembly.addLine("movq %r10, %rdi");
+            assembly.addLine("call printf");
+
+            assembly.addLine("leave");
+            assembly.addLine("ret");
         }
         assembly.addLabel(methodName);
         assembly.addLine();
@@ -88,17 +100,9 @@ public class IrMethodDecl extends IrMemberDecl {
         assembly.addLine();
 
         // Handle error messages
-        String errorLable = ".OUT_OF_RANGE";
-        String errorStringLabel = ".STR_OUT_OF_RANGE";
-        assembly.addLabel(errorLable);
-        assembly.appendLableToBottom(errorStringLabel);
-        assembly.appendLineToBottom(".string \"Argument Out of range!! \"");
-        assembly.addLine("movq $"+ errorStringLabel + ", %r10");
-        assembly.addLine("movq %r10, %rdi");
-        assembly.addLine("call printf");
 
-        assembly.addLine("leave");
-        assembly.addLine("ret");
+
+
 
         return assembly;
     }

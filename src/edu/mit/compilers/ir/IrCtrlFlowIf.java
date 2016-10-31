@@ -46,9 +46,10 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         this.condExpr.generateCode(assembly, register, stackFrame);
         // go to the last part of the done block
-        String label = assembly.getFootNote();
+        String label = assembly.getLabelName();
 
         assembly.addLine(String.format("jmp .%s_DONE", label));
         assembly.addLabel(label + ":");

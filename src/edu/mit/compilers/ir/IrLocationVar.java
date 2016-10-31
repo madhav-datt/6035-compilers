@@ -95,6 +95,7 @@ public class IrLocationVar extends IrLocation {
     }
 
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         stackFrame.pushToStackFrame(this.getLocationName());
         assembly.putOnFootNote( stackFrame.getIrLocation(this.getLocationName()));
         return assembly;

@@ -24,7 +24,9 @@ public class IrArgExpr extends IrArg {
         return ((IrExpr) this.getArgValue()).getExpressionType();
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         ((IrExpr) this.getArgValue()).generateCode(assembly, register, stackFrame);
+
         return assembly;
     }
 
@@ -53,4 +55,5 @@ public class IrArgExpr extends IrArg {
 
         return prettyString;
     }
+
 }

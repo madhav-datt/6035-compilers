@@ -39,7 +39,9 @@ public class IrOperBinaryEq extends IrOperBinary {
 
         return errorMessage;
     }
+
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
         String leftValue = leftRegister.getFootNote();
         AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
@@ -52,6 +54,7 @@ public class IrOperBinaryEq extends IrOperBinary {
         assembly.addLine("cmove %r10, %r11");
         String condResultTemp = stackFrame.getNextStackLocation();
         assembly.addLine("movq %r11, " + condResultTemp);
+
         stackFrame.pushToRegisterStackFrame("%r11");
         assembly.putOnFootNote(condResultTemp);
         assembly.addLine("");

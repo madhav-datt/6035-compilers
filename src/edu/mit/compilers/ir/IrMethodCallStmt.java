@@ -107,12 +107,13 @@ public class IrMethodCallStmt extends IrStatement{
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         String asm = "";
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
         for(int i = 0; i < argsList.size(); i++){
             argsList.get(i).generateCode(assembly, register, stackFrame);
-            String irLocation = stackFrame.getIrLocation(argsList.get(i));
+            String irLocation = assembly.getFootNote();
             if(i < 6){
                 // find where the argument is stored in the stackFrame. The argument might be
                 // a constant or an expression
@@ -127,6 +128,7 @@ public class IrMethodCallStmt extends IrStatement{
 
         }
         assembly.addLine("call " + methodName);
+        assembly.addLine("movq $0, %rax");
         assembly.addLine("movq %rax, " + stackFrame.getNextStackLocation()+ "\n");
         stackFrame.pushToRegisterStackFrame("%rax");
         assembly.addLine(asm);

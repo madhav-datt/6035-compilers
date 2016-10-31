@@ -62,6 +62,7 @@ public class IrOperBinaryRel extends IrOperBinary {
         return retCommand;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
         String leftValue = leftRegister.getFootNote();
         AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);

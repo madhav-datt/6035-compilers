@@ -31,6 +31,7 @@ public class IrArgString extends IrArg {
         return ((String) this.getArgValue()).equals(((IrArgString) otherIr).getArgValue());
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
+
         String label = assembly.getStringLabel();
         String strConst = String .format(".string %s ", this.getArgValue().toString());
 

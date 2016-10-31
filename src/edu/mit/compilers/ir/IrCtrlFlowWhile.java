@@ -39,6 +39,7 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
+
         String ifConditionLabel = assembly.getLabelName();
         assembly.addLabel("." + ifConditionLabel);
         this.condExpr.generateCode(assembly, register, stackFrame);

@@ -112,6 +112,7 @@ public class IrMethodCallExpr extends IrExpr{
 
     // The only difference between this and IrMethodCallStmt is
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+
         String asm = "";
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
@@ -129,6 +130,7 @@ public class IrMethodCallExpr extends IrExpr{
         }
         asm  += "     call " + methodName + "\n";
         String nextStackFrameLocation = stackFrame.getNextStackLocation();
+        asm  += "     movq $0, %rax\n";
         asm  += "     movq %rax, " + nextStackFrameLocation+ "\n";
         stackFrame.pushToRegisterStackFrame("%rax");
         assembly.putOnFootNote(nextStackFrameLocation);

@@ -38,16 +38,25 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         return errorMessage;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        // generate the code for the conditional expression.
-        this.condExpr.generateCode(assembly, register, stackFrame);
 
+        // generate the code for the conditional expression.
+        String label = assembly.getLabelName();
+
+        this.condExpr.generateCode(assembly, register, stackFrame);
+        String truthValue = assembly.getFootNote();
+        assembly.addLine("movq " + truthValue + ", %r10");
+        assembly.addLine("movq $1 , %r11");
+        assembly.addLine("cmp %r10, %r11");
+        assembly.addLine("je ." + label);
         //
-        String label = assembly.getFootNote();
+        assembly.addLine();
+
         this.elseBlock.generateCode(assembly, register, stackFrame);
         assembly.addLine(String.format("jmp .%s_DONE", label));
-        assembly.addLine(String.format("%s: ", label));
+        assembly.addLabel("." +     label);
         this.ifStmt.getIfBodyBlock().generateCode(assembly, register, stackFrame);
         assembly.addLine(String.format("jmp .%s_DONE", label));
+        assembly.addLabel("." + label + "_DONE");
         assembly.putOnFootNote(label);
         return assembly;
     }

@@ -70,6 +70,7 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
         // Initialize the counter
+
         this.intialIndexExpr.generateCode(assembly, register, stackFrame);
         String registerForAssignment = assembly.getFootNote();
         String variableLocation = stackFrame.getIrLocation(counter.getLocationName());
