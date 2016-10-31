@@ -56,7 +56,6 @@ public class IrMethodDecl extends IrMemberDecl {
 
         // Construct the method body
         // Access the params and stuff.
-        String asm = "";
         String methodName = this.getName();
         String paramRegisters[] = register.getParamRegisters();
         int m =  paramsList.size();

@@ -67,14 +67,7 @@ public class DecafListener extends DecafParserBaseListener {
 
         // check the semantics of the final program
         this.program = new IrProgram(fieldDecls, methodDecls, externDecls, this.errorMessage, l.line, l.col);
-       ////////////////
-        AssemblyBuilder asm = new AssemblyBuilder();
-        StackFrame stack = new StackFrame();
-        Register reg = new Register();
-        this.program.generateCode(asm, reg, stack);
-        StringBuilder finalAssembly = asm.generateAssembly();
-        System.out.println(finalAssembly);
-        ////////////////
+   
         this.errorMessage += this.program.semanticCheck(new ScopeStack());
         if (!errorMessage.equals("")) {
             this.errorFlag = true;

@@ -48,12 +48,6 @@ public class IrOperBinaryArith extends IrOperBinary {
             case "*":
                 retCommand = "imul ";
                 break;
-            case "/":
-                retCommand = "idiv ";
-                break;
-            case "%":
-                retCommand = "mod ";
-                break;
             default:
                 System.err.print("Runtime Error: Unrecognized Operation");
                 break;
@@ -61,17 +55,37 @@ public class IrOperBinaryArith extends IrOperBinary {
         return retCommand;
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
+        if(this.getOperation().equals("/") || this.getOperation().equals("%")){
+            AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
+            String leftValue = leftRegister.getFootNote();
+            AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
+            String rightValue = leftRegister.getFootNote();
+            assembly.addLine("movq " + leftValue + ", %rax");
+            assembly.addLine("movq " + rightValue + ", %r10");
+            assembly.addLine("cqo ");
+            assembly.addLine("idiv %r10");
+            if(this.getOperation().equals("/")){
+                assembly.addLine("movq %rax, %r10");
+            }
+            else if(this.getOperation().equals("%")){
+                assembly.addLine("movq %rbx, %r10");
+            }
 
-        AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
-        String leftValue = leftRegister.getFootNote();
-        AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-        String rightValue = leftRegister.getFootNote();
-        assembly.addLine("movq " + leftValue + ", %r10");
-        assembly.addLine("movq " + rightValue + ", %r11");
-        assembly.addLine(this.getCommand(this.getOperation()) + "%r10, %r11");
+
+
+        }
+        else{
+            AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
+            String leftValue = leftRegister.getFootNote();
+            AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
+            String rightValue = leftRegister.getFootNote();
+            assembly.addLine("movq " + leftValue + ", %r10");
+            assembly.addLine("movq " + rightValue + ", %r11");
+            assembly.addLine(this.getCommand(this.getOperation()) + "%r11, %r10");
+        }
         String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r11, " + resultTemp);
-        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine("movq %r10, " + resultTemp);
+        stackFrame.pushToRegisterStackFrame("%r10");
         assembly.putOnFootNote(resultTemp);
         return assembly;
     }

@@ -40,7 +40,7 @@ public class IrArgString extends IrArg {
         String strLoc = frame.getNextStackLocation();
         assembly.addLine("movq $."+label +","+ strLoc);
         frame.pushToStackFrame(this);
-        assembly.putOnFootNote(label);
+        assembly.putOnFootNote(strLoc);
         return assembly;
     }
 

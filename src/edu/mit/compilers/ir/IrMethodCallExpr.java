@@ -2,6 +2,7 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.AssemblyBuilder;
 import edu.mit.compilers.Register;
+
 import edu.mit.compilers.ScopeStack;
 import edu.mit.compilers.StackFrame;
 
@@ -112,29 +113,58 @@ public class IrMethodCallExpr extends IrExpr{
 
     // The only difference between this and IrMethodCallStmt is
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        String asm = "";
+        List<String> argOutputs  = new ArrayList<String>();
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
+        AssemblyBuilder asm = new AssemblyBuilder();
         for(int i = 0; i < argsList.size(); i++){
-            String irLocation = stackFrame.getIrLocation(argsList.get(i));
+            argsList.get(i).generateCode(asm, register, stackFrame);
+            argOutputs.add(asm.getFootNote());
+        }
+        assembly.concat(asm);
+         for(int i = 0; i < argsList.size(); i++){
+           
+            String irLocation = argOutputs.get(i);
             if(i < 6){
-
-                asm += "     movq " + irLocation + ", " + registers[i]+ "\n";
+                // find where the argument is stored in the stackFrame. The argument might be
+                // a constant or an expression
+                assembly.addLine("movq " + irLocation + ", " + registers[i]);
             }
             else{
-                asm += "     movq " + irLocation + ", " + "%r10"+ "\n";
+                assembly.addLine("movq " + irLocation + ", " + "%r10");
                 String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                asm += "     movq %r10, " + nextStackFrameLocation + "\n";
+                assembly.addLine("movq %r10, " + nextStackFrameLocation);
+
             }
+
         }
-        asm  += "     call " + methodName + "\n";
-        String nextStackFrameLocation = stackFrame.getNextStackLocation();
-        asm  += "     movq $0, %rax\n";
-        asm  += "     movq %rax, " + nextStackFrameLocation+ "\n";
+        
+        // String methodName = this.methodName.getValue();
+        // String registers[] = register.getParamRegisters();
+        // for(int i = 0; i < argsList.size(); i++){
+        //     argsList.get(i).generateCode(assembly, register, stackFrame);
+        // }
+        //  for(int i = 0; i < argsList.size(); i++){
+           
+        //     String irLocation = assembly.getFootNote();
+        //     if(i < 6){
+        //         // find where the argument is stored in the stackFrame. The argument might be
+        //         // a constant or an expression
+        //         assembly.addLine("movq " + irLocation + ", " + registers[i]);
+        //     }
+        //     else{
+        //         assembly.addLine("movq " + irLocation + ", " + "%r10");
+        //         String nextStackFrameLocation = stackFrame.getNextStackLocation();
+        //         assembly.addLine("movq %r10, " + nextStackFrameLocation);
+
+        //     }
+
+        // }
+        assembly.addLine("movq $0, %rax");
+        assembly.addLine("call " + methodName);
+        assembly.addLine("movq %rax, " + stackFrame.getNextStackLocation()+ "\n");
         stackFrame.pushToRegisterStackFrame("%rax");
-        assembly.putOnFootNote(nextStackFrameLocation);
-        assembly.addLine(asm);
+
         return  assembly;
     }
 
