@@ -38,7 +38,7 @@ public class IrOperUnaryNeg extends IrOperUnary{
         this.operand.generateCode(assembly, register, stackFrame);
         String operandReg = assembly.getFootNote();
 
-        assembly.addLine("movq "+ operandReg +" %r10");
+        assembly.addLine("movq "+ operandReg +", %r10");
         assembly.addLine("neg %r10");
 
         String resultTemp = stackFrame.getNextStackLocation();

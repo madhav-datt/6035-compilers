@@ -54,8 +54,10 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         this.elseBlock.generateCode(assembly, register, stackFrame);
         assembly.addLine(String.format("jmp .%s_DONE", label));
         assembly.addLabel("." +     label);
+        assembly.getInBlock(label);
         this.ifStmt.getIfBodyBlock().generateCode(assembly, register, stackFrame);
         assembly.addLine(String.format("jmp .%s_DONE", label));
+        assembly.getOutOfBlock();
         assembly.addLabel("." + label + "_DONE");
         assembly.putOnFootNote(label);
         return assembly;

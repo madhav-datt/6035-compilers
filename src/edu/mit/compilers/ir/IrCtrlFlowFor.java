@@ -79,7 +79,10 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         String ifConditionLabel = assembly.getLabelName();
         assembly.addLabel("." + ifConditionLabel);
         this.condExpr.generateCode(assembly, register, stackFrame);
-
+         String truthValue = assembly.getFootNote();
+        assembly.addLine("movq " + truthValue + ", %r10");
+        assembly.addLine("movq $1 , %r11");
+        assembly.addLine("cmp %r10, %r11");
         assembly.addLine(String.format("jne .%s_DONE", ifConditionLabel));
 
         assembly.getInBlock(ifConditionLabel);

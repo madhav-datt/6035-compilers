@@ -62,7 +62,7 @@ public class IrMethodDecl extends IrMemberDecl {
 
         AssemblyBuilder asb = new AssemblyBuilder();
         StackFrame frame = new StackFrame();
-        this.methodBody.generateCode(asb, register, frame);
+        this.methodBody.generateCode(asb, register, stackFrame);
         String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
         if(methodName.equals("main")){
             assembly.addLine(".globl main");
@@ -84,15 +84,17 @@ public class IrMethodDecl extends IrMemberDecl {
         for(int i = 0; i < paramsList.size(); i++){
             if(i < 6){
                 assembly.addLine("movq "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
-                stackFrame.pushToRegisterStackFrame(paramRegisters[i]);
+                
+                stackFrame.pushToStackFrame(paramsList.get(i).getParamName());
             }
             else{
-                assembly.addLine("movq "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine("movq "+ Integer.toString(16 + 8*(i-6)) +"(%rbp), " + "%r10");
                 assembly.addLine("movq %r10, " + stackFrame.getNextStackLocation());
-                stackFrame.pushToStackFrame(paramsList.get(i));
+                stackFrame.pushToStackFrame(paramsList.get(i).getParamName());
             }
         }
         assembly.concat(asb);
+        assembly.addLine();
 
         assembly.addLine("leave");
         assembly.addLine("ret");

@@ -40,10 +40,7 @@ public class IrOperBinaryRel extends IrOperBinary {
     private String getMoveCommand(String operation){
         String retCommand = "";
         switch (operation){
-            case "!= ":
-                retCommand = "cmovne ";
-                break;
-            case "<= ":
+            case "<=":
                 retCommand = "cmovle ";
                 break;
             case ">=":
@@ -63,6 +60,7 @@ public class IrOperBinaryRel extends IrOperBinary {
     }
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
+      
         AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
         String leftValue = leftRegister.getFootNote();
         AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
@@ -72,10 +70,11 @@ public class IrOperBinaryRel extends IrOperBinary {
         assembly.addLine("cmp %r10, %r11");
         assembly.addLine("movq $0, %r11");
         assembly.addLine("movq $1, %r10");
-        assembly.addLine(this.getMoveCommand(this.operation) +" %r10, %r11");
+        assembly.addLine(this.getMoveCommand(this.operation)+" %r11, %r10");
         String condResultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r11, " + condResultTemp);
-        stackFrame.pushToRegisterStackFrame("%r11");
+        assembly.addLine("movq %r10, " + condResultTemp);
+
+        stackFrame.pushToRegisterStackFrame("%r10");
         assembly.putOnFootNote(condResultTemp);
         assembly.addLine("");
         return assembly;
