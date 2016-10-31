@@ -59,7 +59,7 @@ public class IrOperBinaryArith extends IrOperBinary {
             AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
             String leftValue = leftRegister.getFootNote();
             AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-            String rightValue = leftRegister.getFootNote();
+            String rightValue = rightRegister.getFootNote();
             assembly.addLine("movq " + leftValue + ", %rax");
             assembly.addLine("movq " + rightValue + ", %r10");
             assembly.addLine("cqo ");
@@ -78,7 +78,7 @@ public class IrOperBinaryArith extends IrOperBinary {
             AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
             String leftValue = leftRegister.getFootNote();
             AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-            String rightValue = leftRegister.getFootNote();
+            String rightValue = rightRegister.getFootNote();
             assembly.addLine("movq " + leftValue + ", %r10");
             assembly.addLine("movq " + rightValue + ", %r11");
             assembly.addLine(this.getCommand(this.getOperation()) + "%r11, %r10");

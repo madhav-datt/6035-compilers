@@ -58,11 +58,10 @@ public class IrMethodDecl extends IrMemberDecl {
         // Access the params and stuff.
         String methodName = this.getName();
         String paramRegisters[] = register.getParamRegisters();
-        int m =  paramsList.size();
 
         AssemblyBuilder asb = new AssemblyBuilder();
         StackFrame frame = new StackFrame();
-        this.methodBody.generateCode(asb, register, stackFrame);
+
         String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
         if(methodName.equals("main")){
             assembly.addLine(".globl main");
@@ -83,16 +82,18 @@ public class IrMethodDecl extends IrMemberDecl {
         assembly.addLine(enterStatement);
         for(int i = 0; i < paramsList.size(); i++){
             if(i < 6){
-                assembly.addLine("movq "+ paramRegisters[i] + ", " + stackFrame.getNextStackLocation()+"\n");
-                
-                stackFrame.pushToStackFrame(paramsList.get(i).getParamName());
+
+                assembly.addLine("movq "+ paramRegisters[i] + ", " + frame.getNextStackLocation()+"\n");
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
             }
             else{
-                assembly.addLine("movq "+ Integer.toString(16 + 8*(i-6)) +"(%rbp), " + "%r10");
-                assembly.addLine("movq %r10, " + stackFrame.getNextStackLocation());
-                stackFrame.pushToStackFrame(paramsList.get(i).getParamName());
+                assembly.addLine("movq "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine("movq %r10, " + frame.getNextStackLocation());
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
+
             }
         }
+        this.methodBody.generateCode(asb, register, frame);
         assembly.concat(asb);
         assembly.addLine();
 
