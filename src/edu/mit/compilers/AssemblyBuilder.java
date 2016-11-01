@@ -77,10 +77,10 @@ public class AssemblyBuilder {
         return finalAsm;
     }
     public String getLabelName(){
-        return "L" + labelCount++;
+        return "L" + this.labelCount++;
     }
     public String getStringLabel(){
-        return "STR_" + labelCount++;
+        return "STR_" + this.labelCount++;
     }
 
     @Override

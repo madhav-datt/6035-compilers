@@ -111,12 +111,11 @@ public class IrMethodCallStmt extends IrStatement{
         List<String> argOutputs  = new ArrayList<String>();
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
-        AssemblyBuilder asm = new AssemblyBuilder();
         for(int i = 0; i < argsList.size(); i++){
-            argsList.get(i).generateCode(asm, register, stackFrame);
-            argOutputs.add(asm.getFootNote());
+            argsList.get(i).generateCode(assembly, register, stackFrame);
+            argOutputs.add(assembly.getFootNote());
         }
-        assembly.concat(asm);
+
          for(int i = 0; i < argsList.size(); i++){
            
             String irLocation = argOutputs.get(i);

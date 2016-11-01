@@ -116,12 +116,12 @@ public class IrMethodCallExpr extends IrExpr{
         List<String> argOutputs  = new ArrayList<String>();
         String methodName = this.methodName.getValue();
         String registers[] = register.getParamRegisters();
-        AssemblyBuilder asm = new AssemblyBuilder();
+      
         for(int i = 0; i < argsList.size(); i++){
-            argsList.get(i).generateCode(asm, register, stackFrame);
-            argOutputs.add(asm.getFootNote());
+            argsList.get(i).generateCode(assembly, register, stackFrame);
+            argOutputs.add(assembly.getFootNote());
         }
-        assembly.concat(asm);
+      
          for(int i = 0; i < argsList.size(); i++){
            
             String irLocation = argOutputs.get(i);
@@ -135,18 +135,18 @@ public class IrMethodCallExpr extends IrExpr{
                 String nextStackFrameLocation = stackFrame.getNextStackLocation();
                 stackFrame.pushToRegisterStackFrame("%r10");
                 assembly.addLine("movq %r10, " + nextStackFrameLocation);
+                stackFrame.pushToRegisterStackFrame("%r10");
 
             }
 
         }
-
+     
         assembly.addLine("movq $0, %rax");
         assembly.addLine("call " + methodName);
-        String nextStackLocation = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %rax, " + nextStackLocation + "\n");
+        String nextStackFrameLocation = stackFrame.getNextStackLocation();
+        assembly.addLine("movq %rax, " +nextStackFrameLocation+ "\n");
         stackFrame.pushToRegisterStackFrame("%rax");
-        assembly.putOnFootNote(nextStackLocation);
-
+        assembly.putOnFootNote(nextStackFrameLocation);
         return  assembly;
     }
 

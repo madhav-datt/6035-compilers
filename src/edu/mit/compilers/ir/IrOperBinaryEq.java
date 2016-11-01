@@ -39,6 +39,18 @@ public class IrOperBinaryEq extends IrOperBinary {
 
         return errorMessage;
     }
+     private String getMoveCommand(String operation){
+        String retCommand = "";
+        switch (operation){
+            case "!=":
+                retCommand = "cmovne ";
+                break;
+            case "==":
+                retCommand = "cmove ";
+          
+        }
+        return retCommand;
+    }
 
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
@@ -51,7 +63,7 @@ public class IrOperBinaryEq extends IrOperBinary {
         assembly.addLine("cmp %r10, %r11");
         assembly.addLine("movq $0, %r11");
         assembly.addLine("movq $1, %r10");
-        assembly.addLine("cmove %r10, %r11");
+        assembly.addLine(this.getMoveCommand(this.operation)+" %r10, %r11");
         String condResultTemp = stackFrame.getNextStackLocation();
         assembly.addLine("movq %r11, " + condResultTemp);
 

@@ -97,9 +97,24 @@ public class IrMethodDecl extends IrMemberDecl {
         }
 
         assembly.addLine(enterStatement);
-        assembly.concat(asm);
-        //TODO: check!
+
+        for(int i = 0; i < paramsList.size(); i++){
+            if(i < 6){
+
+                assembly.addLine("movq "+ paramRegisters[i] + ", " + frame.getNextStackLocation()+"\n");
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
+            }
+            else{
+                assembly.addLine("movq "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
+                assembly.addLine("movq %r10, " + frame.getNextStackLocation());
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
+
+            }
+        }
+        this.methodBody.generateCode(asb, register, frame);
         assembly.concat(asb);
+        assembly.addLine();
+
         assembly.addLine("leave");
         assembly.addLine("ret");
         assembly.addLine();
