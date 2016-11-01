@@ -54,14 +54,30 @@ public class IrMethodDecl extends IrMemberDecl {
 
     public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        // Construct the method body
-        // Access the params and stuff.
+
         String methodName = this.getName();
         String paramRegisters[] = register.getParamRegisters();
 
         AssemblyBuilder asb = new AssemblyBuilder();
         StackFrame frame = new StackFrame();
+        if(!methodName.equals("main")){
+            assembly.addLabel(methodName);
+        }
 
+
+        AssemblyBuilder asm = new AssemblyBuilder();
+        for(int i = 0; i < paramsList.size(); i++){
+            if(i < 6){
+                asm.addLine("movq "+ paramRegisters[i] + ", " +frame.getNextStackLocation()+"\n");
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
+            }
+            else{
+                asm.addLine("movq "+ Integer.toString(16 + 8*(i-6)) +"(%rbp), " + "%r10");
+                asm.addLine("movq %r10, " + frame.getNextStackLocation());
+                frame.pushToStackFrame(paramsList.get(i).getParamName());
+            }
+        }
+        this.methodBody.generateCode(asb, register, frame);
         String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
         if(methodName.equals("main")){
             assembly.addLine(".globl main");
@@ -74,37 +90,25 @@ public class IrMethodDecl extends IrMemberDecl {
             assembly.addLine("movq %r10, %rdi");
             assembly.addLine("call printf");
 
+
             assembly.addLine("leave");
             assembly.addLine("ret");
+            assembly.addLabel(methodName);
         }
-        assembly.addLabel(methodName);
-        assembly.addLine();
-        assembly.addLine(enterStatement);
-        for(int i = 0; i < paramsList.size(); i++){
-            if(i < 6){
-                assembly.addLine("movq "+ paramRegisters[i] + ", " + frame.getNextStackLocation()+"\n");
-                frame.pushToStackFrame(paramsList.get(i).getParamName());
-            }
-            else{
-                assembly.addLine("movq "+ Integer.toString(16 + (i-6)) +"(%rbp), " + "%r10");
-                assembly.addLine("movq %r10, " + frame.getNextStackLocation());
-                frame.pushToStackFrame(paramsList.get(i).getParamName());
-            }
-        }
-        this.methodBody.generateCode(asb, register, frame);
-        assembly.concat(asb);
 
+        assembly.addLine(enterStatement);
+        assembly.concat(asm);
+        //TODO: check!
+        assembly.concat(asb);
         assembly.addLine("leave");
         assembly.addLine("ret");
         assembly.addLine();
 
-        // Handle error messages
-
-
-
-
         return assembly;
     }
+
+
+
 
     @Override
     public String prettyPrint(String indentSpace) {
