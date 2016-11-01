@@ -88,30 +88,31 @@ public class IrLocationArray extends IrLocation {
         assembly.addLine("cmovl %r10, %r11");
         assembly.addLine("movq $1, %r10");
         assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("jmp " + errorLable);
+        assembly.addLine("je " + errorLable);
         assembly.addLine();
 
         // then make sure the index is less than the length of the array
         assembly.addLine("movq " + computedIndex + ", %r10");
         assembly.addLine("movq "+ startLocation +", %r11");
-        assembly.addLine("cmovqge %r10, %r11");
+        assembly.addLine("cmovge %r10, %r11");
         assembly.addLine("movq $1, %r10");
         assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("jmp " + errorLable);
+        assembly.addLine("je " + errorLable);
         assembly.addLine();
 
         // multiply the index by 8 and add it to the start location of the array.
 
         assembly.addLine("movq " + computedIndex + ", %r10");
         assembly.addLine("movq " + startLocation + ", %r11");
+        assembly.addLine("add $1, %r11");
         assembly.addLine("movq (%r10, %r11, 8), %r11");
-        assembly.addLine("");
+        assembly.addLine();
 
         // Store the found location in the stackFrame and return it.
         String stackLocation = stackFrame.getNextStackLocation();
         stackFrame.pushToRegisterStackFrame("%r11");
         assembly.addLine("movq %r11, " + stackLocation);
-        assembly.addLine("");
+        assembly.addLine();
         assembly.putOnFootNote(stackLocation);
 
         return assembly;

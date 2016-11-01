@@ -34,7 +34,7 @@ public class IrFieldDeclArray extends IrFieldDecl {
 
         String start = stackFrame.getNextStackLocation();
 
-        assembly.addLine("movq $," + Integer.toString(this.arraySize)+" %r10");
+        assembly.addLine("movq $" + Integer.toString(this.arraySize)+", %r10");
         assembly.addLine("movq %r10, " + start);
         stackFrame.pushToStackFrame(this.getIdentName());
         for(int i = 0; i < this.arraySize; i ++){
