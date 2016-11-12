@@ -15,11 +15,11 @@ for file in `dirname $0`/input/*.dcf; do
   asm=`tempfile --suffix=.s`
   msg=""
   if runcompiler $file $asm; then
+    echo "Running file $file"
     binary=`tempfile`
     if gcc -o $binary -L `dirname $0`/lib -l6035 $asm; then
       output=`tempfile`
-      echo "Running file $file"
-      if timeout 10 $binary > $output; then
+      if $binary > $output; then
         diffout=`tempfile`
         if ! diff -u $output `dirname $0`/output/`basename $file`.out > $diffout; then
           msg="File $file output mismatch.";
