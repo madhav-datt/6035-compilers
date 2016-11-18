@@ -15,11 +15,6 @@ public class IrExternDecl extends IrMemberDecl {
         return "";
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        return assembly;
-    }
-
     @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--" + this.getName() + "\n";

@@ -36,59 +36,6 @@ public class IrOperBinaryArith extends IrOperBinary {
 
         return errorMessage;
     }
-    private String getCommand(String operation){
-        String retCommand = "";
-        switch (operation){
-            case "+":
-                retCommand = "add ";
-                break;
-            case "-":
-                retCommand = "sub ";
-                break;
-            case "*":
-                retCommand = "imul ";
-                break;
-            default:
-                System.err.print("Runtime Error: Unrecognized Operation");
-                break;
-        }
-        return retCommand;
-    }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        if(this.getOperation().equals("/") || this.getOperation().equals("%")){
-            AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
-            String leftValue = leftRegister.getFootNote();
-            AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-            String rightValue = rightRegister.getFootNote();
-            assembly.addLine("movq " + leftValue + ", %rax");
-            assembly.addLine("movq " + rightValue + ", %r10");
-            assembly.addLine("cqo ");
-            assembly.addLine("idiv %r10");
-            if(this.getOperation().equals("/")){
-                assembly.addLine("movq %rax, %r10");
-            }
-            else if(this.getOperation().equals("%")){
-                assembly.addLine("movq %rbx, %r10");
-            }
-
-
-
-        }
-        else{
-            AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
-            String leftValue = leftRegister.getFootNote();
-            AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-            String rightValue = rightRegister.getFootNote();
-            assembly.addLine("movq " + leftValue + ", %r10");
-            assembly.addLine("movq " + rightValue + ", %r11");
-            assembly.addLine(this.getCommand(this.getOperation()) + "%r11, %r10");
-        }
-        String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r10, " + resultTemp);
-        stackFrame.pushToRegisterStackFrame("%r10");
-        assembly.putOnFootNote(resultTemp);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

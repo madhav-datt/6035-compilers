@@ -48,18 +48,6 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
         return errorMessage;
     }
-    // Evaluates the expression at return;
-    // gets the value to return from the footnote and moves it to the assembly.
-    // Mutates the assemblyBuilder
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        AssemblyBuilder asm = this.result.generateCode(assembly, register, stackFrame);
-        String resultReg = asm.getFootNote();
-        String retStr = "movq " + resultReg + ", %rax";
-        asm.addLine(retStr);
-
-        return asm;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

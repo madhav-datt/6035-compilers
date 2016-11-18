@@ -23,12 +23,6 @@ public class IrArgExpr extends IrArg {
     public IrType getArgumentType() {
         return ((IrExpr) this.getArgValue()).getExpressionType();
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        ((IrExpr) this.getArgValue()).generateCode(assembly, register, stackFrame);
-
-        return assembly;
-    }
 
     //argument Expressions can be equivalent to expressions. Such as locations and method calls.
     @Override

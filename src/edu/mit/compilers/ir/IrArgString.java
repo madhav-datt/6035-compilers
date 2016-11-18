@@ -30,19 +30,6 @@ public class IrArgString extends IrArg {
         Ir otherIr = (IrArgString)that;
         return ((String) this.getArgValue()).equals(((IrArgString) otherIr).getArgValue());
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
-
-        String label = assembly.getStringLabel();
-        String strConst = String .format(".string %s ", this.getArgValue().toString());
-
-        assembly.appendLableToBottom("."+label);
-        assembly.appendLineToBottom(strConst);
-        String strLoc = frame.getNextStackLocation();
-        assembly.addLine("movq $."+label +","+ strLoc);
-        frame.pushToStackFrame(this);
-        assembly.putOnFootNote(strLoc);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

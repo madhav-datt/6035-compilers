@@ -22,24 +22,6 @@ public class IrSizeOfType extends IrSizeOf {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-
-            if(this.type instanceof IrTypeInt){
-                assembly.addLine("movq $8, %r11");
-            }
-            if(type instanceof IrTypeBool){
-                assembly.addLine("movq $1, %r11");
-            }
-        String stackLocation = stackFrame.getNextStackLocation();
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("movq %r11, " + stackLocation);
-        assembly.putOnFootNote("%r11");
-        assembly.addLine();
-        return assembly;
-
-
-    }
 
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--sizeOfType\n";

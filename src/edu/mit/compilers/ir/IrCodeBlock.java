@@ -45,19 +45,7 @@ public class IrCodeBlock extends Ir {
         Doesn't mutate the assembly builder object because a block never exists on its own. Instead it creates a new assembly builder and returns it
         to the owning Ir. I.e. method, conditional statement ...
      */
-    @Override
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
 
-        for(IrFieldDecl fieldDecl : fieldsList){
-            fieldDecl.generateCode(assembly, register, frame);
-        }
-
-        for(IrStatement statement : stmtsList){
-            statement.generateCode(assembly, register, frame);
-        }
-
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

@@ -22,10 +22,7 @@ public class IrIdent extends Ir {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        return assembly;
-    }
     @Override
     public boolean equals(Object that) {
         if (that == this) {

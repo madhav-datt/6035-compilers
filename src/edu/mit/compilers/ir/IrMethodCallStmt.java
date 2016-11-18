@@ -106,43 +106,7 @@ public class IrMethodCallStmt extends IrStatement{
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        List<String> argOutputs  = new ArrayList<String>();
-        String methodName = this.methodName.getValue();
-        String registers[] = register.getParamRegisters();
-        for(int i = 0; i < argsList.size(); i++){
-            argsList.get(i).generateCode(assembly, register, stackFrame);
-            argOutputs.add(assembly.getFootNote());
-        }
-
-         for(int i = 0; i < argsList.size(); i++){
-           
-            String irLocation = argOutputs.get(i);
-            if(i < 6){
-                // find where the argument is stored in the stackFrame. The argument might be
-                // a constant or an expression
-                assembly.addLine("movq " + irLocation + ", " + registers[i]);
-            }
-            else{
-                assembly.addLine("movq " + irLocation + ", " + "%r10");
-                String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                stackFrame.pushToRegisterStackFrame("%r10");
-                assembly.addLine("movq %r10, " + nextStackFrameLocation);
-
-            }
-
-        }
-
-        assembly.addLine("movq $0, %rax");
-        assembly.addLine("call " + methodName);
-        String nextStackLocation = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %rax, " +nextStackLocation + "\n");
-        stackFrame.pushToRegisterStackFrame(nextStackLocation);
-        assembly.putOnFootNote(nextStackLocation);
-        return  assembly;
-
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

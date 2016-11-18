@@ -17,22 +17,7 @@ public class IrFieldDeclVar extends IrFieldDecl {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        IrType type = this.getType();
-        String varLocationInStack = stackFrame.getNextStackLocation();
-        if(type instanceof IrTypeBool){
-            assembly.addLine("movq $0, %r10");
-        }
-        if(type instanceof IrTypeInt){
-            assembly.addLine("movq $0, %r10");
-        }
-        assembly.addLine("movq %r10, " + varLocationInStack);
-        stackFrame.pushToStackFrame(this.getIdentName());
-        assembly.putOnFootNote(varLocationInStack);
-        assembly.addLine();
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

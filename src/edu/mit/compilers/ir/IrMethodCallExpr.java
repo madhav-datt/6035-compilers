@@ -111,45 +111,6 @@ public class IrMethodCallExpr extends IrExpr{
         return errorMessage;
     }
 
-    // The only difference between this and IrMethodCallStmt is
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        List<String> argOutputs  = new ArrayList<String>();
-        String methodName = this.methodName.getValue();
-        String registers[] = register.getParamRegisters();
-      
-        for(int i = 0; i < argsList.size(); i++){
-            argsList.get(i).generateCode(assembly, register, stackFrame);
-            argOutputs.add(assembly.getFootNote());
-        }
-      
-         for(int i = 0; i < argsList.size(); i++){
-           
-            String irLocation = argOutputs.get(i);
-            if(i < 6){
-                // find where the argument is stored in the stackFrame. The argument might be
-                // a constant or an expression
-                assembly.addLine("movq " + irLocation + ", " + registers[i]);
-            }
-            else{
-                assembly.addLine("movq " + irLocation + ", " + "%r10");
-                String nextStackFrameLocation = stackFrame.getNextStackLocation();
-                stackFrame.pushToRegisterStackFrame("%r10");
-                assembly.addLine("movq %r10, " + nextStackFrameLocation);
-                stackFrame.pushToRegisterStackFrame("%r10");
-
-            }
-
-        }
-     
-        assembly.addLine("movq $0, %rax");
-        assembly.addLine("call " + methodName);
-        String nextStackFrameLocation = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %rax, " +nextStackFrameLocation+ "\n");
-        stackFrame.pushToRegisterStackFrame("%rax");
-        assembly.putOnFootNote(nextStackFrameLocation);
-        return  assembly;
-    }
-
     @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--methodCallExpr\n";
