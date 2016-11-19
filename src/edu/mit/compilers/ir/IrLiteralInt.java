@@ -22,10 +22,6 @@ public class IrLiteralInt extends IrLiteral {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        assembly.putOnFootNote("$" + Long.toString(value));
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

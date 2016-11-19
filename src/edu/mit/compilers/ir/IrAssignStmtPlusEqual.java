@@ -47,16 +47,7 @@ public class IrAssignStmtPlusEqual extends IrAssignStmt{
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        String registerLocation = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
-        assembly.addLine("movq "+ registerLocation+ ", %r10");
-        this.incrementBy.generateCode(assembly, register, stackFrame);
-        String expressionResult = assembly.getFootNote();
-        assembly.addLine("add "+ expressionResult+ ", %r10");
-        assembly.addLine("movq %r10, " + registerLocation);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

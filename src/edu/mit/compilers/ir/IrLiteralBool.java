@@ -22,10 +22,7 @@ public class IrLiteralBool extends IrLiteral {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        assembly.putOnFootNote(this.value ? "$1" : "$0");
-        return assembly;
-    }
+
 
     @Override
     public String prettyPrint(String indentSpace) {

@@ -51,21 +51,7 @@ public class IrOperBinaryCond extends IrOperBinary {
         }
         return retCommand;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
-        String leftValue = leftRegister.getFootNote();
-        AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-        String rightValue = leftRegister.getFootNote();
-        assembly.addLine("movq " + leftValue + ", %r10");
-        assembly.addLine("movq " + rightValue + ", %r11");
-        assembly.addLine(this.getCommand(this.getOperation()) + "%r10, %r11");
-        String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r11, " + resultTemp);
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.putOnFootNote(resultTemp);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

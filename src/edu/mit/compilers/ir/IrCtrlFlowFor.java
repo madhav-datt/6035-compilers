@@ -67,36 +67,7 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        // Initialize the counter
-
-        this.intialIndexExpr.generateCode(assembly, register, stackFrame);
-        String registerForAssignment = assembly.getFootNote();
-        String variableLocation = stackFrame.getIrLocation(counter.getLocationName());
-        assembly.addLine(("movq " +  registerForAssignment + ", %r10"));
-        assembly.addLine(("movq %r10, " + variableLocation));
-        String ifConditionLabel = assembly.getLabelName();
-        assembly.addLabel("." + ifConditionLabel);
-        this.condExpr.generateCode(assembly, register, stackFrame);
-         String truthValue = assembly.getFootNote();
-        assembly.addLine("movq " + truthValue + ", %r10");
-        assembly.addLine("movq $1 , %r11");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine(String.format("jne .%s_DONE", ifConditionLabel));
-
-        assembly.getInBlock(ifConditionLabel);
-        this.stmtBody.generateCode(assembly, register, stackFrame);
-
-        // Add the compound assignment at the end of the loop body.
-        compoundAssignStmt.generateCode(assembly, register, stackFrame);
-        assembly.getOutOfBlock();
-
-        assembly.addLine(String.format("jmp .%s", ifConditionLabel));
-        assembly.addLine();
-        assembly.addLabel(String.format(".%s_DONE", ifConditionLabel));
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

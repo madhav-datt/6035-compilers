@@ -30,10 +30,6 @@ public class IrParamDecl extends Ir {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

@@ -103,13 +103,7 @@ public class IrProgram extends Ir{
 
         return this.errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-         for (int k = this.methodDecls.size()-1; k >=0 ; k--) {
-            IrMethodDecl methodDecl = this.methodDecls.get(k);
-            methodDecl.generateCode(assembly, register, stackFrame);
-        }
-        return assembly;
-    }
+
 
     @Override
     public String prettyPrint(String indentSpace) {

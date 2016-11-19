@@ -24,10 +24,7 @@ public class IrLiteralChar extends IrLiteral {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

@@ -51,21 +51,7 @@ public class IrAssignStmtEqual extends IrAssignStmt {
         return errorMessage;
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        String asm = "";
-        // compute the value of the expression and figure out where it is stored
-        String exprResultStorageLoc = this.newValue.generateCode(assembly, register, stackFrame).getFootNote();
-        assembly.addLine("movq " + exprResultStorageLoc + " , %r10");
-        String variableLocation  = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
-        assembly.addLine("movq %r10, " + variableLocation);
-        // make sure to store the identity of the variable which is just assigned value.
-        stackFrame.pushToStackFrame(this.getStoreLocation().getLocationName());
-
-        assembly.addLine();
-        assembly.putOnFootNote(variableLocation);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

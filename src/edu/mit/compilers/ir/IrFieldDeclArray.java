@@ -29,23 +29,6 @@ public class IrFieldDeclArray extends IrFieldDecl {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        // Allocate a contagious block of memory for use by the array.
-
-        String start = stackFrame.getNextStackLocation();
-
-        assembly.addLine("movq $," + Integer.toString(this.arraySize)+" %r10");
-        assembly.addLine("movq %r10, " + start);
-        stackFrame.pushToStackFrame(this.getIdentName());
-        for(int i = 0; i < this.arraySize; i ++){
-            String nextLocation = stackFrame.getNextStackLocation();
-            assembly.addLine("movq $0, %r10");
-            assembly.addLine("movq %r10, " + nextLocation);
-            stackFrame.pushToRegisterStackFrame("$0");
-        }
-
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

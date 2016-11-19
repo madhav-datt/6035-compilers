@@ -47,16 +47,7 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        String registerLocation = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
-        assembly.addLine("movq "+ registerLocation+ ", %r10");
-        this.decrementBy.generateCode(assembly, register, stackFrame);
-        String expressionResult = assembly.getFootNote();
-        assembly.addLine("sub "+ expressionResult+ ", %r10");
-        assembly.addLine("movq %r10, " + registerLocation);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

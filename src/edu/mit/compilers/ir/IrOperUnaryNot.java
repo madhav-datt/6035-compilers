@@ -33,26 +33,7 @@ public class IrOperUnaryNot extends IrOperUnary{
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        // Compute the value of the operand and save it on to a register
-        this.operand.generateCode(assembly, register, stackFrame);
-        String operandReg = assembly.getFootNote();
 
-        assembly.addLine("movq "+ operandReg +", %r10");
-        
-        assembly.addLine("xor $1, %r10");
-
-
-        String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r10, " + resultTemp);
-
-        stackFrame.pushToRegisterStackFrame("%r10");
-        assembly.putOnFootNote(resultTemp);
-        assembly.addLine();
-
-        return assembly;
-
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {

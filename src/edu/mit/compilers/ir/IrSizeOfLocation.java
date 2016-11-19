@@ -69,44 +69,6 @@ public class IrSizeOfLocation extends IrSizeOf {
         return "void";
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        String type = this.getTypeString();
-
-        switch (type){
-            case "array":
-                Ir arrayType = ((IrFieldDeclArray)this.irDecl).getType();
-                int arraySize = ((IrFieldDeclArray)this.irDecl).getArraySize();
-                String arraySizeStr;
-                if(arrayType instanceof IrTypeBool)
-                {
-                    arraySizeStr = "$" +Integer.toString(arraySize);
-                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
-
-                }
-                if(arrayType instanceof IrTypeInt)
-                {
-                    arraySizeStr = "$" + Integer.toString(arraySize*8);
-                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
-                }
-
-                break;
-
-            case "bool":
-                assembly.addLine("movq $1, %r11");
-                break;
-            case "int":
-                assembly.addLine("movq $8, %r11");
-                break;
-
-        }
-        String stackLocation = stackFrame.getNextStackLocation();
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("movq %r11, " + stackLocation);
-        assembly.putOnFootNote(stackLocation);
-        assembly.addLine("");
-        return assembly;
-
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
