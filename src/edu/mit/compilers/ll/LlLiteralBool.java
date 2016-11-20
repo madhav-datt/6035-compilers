@@ -13,4 +13,9 @@ public class LlLiteralBool extends LlLiteral {
     public boolean getBoolValue() {
         return this.boolValue;
     }
+
+    @Override
+    public String toString() {
+        return Boolean.toString(this.boolValue);
+    }
 }

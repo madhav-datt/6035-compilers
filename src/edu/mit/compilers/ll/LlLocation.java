@@ -13,4 +13,9 @@ public abstract class LlLocation extends LlComponent {
     public String getVarName() {
         return this.varName;
     }
+
+    @Override
+    public String toString() {
+        return this.getVarName();
+    }
 }

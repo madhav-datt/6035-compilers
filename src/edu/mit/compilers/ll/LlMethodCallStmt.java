@@ -15,4 +15,13 @@ public class LlMethodCallStmt extends LlStatement {
         this.argsList = argsList;
         this.returnLocation = returnLocation;
     }
+
+    @Override
+    public String toString() {
+        String argsString = "";
+        for(LlComponent arg : argsList){
+            argsString += " " + arg.toString();
+        }
+        return this.methodName + "( " + argsString +" )" ;
+    }
 }

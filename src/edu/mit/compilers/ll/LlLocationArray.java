@@ -14,4 +14,9 @@ public class LlLocationArray extends LlLocation {
     public int getElementIndex() {
         return this.elementIndex;
     }
+
+    @Override
+    public String toString() {
+        return this.getVarName() + "[" + Integer.toString(this.elementIndex) + "] ";
+    }
 }

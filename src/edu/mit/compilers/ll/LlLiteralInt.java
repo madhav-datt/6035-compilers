@@ -13,4 +13,9 @@ public class LlLiteralInt extends LlLiteral {
     public int getIntValue() {
         return this.intValue;
     }
+
+    @Override
+    public String toString() {
+        return Integer.toString(this.intValue);
+    }
 }

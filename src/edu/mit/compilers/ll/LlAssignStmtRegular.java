@@ -10,4 +10,9 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         super(storeLocation);
         this.arg = arg;
     }
+
+    @Override
+    public String toString() {
+        return this.storeLocation.toString() + " = " + this.arg.toString();
+    }
 }
