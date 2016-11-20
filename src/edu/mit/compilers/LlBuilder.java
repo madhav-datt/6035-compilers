@@ -4,6 +4,7 @@ import edu.mit.compilers.ll.LlLocation;
 import edu.mit.compilers.ll.LlLocationVar;
 import edu.mit.compilers.ll.LlStatement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -28,5 +29,11 @@ public class LlBuilder {
     //Generate Temporary Variable
     public LlLocationVar generateTemp(){
         return new LlLocationVar("t"+Integer.toString(tempCounter++));
+    }
+
+    // Get the LlStatments List
+
+    public ArrayList<LlStatement> getStatementList() {
+        return new ArrayList<LlStatement>(this.statementList);
     }
 }
