@@ -5,13 +5,18 @@ package edu.mit.compilers.ll;
  */
 public class LlAssignStmtBinaryOp extends LlAssignStmt{
     private final LlComponent leftArg;
-    private final String operand;
+    private final String operation;
     private final LlComponent rightArg;
 
     public LlAssignStmtBinaryOp(LlLocation storeLocation, LlComponent leftArg, String operand, LlComponent rightArg) {
         super(storeLocation);
         this.leftArg = leftArg;
-        this.operand = operand;
+        this.operation = operand;
         this.rightArg = rightArg;
+    }
+
+    @Override
+    public String toString() {
+        return this.storeLocation.toString() + " = " + this.leftArg.toString() + " " +this.operation  + " " + this.rightArg.toString();
     }
 }
