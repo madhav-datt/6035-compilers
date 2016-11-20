@@ -1,3 +1,5 @@
+#define int long long
+
 extern printf();
 int factorial ( int n ) {
   if ( n <= 1 ) {

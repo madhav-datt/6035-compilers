@@ -1,3 +1,6 @@
+#define int long long
+
+
 extern printf();
 int array[10];
 void main ( ) {
