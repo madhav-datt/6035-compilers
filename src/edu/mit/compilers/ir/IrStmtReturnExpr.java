@@ -1,9 +1,8 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlReturn;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -57,5 +56,14 @@ public class IrStmtReturnExpr extends IrStmtReturn{
         indentSpace += this.result.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation resultVar = this.result.generateLlIr(builder, symbolTable);
+        LlReturn returnStatement = new LlReturn(resultVar);
+        builder.appendStatement(returnStatement);
+        return resultVar;
+
     }
 }

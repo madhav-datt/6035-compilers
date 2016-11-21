@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public class IrExternDecl extends IrMemberDecl {
     public IrExternDecl(IrIdent name) {
@@ -19,5 +17,10 @@ public class IrExternDecl extends IrMemberDecl {
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--" + this.getName() + "\n";
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

@@ -20,8 +20,8 @@ public class LlMethodCallStmt extends LlStatement {
     public String toString() {
         String argsString = "";
         for(LlComponent arg : argsList){
-            argsString += " " + arg.toString();
+            argsString +=  arg.toString() +",";
         }
-        return this.methodName + "( " + argsString +" )" ;
+        return this.returnLocation.toString() + " = " + this.methodName + "(" + argsString +")" ;
     }
 }

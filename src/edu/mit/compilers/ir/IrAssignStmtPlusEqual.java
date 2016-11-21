@@ -1,9 +1,10 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtBinaryOp;
+import edu.mit.compilers.ll.LlAssignStmtRegular;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -62,5 +63,16 @@ public class IrAssignStmtPlusEqual extends IrAssignStmt{
         prettyString += this.incrementBy.prettyPrint("    " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation decrementTemp = this.incrementBy.generateLlIr(builder, symbolTable);
+        LlLocationVar minusExprTemp = builder.generateTemp();
+        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(minusExprTemp, new LlLocationVar(this.getStoreLocation().getLocationName().getValue()), " + ", decrementTemp);
+        builder.appendStatement(assignStmtBinaryOp);
+        LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(new LlLocationVar(this.getStoreLocation().getLocationName().getValue()),  minusExprTemp);
+        builder.appendStatement(regularAssignment);
+        return null;
     }
 }

@@ -12,4 +12,9 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         this.arg = arg;
         this.operand = operand;
     }
+
+    @Override
+    public String toString() {
+        return this.storeLocation.toString() + " = " + operand + " " + arg.toString();
+    }
 }

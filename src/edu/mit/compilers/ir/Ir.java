@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public abstract class Ir {
     // keep track of the line & column number for
@@ -26,7 +24,11 @@ public abstract class Ir {
 
     public abstract String semanticCheck(ScopeStack scopeStack);
 
+    /*
+        - pass a global LlBuilder object to every funciton implementing this.
 
+     */
+    public abstract LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable);
 
     public abstract String prettyPrint(String indentSpace);
 

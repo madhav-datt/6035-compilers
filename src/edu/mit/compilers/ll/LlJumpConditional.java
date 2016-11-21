@@ -11,4 +11,9 @@ public class LlJumpConditional extends LlJump{
         super(jumpToLabel);
         this.condition = condition;
     }
+
+    @Override
+    public String toString() {
+        return "if " + condition.toString() + " goto " + this.jumpToLabel.toString();
+    }
 }

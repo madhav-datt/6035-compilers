@@ -18,6 +18,8 @@ public class LlBuilder {
     private int labelCounter = 0;
     private int tempCounter = 0;
 
+    private Object pocket;
+
     private Stack<String> currentBlockLabel = new Stack<>();
 
     public LlBuilder(){
@@ -50,9 +52,14 @@ public class LlBuilder {
        return "L"+Integer.toString(labelCounter++);
     }
 
+
     //Generate Temporary Variable
     public LlLocationVar generateTemp(){
-        return new LlLocationVar("t"+Integer.toString(tempCounter++));
+        return new LlLocationVar("#_t"+Integer.toString(tempCounter++));
+    }
+
+    public LlLocationVar generateStrTemp(){
+        return new LlLocationVar("#str_t"+Integer.toString(tempCounter++));
     }
 
     // Call this when you get out of a block.
@@ -71,6 +78,16 @@ public class LlBuilder {
         currentBlockLabel.push(loopLabel);
     }
 
+    public void putInPocket(Object o){
+        this.pocket = o;
+    }
+    public void emptyPocket(){
+        this.pocket = null;
+    }
+
+    public Object pickPocket(){
+        return this.pocket ;
+    }
     @Override
     public String toString() {
         String st = "";

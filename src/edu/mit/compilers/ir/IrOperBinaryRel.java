@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtBinaryOp;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -37,27 +37,6 @@ public class IrOperBinaryRel extends IrOperBinary {
         return errorMessage;
     }
 
-    private String getMoveCommand(String operation){
-        String retCommand = "";
-        switch (operation){
-            case "<=":
-                retCommand = "cmovle ";
-                break;
-            case ">=":
-                retCommand = "cmovge ";
-                break;
-            case ">":
-                retCommand = "cmovg ";
-                break;
-            case "<":
-                retCommand = "cmovl ";
-                break;
-            default:
-                System.err.print("Runtime Error: Unrecognized Operation");
-                break;
-        }
-        return retCommand;
-    }
 
 
     @Override
@@ -76,5 +55,15 @@ public class IrOperBinaryRel extends IrOperBinary {
         prettyString += this.rightOperand.prettyPrint("    " + indentSpace);
 
         return prettyString;
+    }
+    //TODO: Check
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation rightTemp = this.rightOperand.generateLlIr(builder, symbolTable);
+        LlLocation leftTemp = this.leftOperand.generateLlIr(builder, symbolTable);
+        LlLocationVar returnTemp = builder.generateTemp();
+        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(returnTemp, leftTemp, this.getOperation() ,rightTemp);
+        builder.appendStatement(assignStmtBinaryOp);
+        return returnTemp;
     }
 }
