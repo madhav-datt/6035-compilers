@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtUnaryOp;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -43,5 +43,15 @@ public class IrOperUnaryNot extends IrOperUnary{
         prettyString += this.operand.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation operandTemp = this.operand.generateLlIr(builder, symbolTable);
+
+        LlLocationVar returnTemp = builder.generateTemp();
+        LlAssignStmtUnaryOp unaryOp = new LlAssignStmtUnaryOp(returnTemp, operandTemp, "!");
+        builder.appendStatement(unaryOp);
+        return returnTemp;
     }
 }

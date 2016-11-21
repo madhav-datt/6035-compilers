@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -39,5 +37,10 @@ public class IrStmtReturnVoid extends IrStmtReturn {
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--returnVoid";
         return prettyString;
+    }
+    //TODO: Check
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

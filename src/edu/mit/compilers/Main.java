@@ -6,17 +6,13 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.tools.CLI.Action;
-import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.gui.Trees;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
 
 
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -228,7 +224,7 @@ class Main {
 
        try {
            CharStream stream = new ANTLRFileStream(prefix + "legal/custom-02.dcf");
-           System.out.println(stream);
+
            DecafScanner lexer = new DecafScanner(stream);
            TokenStream tokens = new CommonTokenStream(lexer);
            DecafParser parser = new DecafParser(tokens);
@@ -236,12 +232,12 @@ class Main {
            ParseTreeWalker walker = new ParseTreeWalker();
            DecafListener listener = new DecafListener();
            walker.walk(listener, tree);
-           System.out.println ("here ... ");
-           LlBuilder llBuilder = new LlBuilder();
 
+           LlBuilder llBuilder = new LlBuilder();
+           LlSymbolTable symbolTable = new LlSymbolTable();
            IrProgram program = listener.getGeneratedProgram();
-           program.generateLlIr(llBuilder);
-           System.out.println(llBuilder.toString());
+           program.generateLlIr(llBuilder, symbolTable);
+
 
 
 

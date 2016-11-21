@@ -1,5 +1,8 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.LlBuilder;
+import edu.mit.compilers.ll.LlLocationVar;
+
 public abstract  class IrExpr extends Ir {
 
     public IrExpr(int lineNumber, int colNumber) {
@@ -9,4 +12,5 @@ public abstract  class IrExpr extends Ir {
     public String toString(){
         return "IrExpr";
     }
+
 }

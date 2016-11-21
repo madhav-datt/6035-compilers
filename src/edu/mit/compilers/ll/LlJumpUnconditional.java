@@ -7,4 +7,10 @@ public class LlJumpUnconditional extends LlJump{
     public LlJumpUnconditional(String jumpToLabel) {
         super(jumpToLabel);
     }
+
+    @Override
+    public String toString() {
+        return  "goto " + this.jumpToLabel.toString();
+    }
+
 }

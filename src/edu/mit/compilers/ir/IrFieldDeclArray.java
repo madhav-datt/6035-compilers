@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public class IrFieldDeclArray extends IrFieldDecl {
     private final int arraySize;
@@ -38,5 +36,10 @@ public class IrFieldDeclArray extends IrFieldDecl {
         prettyString += ("  " + indentSpace + "|--size: " + this.arraySize + "\n");
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

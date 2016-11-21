@@ -1,9 +1,8 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -106,5 +105,11 @@ public class IrLocationVar extends IrLocation {
         prettyString += this.varType.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocationVar locationTemp = new LlLocationVar(this.varName.getValue());
+        return locationTemp;
     }
 }

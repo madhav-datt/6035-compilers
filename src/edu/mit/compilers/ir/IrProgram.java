@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 import java.util.ArrayList;
 
@@ -104,6 +102,18 @@ public class IrProgram extends Ir{
         return this.errorMessage;
     }
 
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        for (IrMethodDecl methodDecl: this.methodDecls) {
+            LlBuilder llBuilder = new LlBuilder();
+            LlSymbolTable llSymbolTable = new LlSymbolTable();
+            methodDecl.generateLlIr(llBuilder, llSymbolTable);
+            System.out.print("\n\n\n");
+            System.out.print("Method:  " + methodDecl.getName().toString() + "\n");
+            System.out.print(llBuilder);
+        }
+        return null;
+    }
 
     @Override
     public String prettyPrint(String indentSpace) {

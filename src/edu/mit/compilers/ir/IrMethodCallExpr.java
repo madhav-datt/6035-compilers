@@ -1,10 +1,11 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
+import edu.mit.compilers.*;
 
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.ll.LlComponent;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
+import edu.mit.compilers.ll.LlMethodCallStmt;
 
 import java.util.*;
 
@@ -128,5 +129,17 @@ public class IrMethodCallExpr extends IrExpr{
         }
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        List<LlComponent> argsList = new ArrayList<>();
+        for(IrArg arg : this.argsList){
+            argsList.add(arg.generateLlIr(builder, symbolTable));
+        }
+        LlLocationVar returnLocation = builder.generateTemp();
+        LlMethodCallStmt methodCallStmt = new LlMethodCallStmt(this.methodName.getValue(), argsList, returnLocation);
+        builder.appendStatement(methodCallStmt);
+        return returnLocation;
     }
 }

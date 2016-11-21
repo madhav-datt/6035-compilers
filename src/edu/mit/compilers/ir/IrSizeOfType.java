@@ -1,9 +1,10 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtRegular;
+import edu.mit.compilers.ll.LlLiteralInt;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 public class IrSizeOfType extends IrSizeOf {
     private final IrType type;
@@ -30,5 +31,23 @@ public class IrSizeOfType extends IrSizeOf {
         prettyString += this.type.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        // Generate a type and store the size in it.
+        LlLocationVar tempLocation = builder.generateTemp();
+
+        if(type instanceof IrTypeInt){
+            LlAssignStmtRegular regularAssignment;
+            regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
+        }
+
+        if(type instanceof IrTypeBool){
+            LlAssignStmtRegular regularAssignment;
+            regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
+        }
+        return tempLocation;
+
     }
 }

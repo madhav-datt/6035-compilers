@@ -1,20 +1,24 @@
 package edu.mit.compilers;
 
-import edu.mit.compilers.ll.LlLocation;
 import edu.mit.compilers.ll.LlLocationVar;
 import edu.mit.compilers.ll.LlStatement;
+import org.antlr.v4.misc.OrderedHashMap;
 
 import java.util.*;
+import java.util.Stack;
 
 /**
  * Created by abel on 11/18/16.
  */
 public class LlBuilder {
+
     private LinkedHashMap<String, LlStatement> statementTable;
     private int labelCounter = 0;
     private int tempCounter = 0;
 
     private Stack<String> currentBlockLabel = new Stack<>();
+
+    private Object pocket;
 
     public LlBuilder(){
         this.statementTable = new LinkedHashMap<>();
@@ -46,9 +50,25 @@ public class LlBuilder {
        return "L"+Integer.toString(labelCounter++);
     }
 
+
     //Generate Temporary Variable
     public LlLocationVar generateTemp(){
-        return new LlLocationVar("t"+Integer.toString(tempCounter++));
+        return new LlLocationVar("#_t"+Integer.toString(tempCounter++));
+    }
+
+    public LlLocationVar generateStrTemp(){
+        return new LlLocationVar("#str_t"+Integer.toString(tempCounter++));
+    }
+
+    public void putInPocket(Object o){
+        this.pocket = o;
+    }
+    public void emptyPocket(){
+        this.pocket = null;
+    }
+
+    public Object pickPocket(){
+        return this.pocket ;
     }
 
     public LinkedHashMap<String, LlStatement> getStatementTable() {

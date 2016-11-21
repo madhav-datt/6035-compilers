@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtBinaryOp;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -71,4 +71,14 @@ public class IrOperBinaryCond extends IrOperBinary {
         return prettyString;
     }
 
+    // TODO: Check
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation rightTemp = this.rightOperand.generateLlIr(builder, symbolTable);
+        LlLocation leftTemp = this.leftOperand.generateLlIr(builder, symbolTable);
+        LlLocationVar returnTemp = builder.generateTemp();
+        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(returnTemp, leftTemp, this.getOperation() ,rightTemp);
+        builder.appendStatement(assignStmtBinaryOp);
+        return returnTemp;
+    }
 }

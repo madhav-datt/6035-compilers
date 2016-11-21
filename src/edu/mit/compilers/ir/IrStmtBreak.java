@@ -1,9 +1,8 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlJumpUnconditional;
+import edu.mit.compilers.ll.LlLocation;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -31,5 +30,15 @@ public class IrStmtBreak extends IrStatement {
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--breakStmt";
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        String endBlock = "END_" + builder.getCurrentBlock();
+        LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(endBlock);
+        builder.appendStatement(unconditionalJump);
+
+        return null;
+
     }
 }

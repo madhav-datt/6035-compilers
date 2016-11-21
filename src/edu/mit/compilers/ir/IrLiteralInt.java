@@ -1,9 +1,10 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtRegular;
+import edu.mit.compilers.ll.LlLiteralInt;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 public class IrLiteralInt extends IrLiteral {
     private final long value;
@@ -28,5 +29,14 @@ public class IrLiteralInt extends IrLiteral {
         String prettyPrint = indentSpace + "|--IntLiteral\n";
         prettyPrint += ("  " + indentSpace + "|--value: " + this.value + "\n");
         return prettyPrint;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLiteralInt literalInt = new LlLiteralInt(this.value);
+        LlLocationVar locationVar = builder.generateTemp();
+        LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(locationVar, literalInt);
+        builder.appendStatement(regularAssignment);
+        return locationVar;
     }
 }
