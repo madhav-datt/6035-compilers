@@ -9,4 +9,8 @@ public abstract class LlJump extends LlStatement {
     public LlJump(String jumpToLabel) {
         this.jumpToLabel = jumpToLabel;
     }
+
+    public String getJumpToLabel() {
+        return jumpToLabel;
+    }
 }
