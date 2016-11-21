@@ -16,7 +16,7 @@ public class BasicBlock {
         this.stmtsList = new ArrayList<>(stmtsList);
     }
 
-    public void setDefaultBranch(BasicBlock defaultBranch) {
+    protected void setDefaultBranch(BasicBlock defaultBranch) {
         this.defaultBranch = defaultBranch;
     }
 
@@ -24,7 +24,7 @@ public class BasicBlock {
         return defaultBranch;
     }
 
-    public void setAlternativeBranch(BasicBlock alternativeBranch) {
+    protected void setAlternativeBranch(BasicBlock alternativeBranch) {
         this.alternativeBranch = alternativeBranch;
     }
 

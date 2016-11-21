@@ -13,10 +13,12 @@ import java.util.*;
  */
 public class CFG {
     private final LlBuilder builder;
+    private final ArrayList<BasicBlock> basicBlocks;
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
 
+        // cache the Labels-->Stmts map
         LinkedHashMap<String, LlStatement> labelStmtsMap = new LinkedHashMap<>(builder.getStatementTable());
         Stack<String> labelsStack = new Stack<String>();
         labelsStack.addAll(new ArrayList<String>(labelStmtsMap.keySet()));
@@ -90,5 +92,14 @@ public class CFG {
                 currentBB.setDefaultBranch(nextBB);
             }
         }
+
+        // 4) assign the list of basic blocks as a field THIS object
+        ArrayList<String> basicBlockLabels = new ArrayList<>(bbLinkedHashMap.keySet());
+        ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
+        for (String label : basicBlockLabels) {
+            basicBlocks.add(bbLinkedHashMap.get(label));
+        }
+
+        this.basicBlocks = basicBlocks;
     }
 }
