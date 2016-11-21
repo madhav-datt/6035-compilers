@@ -9,16 +9,30 @@ import java.util.ArrayList;
  */
 public class BasicBlock {
     private final ArrayList<LlStatement> stmtsList;
-    private final BasicBlock optionA;
-    private final BasicBlock optionB;
+    private BasicBlock defaultBranch;
+    private BasicBlock alternativeBranch;
 
-    public BasicBlock(ArrayList<LlStatement> stmtsList, BasicBlock optionA, BasicBlock optionB) {
+    public BasicBlock(ArrayList<LlStatement> stmtsList) {
         this.stmtsList = new ArrayList<>(stmtsList);
-        this.optionA = optionA;
-        this.optionB = optionB;
     }
 
-    public BasicBlock(ArrayList<LlStatement> stmtsList, BasicBlock optionA) {
-        this(stmtsList, optionA, null);
+    public void setDefaultBranch(BasicBlock defaultBranch) {
+        this.defaultBranch = defaultBranch;
+    }
+
+    public BasicBlock getDefaultBranch() {
+        return defaultBranch;
+    }
+
+    public void setAlternativeBranch(BasicBlock alternativeBranch) {
+        this.alternativeBranch = alternativeBranch;
+    }
+
+    public BasicBlock getAlternativeBranch() {
+        return alternativeBranch;
+    }
+
+    public ArrayList<LlStatement> getStmtsList() {
+        return new ArrayList<>(this.stmtsList);
     }
 }
