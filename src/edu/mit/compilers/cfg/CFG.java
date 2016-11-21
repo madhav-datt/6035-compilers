@@ -1,8 +1,9 @@
 package edu.mit.compilers.cfg;
 
 import edu.mit.compilers.LlBuilder;
-import edu.mit.compilers.ll.LlEmptyStmt;
 import edu.mit.compilers.ll.LlJump;
+import edu.mit.compilers.ll.LlJumpConditional;
+import edu.mit.compilers.ll.LlJumpUnconditional;
 import edu.mit.compilers.ll.LlStatement;
 
 import java.util.*;
@@ -15,59 +16,79 @@ public class CFG {
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
-        ArrayList<LlStatement> allLlStmts = new ArrayList<>(builder.getStatementList());
+
+        LinkedHashMap<String, LlStatement> labelStmtsMap = new LinkedHashMap<>(builder.getStatementTable());
+        Stack<String> labelsStack = new Stack<String>();
+        labelsStack.addAll(new ArrayList<String>(labelStmtsMap.keySet()));
 
         // 1) determine the leaders in the LLIR
-        PriorityQueue<LlStatement> leaders = new PriorityQueue<>();
+        PriorityQueue<String> leaders = new PriorityQueue<>();
 
         // the first instruction in the LLIR is a leader
-        leaders.add(allLlStmts.get(0));
+        leaders.add(labelsStack.get(0));
 
-        for (int i = 1; i < allLlStmts.size(); i++) {
-            LlStatement stmt = allLlStmts.get(i);
+        for (int i = 1; i < labelsStack.size(); i++) {
+            String label = labelsStack.get(i);
+            LlStatement stmt = labelStmtsMap.get(label);
 
-            // any instruction that is the TARGET of a jump (i.e. an LlEmptyStmt) is a leader
-            if (stmt instanceof LlEmptyStmt) {
-                leaders.add(stmt);
-            }
+            if (stmt instanceof LlJump) {
 
-            // any instruction that immediately FOLLOWS a jump is a leader
-            else if (stmt instanceof LlJump) {
-                // we don't want the jump stmt! we want the stmt that follows it
-                leaders.add(allLlStmts.get(i+1));
+                // the TARGET of the jumpStmt is a leader
+                String jmpTolabel = ((LlJump) stmt).getJumpToLabel();
+
+                // the stmt FOLLOWING the jumpStmt is a leader
+                String nextStmtLabel = labelsStack.get(i+1);
             }
         }
         
-        // 2) create maximal BasicBlocks by adding stmts up until the next leader
-        ArrayList<BasicBlock> bbList = new ArrayList<>();
-        for (LlStatement stmt : allLlStmts) {
-            // 1) create a new basic block at when you find a leader
-            // 2) e
-        }
-        
-        
-//        while (allLlStmts.size() > 0) {
-//            ArrayList<LlStatement> currentBBStmts = new ArrayList<>();
-//
-//            // add the maximum number of LlStatements to currentBBStmts
-//            boolean isNotJump;
-//            boolean isNotEmptyStmt;
-//            do {
-//                LlStatement currentStmt = allLlStmts.pop();
-//                isNotJump = !(currentStmt instanceof LlJump);
-//                isNotEmptyStmt = !(currentStmt instanceof LlEmptyStmt);
-//
-//                currentBBStmts.add(currentStmt);
-//
-//            } while (isNotJump && isNotEmptyStmt);
-//
-//            // create the BasicBlock from the maximal LlStatements list
-//            BasicBlock newBB = new BasicBlock(currentBBStmts,)
-//
-//        }
+        // 2) create basic blocks from LlStatements
+        // each basic block will be identified by its leader
+        LinkedHashMap<String, BasicBlock> bbLinkedHashMap = new LinkedHashMap<>();
+        do {
+            ArrayList<LlStatement> currentBBStmtList = new ArrayList<>();
 
-        // 1)
+            // basic blocks start with a leader
+            String leaderLabel = labelsStack.pop();
+            LlStatement leaderStmt = labelStmtsMap.get(leaderLabel);
+            currentBBStmtList.add(leaderStmt);
+
+            // keep adding LlStatments until you get to the next leader
+            while (labelsStack.peek() != leaders.peek()) {
+                // keep adding stmts to the currentBBStmtList
+                String label = labelsStack.pop();
+                LlStatement stmt = labelStmtsMap.get(label);
+                currentBBStmtList.add(stmt);
+            }
+
+            // create the actual BasicBlock and it to the LinkedHashMap
+            BasicBlock bb = new BasicBlock(currentBBStmtList);
+            bbLinkedHashMap.put(leaderLabel,bb);
+
+        } while (labelsStack.size() > 0);
+
+        // 3) appropriately connect the basic blocks
+        List<String> bbLeadersList = new ArrayList<>(bbLinkedHashMap.keySet());
+        for (int i = 0; i < bbLeadersList.size(); i++) {
+            String currentBBLeaderLabel = bbLeadersList.get(i);
+            BasicBlock currentBB = bbLinkedHashMap.get(currentBBLeaderLabel);
+
+            List<LlStatement> currentBBStmtsList = currentBB.getStmtsList();
+            LlStatement lastStmtOfCurrentBB = currentBBStmtsList.get(currentBBStmtsList.size()-1);
+
+           // connect if there is a jump from the end of B to the beginning of C
+            if (lastStmtOfCurrentBB instanceof LlJump) {
+                String targetLabel = ((LlJump) lastStmtOfCurrentBB).getJumpToLabel();
+                BasicBlock targetBB = bbLinkedHashMap.get(targetLabel);
+                currentBB.setAlternativeBranch(targetBB);
+            }
+
+            // C immediately follows B and B does not end in an unconditional jump
+            // (this only holds if B is not the last block))
+            if ( !(lastStmtOfCurrentBB instanceof LlJumpUnconditional) && (i < bbLeadersList.size()-1) ) {
+                String nextBBLeaderLabel = bbLeadersList.get(i+1);
+                BasicBlock nextBB = bbLinkedHashMap.get(nextBBLeaderLabel);
+                currentBB.setDefaultBranch(nextBB);
+            }
+        }
     }
-
-
 }
