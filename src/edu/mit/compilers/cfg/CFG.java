@@ -102,4 +102,8 @@ public class CFG {
 
         this.basicBlocks = basicBlocks;
     }
+
+    public BasicBlock getRoodBasicBlock() {
+        return this.basicBlocks.get(0);
+    }
 }

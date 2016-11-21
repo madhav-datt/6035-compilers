@@ -16,23 +16,23 @@ public class BasicBlock {
         this.stmtsList = new ArrayList<>(stmtsList);
     }
 
-    protected void setDefaultBranch(BasicBlock defaultBranch) {
-        this.defaultBranch = defaultBranch;
+    public ArrayList<LlStatement> getStmtsList() {
+        return new ArrayList<>(this.stmtsList);
     }
 
-    public BasicBlock getDefaultBranch() {
-        return defaultBranch;
+    protected void setDefaultBranch(BasicBlock defaultBranch) {
+        this.defaultBranch = defaultBranch;
     }
 
     protected void setAlternativeBranch(BasicBlock alternativeBranch) {
         this.alternativeBranch = alternativeBranch;
     }
 
-    public BasicBlock getAlternativeBranch() {
-        return alternativeBranch;
+    public BasicBlock getDefaultBranch() {
+        return defaultBranch;
     }
 
-    public ArrayList<LlStatement> getStmtsList() {
-        return new ArrayList<>(this.stmtsList);
+    public BasicBlock getAlternativeBranch() {
+        return alternativeBranch;
     }
 }
