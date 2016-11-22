@@ -1,11 +1,13 @@
 package edu.mit.compilers;
 
 
+import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.tools.CLI.Action;
+import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -17,8 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
-
-
+import java.util.ArrayList;
 
 
 class Main {
@@ -233,11 +234,14 @@ class Main {
            DecafListener listener = new DecafListener();
            walker.walk(listener, tree);
 
-           LlBuilder llBuilder = new LlBuilder();
-           LlSymbolTable symbolTable = new LlSymbolTable();
            IrProgram program = listener.getGeneratedProgram();
-           program.generateLlIr(llBuilder, symbolTable);
 
+           ArrayList<LlBuilder> buildersList = program.getBuilderList();
+           for (LlBuilder builder : buildersList) {
+//               System.out.println(builder.toString());
+               CFG cfg = new CFG(builder);
+               System.out.println(cfg.toString());
+           }
 
 
 

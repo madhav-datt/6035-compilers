@@ -105,19 +105,6 @@ public class IrProgram extends Ir{
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
-        ArrayList<LlBuilder> buildersList = new ArrayList<>();
-
-        for (IrMethodDecl methodDecl: this.methodDecls) {
-            LlBuilder llBuilder = new LlBuilder();
-            LlSymbolTable llSymbolTable = new LlSymbolTable();
-            methodDecl.generateLlIr(llBuilder, llSymbolTable);
-
-            System.out.print("\n\n\n");
-            System.out.print("Method:  " + methodDecl.getName().toString() + "\n");
-            System.out.print(llBuilder);
-
-            buildersList.add(llBuilder);
-        }
         return null;
     }
 
@@ -148,6 +135,15 @@ public class IrProgram extends Ir{
     }
 
     public ArrayList<LlBuilder> getBuilderList() {
-        return new ArrayList<>(this.builderList);
+        ArrayList<LlBuilder> buildersList = new ArrayList<>();
+
+        for (IrMethodDecl methodDecl: this.methodDecls) {
+            LlBuilder llBuilder = new LlBuilder();
+            LlSymbolTable llSymbolTable = new LlSymbolTable();
+            methodDecl.generateLlIr(llBuilder, llSymbolTable);
+
+            buildersList.add(llBuilder);
+        }
+        return buildersList;
     }
 }
