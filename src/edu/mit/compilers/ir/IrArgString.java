@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -30,19 +28,6 @@ public class IrArgString extends IrArg {
         Ir otherIr = (IrArgString)that;
         return ((String) this.getArgValue()).equals(((IrArgString) otherIr).getArgValue());
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
-
-        String label = assembly.getStringLabel();
-        String strConst = String .format(".string %s ", this.getArgValue().toString());
-
-        assembly.appendLableToBottom("."+label);
-        assembly.appendLineToBottom(strConst);
-        String strLoc = frame.getNextStackLocation();
-        assembly.addLine("movq $."+label +","+ strLoc);
-        frame.pushToStackFrame(this);
-        assembly.putOnFootNote(strLoc);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -52,5 +37,10 @@ public class IrArgString extends IrArg {
         prettyString += ("  " + indentSpace + "|--string: \"" + (this.getArgValue() + "\"\n"));
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return builder.generateStrTemp();
     }
 }

@@ -1,3 +1,5 @@
+#define int long long
+
 extern random();
 extern srandom();
 extern printf();

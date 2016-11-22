@@ -16,11 +16,5 @@ public abstract class IrCtrlFlow extends IrStatement {
         this.condExpr = condExpr;
         this.stmtBody = stmtBody;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        AssemblyBuilder asm = new AssemblyBuilder();
-        this.condExpr.generateCode(asm, register, stackFrame);
-        System.out.println(asm.toString());
-        return assembly;
-    }
 }

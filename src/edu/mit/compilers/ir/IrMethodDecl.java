@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 import java.util.*;
 
@@ -52,63 +50,11 @@ public class IrMethodDecl extends IrMemberDecl {
         return errorMessage;
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-
-        String methodName = this.getName();
-        String paramRegisters[] = register.getParamRegisters();
-
-        AssemblyBuilder asb = new AssemblyBuilder();
-        StackFrame frame = new StackFrame();
-        if(!methodName.equals("main")){
-            assembly.addLabel(methodName);
-        }
-
-
-        AssemblyBuilder asm = new AssemblyBuilder();
-        for(int i = 0; i < paramsList.size(); i++){
-            if(i < 6){
-                asm.addLine("movq "+ paramRegisters[i] + ", " +frame.getNextStackLocation()+"\n");
-                frame.pushToStackFrame(paramsList.get(i).getParamName());
-            }
-            else{
-                asm.addLine("movq "+ Integer.toString(16 + 8*(i-6)) +"(%rbp), " + "%r10");
-                asm.addLine("movq %r10, " + frame.getNextStackLocation());
-                frame.pushToStackFrame(paramsList.get(i).getParamName());
-            }
-        }
-        this.methodBody.generateCode(asb, register, frame);
-        String enterStatement = "enter $" + Integer.toString(8*frame.getStackSize()) + ", $0";
-        if(methodName.equals("main")){
-            assembly.addLine(".globl main");
-            String errorLable = ".OUT_OF_RANGE";
-            String errorStringLabel = ".STR_OUT_OF_RANGE";
-            assembly.addLabel(errorLable);
-            assembly.appendLableToBottom(errorStringLabel);
-            assembly.appendLineToBottom(".string \"Argument Out of range!! \"");
-            assembly.addLine("movq $"+ errorStringLabel + ", %r10");
-            assembly.addLine("movq %r10, %rdi");
-            assembly.addLine("call printf");
-
-
-            assembly.addLine("leave");
-            assembly.addLine("ret");
-            assembly.addLabel(methodName);
-        }
-
-        assembly.addLine(enterStatement);
-        assembly.concat(asm);
-        //TODO: check!
-        assembly.concat(asb);
-        assembly.addLine("leave");
-        assembly.addLine("ret");
-        assembly.addLine();
-
-        return assembly;
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        this.methodBody.generateLlIr(builder, symbolTable);
+        return null;
     }
-
-
-
 
     @Override
     public String prettyPrint(String indentSpace) {

@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 import java.util.ArrayList;
 
@@ -13,6 +11,7 @@ public class IrProgram extends Ir{
     private ArrayList<IrMethodDecl> methodDecls;
     private ArrayList<IrExternDecl> externDecls;
     private String errorMessage;
+    private ArrayList<LlBuilder> builderList;
 
     public void addFieldDecl(IrFieldDecl field) { this.fieldDecls.add(field); }
     public void addMethodDecl(IrMethodDecl method) {
@@ -103,12 +102,10 @@ public class IrProgram extends Ir{
 
         return this.errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-         for (int k = this.methodDecls.size()-1; k >=0 ; k--) {
-            IrMethodDecl methodDecl = this.methodDecls.get(k);
-            methodDecl.generateCode(assembly, register, stackFrame);
-        }
-        return assembly;
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 
     @Override
@@ -135,5 +132,18 @@ public class IrProgram extends Ir{
         }
 
         return prettyString;
+    }
+
+    public ArrayList<LlBuilder> getBuilderList() {
+        ArrayList<LlBuilder> buildersList = new ArrayList<>();
+
+        for (IrMethodDecl methodDecl: this.methodDecls) {
+            LlBuilder llBuilder = new LlBuilder();
+            LlSymbolTable llSymbolTable = new LlSymbolTable();
+            methodDecl.generateLlIr(llBuilder, llSymbolTable);
+
+            buildersList.add(llBuilder);
+        }
+        return buildersList;
     }
 }

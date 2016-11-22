@@ -1,3 +1,5 @@
+#define int long long
+
 extern printf();
 // This should produce a runtime error
 int a[10];

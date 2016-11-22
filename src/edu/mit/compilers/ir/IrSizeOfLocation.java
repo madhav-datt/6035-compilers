@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.*;
 
 public class IrSizeOfLocation extends IrSizeOf {
     private final IrIdent fieldName;
@@ -69,44 +67,6 @@ public class IrSizeOfLocation extends IrSizeOf {
         return "void";
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        String type = this.getTypeString();
-
-        switch (type){
-            case "array":
-                Ir arrayType = ((IrFieldDeclArray)this.irDecl).getType();
-                int arraySize = ((IrFieldDeclArray)this.irDecl).getArraySize();
-                String arraySizeStr;
-                if(arrayType instanceof IrTypeBool)
-                {
-                    arraySizeStr = "$" +Integer.toString(arraySize);
-                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
-
-                }
-                if(arrayType instanceof IrTypeInt)
-                {
-                    arraySizeStr = "$" + Integer.toString(arraySize*8);
-                    assembly.addLine("movq "+ arraySizeStr + ", %r11");
-                }
-
-                break;
-
-            case "bool":
-                assembly.addLine("movq $1, %r11");
-                break;
-            case "int":
-                assembly.addLine("movq $8, %r11");
-                break;
-
-        }
-        String stackLocation = stackFrame.getNextStackLocation();
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("movq %r11, " + stackLocation);
-        assembly.putOnFootNote(stackLocation);
-        assembly.addLine("");
-        return assembly;
-
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -116,5 +76,52 @@ public class IrSizeOfLocation extends IrSizeOf {
         prettyString += ("  " + indentSpace + "|--name: " + this.fieldName.getValue() + "\n");
 
         return prettyString;
+    }
+
+    //TODO: Implement the array param case
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocationVar tempLocation = builder.generateTemp();
+
+        if(this.irDecl instanceof IrFieldDeclVar){
+            IrFieldDecl fieldDecl = (IrFieldDecl) this.irDecl;
+            if(fieldDecl.getType() instanceof IrTypeInt){
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
+                builder.appendStatement(regularAssignment);
+            }
+            else if(fieldDecl.getType() instanceof IrTypeInt){
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
+                builder.appendStatement(regularAssignment);
+            }
+        }
+         if(this.irDecl instanceof IrFieldDeclArray){
+            IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) this.irDecl;
+            if(fieldDeclArray.getType() instanceof IrTypeBool){
+                int arraySize = fieldDeclArray.getArraySize();
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize));
+                builder.appendStatement(regularAssignment);
+            }
+            else if(fieldDeclArray.getType() instanceof IrTypeInt){
+                int arraySize = fieldDeclArray.getArraySize()*8;
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize));
+                builder.appendStatement(regularAssignment);
+            }
+
+
+        }
+        else if(this.irDecl instanceof IrParamDecl){
+            IrParamDecl paramDecl = (IrParamDecl)this.irDecl;
+                if(paramDecl.getParamType() instanceof IrTypeInt){
+                    LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
+                    builder.appendStatement(regularAssignment);
+                }
+                else if(paramDecl.getParamType() instanceof IrTypeInt){
+                    LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
+                    builder.appendStatement(regularAssignment);
+                }
+        }
+
+        return tempLocation;
+
     }
 }

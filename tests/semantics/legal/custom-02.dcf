@@ -1,12 +1,16 @@
+#define int long long
+
+
 extern printf();
+int array[10];
 void main ( ) {
-  int a, b, c;
-  int d, e;
-  a = 10;
-  b = 20;
-  c = 30;
-  d = ( a + b );
-  e = ( c * 3 );
-  e = d * e - 100;
-  printf ( "%d %d\n", d, e );
+  int j;
+  printf ( "below output should be 18 16 14 12 10 8 6 4 2 0\n" );
+  while (j == 0) {
+    array[j] = j*2;
+  }
+  for ( j = 0; j < 10; j += 1 ) {
+    printf ( "%d ", array[9 - j] );
+  }
+  printf ( "\n" );
 }

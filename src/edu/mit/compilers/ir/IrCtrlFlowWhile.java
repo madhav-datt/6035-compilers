@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.*;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -37,29 +35,6 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-
-        String ifConditionLabel = assembly.getLabelName();
-        assembly.addLabel("." + ifConditionLabel);
-        this.condExpr.generateCode(assembly, register, stackFrame);
-
-
-        String condResult = assembly.getFootNote();
-        assembly.addLine("movq " + condResult + ", %r10");
-        assembly.addLine("movq $1, %r11");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine(String.format("jne .%s_DONE", ifConditionLabel));
-        assembly.addLine();
-
-        assembly.getInBlock(ifConditionLabel);
-        this.stmtBody.generateCode(assembly, register, stackFrame);
-        assembly.addLine(String.format("jmp .%s", ifConditionLabel));
-        assembly.getOutOfBlock();
-        assembly.addLine();
-        assembly.addLabel(String.format(".%s_DONE", ifConditionLabel));
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -74,5 +49,58 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
         prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+
+
+        String loopCondition = "WHILE_COND_" + builder.generateLabel();
+        String startLoopLabel = "WHILE_" + builder.generateLabel();
+
+        LlEmptyStmt forConditionalLabelStmt = new LlEmptyStmt();
+
+        String endLoopLabel = "END_" + startLoopLabel;
+
+        builder.appendStatement(loopCondition, forConditionalLabelStmt);
+
+
+        //generate the goto Statemennt
+        LlLocation conditionResultTemp = this.condExpr.generateLlIr(builder, symbolTable);
+        LlJumpConditional conditionalJump = new LlJumpConditional(startLoopLabel, conditionResultTemp);
+
+        builder.appendStatement(conditionalJump);
+
+        //if the conditional evaluates to false, jump to the end of the loop
+        LlJumpUnconditional endOfForLoopJump = new LlJumpUnconditional(endLoopLabel);
+        builder.appendStatement(endOfForLoopJump);
+
+        // Else execute the for loop body.
+        LlEmptyStmt forStart = new LlEmptyStmt();
+        builder.appendStatement(startLoopLabel, forStart);
+
+        // if the condition fails, jump to the end of the fotr loop
+        LlEmptyStmt endForLabelEmptyStmt = new LlEmptyStmt();
+
+
+        // get into block
+        builder.getInBlock(loopCondition);
+        // generate the code block Ll
+
+        this.stmtBody.generateLlIr(builder, symbolTable);
+
+
+
+        // update the counter.
+
+        builder.appendStatement(new LlJumpUnconditional(loopCondition));
+
+
+        LlEmptyStmt emptyStmt = new LlEmptyStmt();
+
+        // now add the end of loop label
+        builder.appendStatement(endLoopLabel, emptyStmt);
+
+        return null;
     }
 }

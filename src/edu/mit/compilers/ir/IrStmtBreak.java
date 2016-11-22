@@ -1,9 +1,8 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlJumpUnconditional;
+import edu.mit.compilers.ll.LlLocation;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -26,16 +25,20 @@ public class IrStmtBreak extends IrStatement {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        String currentLoopLabel = assembly.getCurrentBlock();
-        assembly.addLine(String.format("jmp .%s_DONE", currentLoopLabel));
-        assembly.addLine();
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--breakStmt";
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        String endBlock = "END_" + builder.getCurrentBlock();
+        LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(endBlock);
+        builder.appendStatement(unconditionalJump);
+
+        return null;
+
     }
 }

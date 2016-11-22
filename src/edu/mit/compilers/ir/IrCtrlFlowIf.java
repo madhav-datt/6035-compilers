@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.*;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -45,30 +43,7 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-       // generate the code for the conditional expression.
-        String label = assembly.getLabelName();
 
-        this.condExpr.generateCode(assembly, register, stackFrame);
-        String truthValue = assembly.getFootNote();
-        assembly.addLine("movq " + truthValue + ", %r10");
-        assembly.addLine("movq $1 , %r11");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("je ." + label);
-        //
-        assembly.addLine();
-
-
-        assembly.addLine(String.format("jmp .%s_DONE", label));
-        assembly.addLabel("." +label);
-        assembly.getInBlock(label);
-        this.getIfBodyBlock().generateCode(assembly, register, stackFrame);
-        assembly.addLine(String.format("jmp .%s_DONE", label));
-        assembly.getOutOfBlock();
-        assembly.addLabel("." + label + "_DONE");
-        assembly.putOnFootNote(label);
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -83,5 +58,35 @@ public class IrCtrlFlowIf extends IrCtrlFlow {
         prettyString += this.stmtBody.prettyPrint("    " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        // condition goto(label)
+        // if not go to end of the if block
+        String ifBlockLabel = "IF_" + builder.generateLabel();
+        String endIfLabel = "END_" + ifBlockLabel;
+
+        // Generate the conditional statement.
+        LlLocation conditionalTemp = this.condExpr.generateLlIr(builder, symbolTable);
+        LlJumpConditional conditionalJump = new LlJumpConditional(ifBlockLabel, conditionalTemp);
+        builder.appendStatement(conditionalJump);
+
+        // if the conditional doesnt work, jump to the end of the if block.
+        LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(endIfLabel);
+        builder.appendStatement(unconditionalJump);
+        // add the label to the if body block
+        LlEmptyStmt emptyStmt = new LlEmptyStmt();
+        builder.appendStatement(ifBlockLabel, emptyStmt);
+
+        //  finally generate the if statement body itself
+        this.stmtBody.generateLlIr(builder, symbolTable);
+
+        // append end if label
+        LlEmptyStmt endIfEmptyStmt = new LlEmptyStmt();
+        builder.appendStatement(endIfLabel, endIfEmptyStmt);
+
+        // return the last known ...
+        return null;
     }
 }

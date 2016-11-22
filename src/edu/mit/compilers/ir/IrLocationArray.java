@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationArray;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -57,6 +57,7 @@ public class IrLocationArray extends IrLocation {
 
         return errorMessage;
     }
+
     @Override
     public boolean equals(Object that) {
         if (that == this) {
@@ -66,56 +67,6 @@ public class IrLocationArray extends IrLocation {
             return false;
         }
         return (this.getLocationName().equals(((IrLocation) that).getLocationName()));
-    }
-
-     /*
-        adds a block of code to the assembly builder and return a location on the stack where the
-        requested array element resides.
-     */
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        // first compute the index and get the stackLocation where it might be stored.
-        this.elementIndex.generateCode(assembly, register, stackFrame);
-        String computedIndex = assembly.getFootNote();
-        // The error codes will have special labels.
-        String errorLable = ".OUT_OF_RANGE";
-        // make the bounds check.
-        String startLocation = stackFrame.getIrLocation(this.getLocationName()); // the size of teh array is stored in the first location in the array block.
-
-        // first make sure the computedIndex is greater than zero
-        assembly.addLine("movq " + computedIndex + ", %r10");
-        assembly.addLine("movq $0, %r11");
-        assembly.addLine("cmovl %r10, %r11");
-        assembly.addLine("movq $1, %r10");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("je " + errorLable);
-        assembly.addLine();
-
-        // then make sure the index is less than the length of the array
-        assembly.addLine("movq " + computedIndex + ", %r10");
-        assembly.addLine("movq "+ startLocation +", %r11");
-        assembly.addLine("cmovge %r10, %r11");
-        assembly.addLine("movq $1, %r10");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("je " + errorLable);
-        assembly.addLine();
-
-        // multiply the index by 8 and add it to the start location of the array.
-
-        assembly.addLine("movq " + computedIndex + ", %r10");
-        assembly.addLine("movq " + startLocation + ", %r11");
-        assembly.addLine("add $1, %r11");
-        assembly.addLine("movq (%r10, %r11, 8), %r11");
-        assembly.addLine();
-
-        // Store the found location in the stackFrame and return it.
-        String stackLocation = stackFrame.getNextStackLocation();
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.addLine("movq %r11, " + stackLocation);
-        assembly.addLine();
-        assembly.putOnFootNote(stackLocation);
-
-        return assembly;
     }
 
     @Override
@@ -129,5 +80,13 @@ public class IrLocationArray extends IrLocation {
         prettyString += this.varType.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation indexExpressionTemp = this.elementIndex.generateLlIr(builder, symbolTable);
+        LlLocationArray locationArray = new LlLocationArray(this.varName.getValue(), ((LlLocationVar)indexExpressionTemp));
+        return locationArray;
+
     }
 }

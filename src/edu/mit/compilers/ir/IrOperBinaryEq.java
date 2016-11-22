@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtBinaryOp;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -52,26 +52,7 @@ public class IrOperBinaryEq extends IrOperBinary {
         return retCommand;
     }
 
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        AssemblyBuilder leftRegister = leftOperand.generateCode(assembly, register, stackFrame);
-        String leftValue = leftRegister.getFootNote();
-        AssemblyBuilder rightRegister = rightOperand.generateCode(assembly, register, stackFrame);
-        String rightValue = rightRegister.getFootNote();
-        assembly.addLine("movq " + leftValue + ", %r10");
-        assembly.addLine("movq " + rightValue + ", %r11");
-        assembly.addLine("cmp %r10, %r11");
-        assembly.addLine("movq $0, %r11");
-        assembly.addLine("movq $1, %r10");
-        assembly.addLine(this.getMoveCommand(this.operation)+" %r10, %r11");
-        String condResultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r11, " + condResultTemp);
-
-        stackFrame.pushToRegisterStackFrame("%r11");
-        assembly.putOnFootNote(condResultTemp);
-        assembly.addLine("");
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -89,5 +70,15 @@ public class IrOperBinaryEq extends IrOperBinary {
         prettyString += this.rightOperand.prettyPrint("    " + indentSpace);
 
         return prettyString;
+    }
+    //TODO: Check
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation rightTemp = this.rightOperand.generateLlIr(builder, symbolTable);
+        LlLocation leftTemp = this.leftOperand.generateLlIr(builder, symbolTable);
+        LlLocationVar returnTemp = builder.generateTemp();
+        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(returnTemp, leftTemp, this.getOperation() ,rightTemp);
+        builder.appendStatement(assignStmtBinaryOp);
+        return returnTemp;
     }
 }

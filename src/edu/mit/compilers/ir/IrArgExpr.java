@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -22,12 +20,6 @@ public class IrArgExpr extends IrArg {
 
     public IrType getArgumentType() {
         return ((IrExpr) this.getArgValue()).getExpressionType();
-    }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        ((IrExpr) this.getArgValue()).generateCode(assembly, register, stackFrame);
-
-        return assembly;
     }
 
     //argument Expressions can be equivalent to expressions. Such as locations and method calls.
@@ -56,4 +48,9 @@ public class IrArgExpr extends IrArg {
         return prettyString;
     }
 
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation tempVar = ((IrExpr) this.getArgValue()).generateLlIr(builder, symbolTable);
+        return tempVar;
+    }
 }

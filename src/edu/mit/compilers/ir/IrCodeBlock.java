@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 import java.util.ArrayList;
 
@@ -36,27 +34,28 @@ public class IrCodeBlock extends Ir {
 
         // 2) check that each statement is valid
         for (IrStatement stmt: this.stmtsList) {
+
             errorMessage += stmt.semanticCheck(scopeStack);
         }
 
         return errorMessage;
     }
     /*
-        Doesn't mutate the assembly builder object because a block never exists on its own. Instead it creates a new assembly builder and returns it
+        Doesn't mutate the LlBuilder builder object because a block never exists on its own. Instead it creates a new assembly builder and returns it
         to the owning Ir. I.e. method, conditional statement ...
      */
+
     @Override
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame frame){
-
-        for(IrFieldDecl fieldDecl : fieldsList){
-            fieldDecl.generateCode(assembly, register, frame);
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        for (IrStatement statement: this.stmtsList) {
+            if(statement instanceof IrStmtContinue){
+                if(builder.pickPocket() != null) {
+                    ((IrStatement) builder.pickPocket()).generateLlIr(builder, symbolTable);
+                }
+            }
+            statement.generateLlIr(builder, symbolTable);
         }
-
-        for(IrStatement statement : stmtsList){
-            statement.generateCode(assembly, register, frame);
-        }
-
-        return assembly;
+        return null;
     }
 
     @Override

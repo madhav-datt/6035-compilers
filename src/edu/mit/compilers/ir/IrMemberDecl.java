@@ -1,5 +1,8 @@
 package edu.mit.compilers.ir;
 
+import edu.mit.compilers.LlBuilder;
+import edu.mit.compilers.ll.LlLocationVar;
+
 public abstract class IrMemberDecl extends Ir {
     private final IrIdent name;
     private final IrType type;
@@ -16,6 +19,8 @@ public abstract class IrMemberDecl extends Ir {
     public IrIdent getIdentName() {
         return this.name;
     }
+
+
 
     public IrType getType() {
         return this.type;

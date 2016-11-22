@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public class IrIdent extends Ir {
 
@@ -22,10 +20,7 @@ public class IrIdent extends Ir {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        return assembly;
-    }
     @Override
     public boolean equals(Object that) {
         if (that == this) {
@@ -41,5 +36,10 @@ public class IrIdent extends Ir {
     @Override
     public String prettyPrint(String indentSpace) {
         return "";
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

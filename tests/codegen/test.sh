@@ -19,7 +19,7 @@ for file in `dirname $0`/input/*.dcf; do
     binary=`tempfile`
     if gcc -o $binary -L `dirname $0`/lib -l6035 $asm 2>&1 >/dev/null; then
       output=`tempfile`
-      $binary > $output
+      timeout 10 $binary > $output
       exitcode=$?
       diffout=`tempfile`
       if [ -f `dirname $0`/error/`basename $file`.err ]; then
@@ -39,7 +39,7 @@ for file in `dirname $0`/input/*.dcf; do
     msg="Program failed to generate assembly.";
   fi
   if [ ! -z "$msg" ]; then
-    fail=1
+    fail=$(($fail+1))
     echo $msg
   fi
   rm -f $diffout $output $binary $asm;

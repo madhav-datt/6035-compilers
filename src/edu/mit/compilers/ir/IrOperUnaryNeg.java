@@ -1,9 +1,9 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtUnaryOp;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -33,23 +33,7 @@ public class IrOperUnaryNeg extends IrOperUnary{
 
         return errorMessage;
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-        // Compute the value of the operand and save it on to a register
-        this.operand.generateCode(assembly, register, stackFrame);
-        String operandReg = assembly.getFootNote();
 
-        assembly.addLine("movq "+ operandReg +", %r10");
-        assembly.addLine("neg %r10");
-
-        String resultTemp = stackFrame.getNextStackLocation();
-        assembly.addLine("movq %r10, " + resultTemp);
-
-        stackFrame.pushToRegisterStackFrame("%r10");
-        assembly.putOnFootNote(resultTemp);
-        assembly.addLine("");
-
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -59,5 +43,15 @@ public class IrOperUnaryNeg extends IrOperUnary{
         prettyString += this.operand.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation operandTemp = this.operand.generateLlIr(builder, symbolTable);
+
+        LlLocationVar returnTemp = builder.generateTemp();
+        LlAssignStmtUnaryOp unaryOp = new LlAssignStmtUnaryOp(returnTemp, operandTemp, "-");
+        builder.appendStatement(unaryOp);
+        return returnTemp;
     }
 }

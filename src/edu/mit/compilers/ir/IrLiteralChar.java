@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public class IrLiteralChar extends IrLiteral {
     private final char value;
@@ -24,15 +22,17 @@ public class IrLiteralChar extends IrLiteral {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
 
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
         String prettyPrint = indentSpace + "|--charLiteral\n";
         prettyPrint += "  " + indentSpace + "|--value: " + this.value + "\n";
         return prettyPrint;
+    }
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

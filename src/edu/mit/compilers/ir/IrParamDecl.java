@@ -1,9 +1,7 @@
 package edu.mit.compilers.ir;
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLocation;
 
 public class IrParamDecl extends Ir {
     private final IrType paramType;
@@ -30,10 +28,6 @@ public class IrParamDecl extends Ir {
     public String semanticCheck(ScopeStack scopeStack) {
         return "";
     }
-    public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-
-        return assembly;
-    }
 
     @Override
     public String prettyPrint(String indentSpace) {
@@ -46,5 +40,11 @@ public class IrParamDecl extends Ir {
         prettyString += this.paramType.prettyPrint("  " + indentSpace);
 
         return prettyString;
+    }
+
+
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        return null;
     }
 }

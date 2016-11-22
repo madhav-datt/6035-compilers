@@ -1,6 +1,7 @@
 package edu.mit.compilers;
 
 
+import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.tools.CLI;
@@ -10,19 +11,15 @@ import org.antlr.v4.gui.SystemFontMetrics;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.gui.Trees;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
 
 
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
-
-
+import java.util.ArrayList;
 
 
 class Main {
@@ -125,50 +122,6 @@ class Main {
                DecafListener listener = new DecafListener();
                walker.walk(listener, tree);
 
-
-               // write assembly output to file
-               AssemblyBuilder asm = new AssemblyBuilder();
-               StackFrame stackFrame = new StackFrame();
-               Register register = new Register();
-               IrProgram program = listener.getGeneratedProgram();
-               program.generateCode(asm, register, stackFrame);
-               StringBuilder generatedCode = asm.generateAssembly();
-              
-               if (CLI.outfile != null){
-                  try {
-
-
-                       String content = generatedCode.toString();
-
-
-                       File file = new File(CLI.outfile);
-
-
-                       // if file doesnt exists, then create it
-                       if (!file.exists()) {
-                           file.createNewFile();
-                       }
-
-
-                       FileWriter fw = new FileWriter(file.getAbsoluteFile());
-                       BufferedWriter bw = new BufferedWriter(fw);
-                       bw.write(content);
-                       bw.close();
-
-
-                   } catch (IOException e) {
-                       e.printStackTrace();
-                   }
-
-
-
-
-               }
-               else{
-                   System.out.println(generatedCode.toString());
-               }
-
-
                if (CLI.debug) {
                     System.out.println(listener.prettyPrintProgram());
                }
@@ -253,13 +206,9 @@ class Main {
 
 
                // write assembly output to file
-               AssemblyBuilder asm = new AssemblyBuilder();
-               StackFrame stackFrame = new StackFrame();
-               Register register = new Register();
-               IrProgram program = listener.getGeneratedProgram();
-               program.generateCode(asm, register, stackFrame);
-               StringBuilder generatedCode = asm.generateAssembly();
-               System.out.println(generatedCode.toString());
+
+
+
            }
            catch (IOException e) {
                System.out.println("There was an error:\n" + e);
@@ -276,6 +225,7 @@ class Main {
 
        try {
            CharStream stream = new ANTLRFileStream(prefix + "legal/custom-02.dcf");
+
            DecafScanner lexer = new DecafScanner(stream);
            TokenStream tokens = new CommonTokenStream(lexer);
            DecafParser parser = new DecafParser(tokens);
@@ -283,7 +233,18 @@ class Main {
            ParseTreeWalker walker = new ParseTreeWalker();
            DecafListener listener = new DecafListener();
            walker.walk(listener, tree);
-//            Trees.inspect(tree, parser);
+
+           IrProgram program = listener.getGeneratedProgram();
+
+           ArrayList<LlBuilder> buildersList = program.getBuilderList();
+           for (LlBuilder builder : buildersList) {
+//               System.out.println(builder.toString());
+               CFG cfg = new CFG(builder);
+               System.out.println(cfg.toString());
+           }
+
+
+
        }
        catch (IOException e) {
            System.out.println("There was an error:\n" + e);
@@ -293,11 +254,11 @@ class Main {
 
    public static void main(String[] args) {
        // Run program based on CLI and shell scripts
-       Main.testParserCode(args);
+//       Main.testParserCode(args);
 
 
        // Code generation tests
-       // Main.testDecafListner();
+        Main.testDecafListner();
 
 
        // Semantic analysis tests

@@ -1,121 +1,86 @@
 package edu.mit.compilers.ir;
 
 
-import edu.mit.compilers.AssemblyBuilder;
-import edu.mit.compilers.Register;
-import edu.mit.compilers.ScopeStack;
-import edu.mit.compilers.StackFrame;
-
+import edu.mit.compilers.*;
+import edu.mit.compilers.ll.*;
 
 /**
 * Created by devinmorgan on 10/5/16.
 */
 public class IrAssignStmtEqual extends IrAssignStmt {
-   private final IrExpr newValue;
 
+    private final IrExpr newValue;
 
-   public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue) {
-       super(storeLocation);
-       this.newValue = newValue;
-   }
+    public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue) {
+        super(storeLocation);
+        this.newValue = newValue;
+    }
 
+    @Override
+    public String semanticCheck(ScopeStack scopeStack) {
+        String errorMessage = "";
 
-   @Override
-   public String semanticCheck(ScopeStack scopeStack) {
-       String errorMessage = "";
+        // 1) verify that the storeLocation is semantically correct
+        errorMessage += this.getStoreLocation().semanticCheck(scopeStack);
 
+        if (this.getStoreLocation() instanceof IrLocationVar) {
 
-       // 1) verify that the storeLocation is semantically correct
-       errorMessage += this.getStoreLocation().semanticCheck(scopeStack);
+            // 2) check to make sure the var isn't a lone array var
+            if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getStoreLocation().getLocationName().getValue())) {
+                Ir object = scopeStack.getSymbol(this.getStoreLocation().getLocationName().getValue());
+                if (object instanceof IrFieldDeclArray) {
+                    errorMessage += "Can't re-assign an array to an expression" +
+                            " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                }
+            }
+        }
 
+        // 3) verify that the expr is semantically correct
+        errorMessage += this.newValue.semanticCheck(scopeStack);
 
-       if (this.getStoreLocation() instanceof IrLocationVar) {
+        // 4) make sure that the IrExpr and IrLocation are the same IrType
+        boolean bothAreInts = (this.newValue.getExpressionType() instanceof IrTypeInt)
+                && (this.getStoreLocation().getExpressionType() instanceof IrTypeInt);
+        boolean bothAreBools = (this.newValue.getExpressionType() instanceof IrTypeBool)
+                && (this.getStoreLocation().getExpressionType() instanceof IrTypeBool);
+        if (!bothAreBools && !bothAreInts) {
+            errorMessage += "The variable to be assigned and expression must both be of type int or of type bool" +
+                    " line: " + this.getLineNumber() + " col: " +this.getColNumber() + "\n";
+        }
 
+        return errorMessage;
+    }
 
-           // 2) check to make sure the var isn't a lone array var
-           if (scopeStack.checkIfSymbolExistsAtAnyScope(this.getStoreLocation().getLocationName().getValue())) {
-               Ir object = scopeStack.getSymbol(this.getStoreLocation().getLocationName().getValue());
-               if (object instanceof IrFieldDeclArray) {
-                   errorMessage += "Can't re-assign an array to an expression" +
-                           " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
-               }
-           }
-       }
+    @Override
+    public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlLocation tempVal = newValue.generateLlIr(builder, symbolTable);
 
+        if(this.getStoreLocation() instanceof IrLocationArray){
+            LlLocation arrayLocation = ((IrLocationArray) this.getStoreLocation()).generateLlIr(builder, symbolTable);
+            LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(arrayLocation, tempVal);
+            builder.appendStatement(regularAssignment);
+        }
+        else {
+            LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(new LlLocationVar(this.getStoreLocation().getLocationName().getValue()), tempVal);
+            builder.appendStatement(regularAssignment);
+        }
+        return null;
+    }
 
-       // 3) verify that the expr is semantically correct
-       errorMessage += this.newValue.semanticCheck(scopeStack);
+    @Override
+    public String prettyPrint(String indentSpace) {
+        String prettyString = indentSpace + "|--assignStmtEquals\n";
 
+        // pretty print the lhs
+        prettyString += ("  " + indentSpace + "|--lhs\n");
+        prettyString += this.getStoreLocation().prettyPrint("    " +indentSpace);
 
-       // 4) make sure that the IrExpr and IrLocation are the same IrType
-       boolean bothAreInts = (this.newValue.getExpressionType() instanceof IrTypeInt)
-               && (this.getStoreLocation().getExpressionType() instanceof IrTypeInt);
-       boolean bothAreBools = (this.newValue.getExpressionType() instanceof IrTypeBool)
-               && (this.getStoreLocation().getExpressionType() instanceof IrTypeBool);
-       if (!bothAreBools && !bothAreInts) {
-           errorMessage += "The variable to be assigned and expression must both be of type int or of type bool" +
-                   " line: " + this.getLineNumber() + " col: " +this.getColNumber() + "\n";
-       }
+        // print the rhs
+        prettyString += ("  " + indentSpace + "|--rhs\n");
+        prettyString += this.newValue.prettyPrint("    " + indentSpace);
 
-
-       return errorMessage;
-   }
-
-
-   public AssemblyBuilder generateCode(AssemblyBuilder assembly, Register register, StackFrame stackFrame){
-       String asm = "";
-       // compute the value of the expression and figure out where it is stored
-       String exprResultStorageLoc = this.newValue.generateCode(assembly, register, stackFrame).getFootNote();
-       assembly.addLine("movq " + exprResultStorageLoc + " , %r10");
-
-
-       String variableLocation;
-       if(this.getStoreLocation() instanceof IrLocationArray){
-           String resultStorageLoc = stackFrame.getNextStackLocation();
-           assembly.addLine("movq " + exprResultStorageLoc + " , %r10");
-           assembly.addLine("movq %r10, " + resultStorageLoc);
-           ((IrLocationArray)this.getStoreLocation()).generateCode(assembly, register, stackFrame);
-           variableLocation = assembly.getFootNote();
-
-
-           assembly.addLine("movq "+  variableLocation+ ", %r10");
-           assembly.addLine("movq "+ exprResultStorageLoc +", (%r10)");
-       }
-       else{
-           variableLocation  = stackFrame.getIrLocation(this.getStoreLocation().getLocationName());
-           assembly.addLine("movq %r10, " + variableLocation);
-       }
-
-
-
-
-       // make sure to store the identity of the variable which is just assigned value.
-       stackFrame.pushToStackFrame(this.getStoreLocation().getLocationName());
-
-
-       assembly.addLine();
-       assembly.putOnFootNote(variableLocation);
-       return assembly;
-   }
-
-
-   @Override
-   public String prettyPrint(String indentSpace) {
-       String prettyString = indentSpace + "|--assignStmtEquals\n";
-
-
-       // pretty print the lhs
-       prettyString += ("  " + indentSpace + "|--lhs\n");
-       prettyString += this.getStoreLocation().prettyPrint("    " +indentSpace);
-
-
-       // print the rhs
-       prettyString += ("  " + indentSpace + "|--rhs\n");
-       prettyString += this.newValue.prettyPrint("    " + indentSpace);
-
-
-       return prettyString;
-   }
+        return prettyString;
+    }
 }
 
 
