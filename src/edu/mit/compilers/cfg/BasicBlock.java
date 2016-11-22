@@ -1,23 +1,38 @@
 package edu.mit.compilers.cfg;
 
+import edu.mit.compilers.ll.Ll;
 import edu.mit.compilers.ll.LlStatement;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * Created by devinmorgan on 11/20/16.
  */
 public class BasicBlock {
-    private final ArrayList<LlStatement> stmtsList;
+    private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
     private BasicBlock alternativeBranch;
 
-    public BasicBlock(ArrayList<LlStatement> stmtsList) {
-        this.stmtsList = new ArrayList<>(stmtsList);
+    public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap) {
+        this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
+    }
+
+    public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
+        return new LinkedHashMap<>(getLabelsToStmtsMap());
     }
 
     public ArrayList<LlStatement> getStmtsList() {
-        return new ArrayList<>(this.stmtsList);
+        ArrayList<LlStatement> stmtsList = new ArrayList<>();
+        for (String label : this.labelsToStmtsMap.keySet()) {
+            LlStatement stmt = this.labelsToStmtsMap.get(label);
+            stmtsList.add(stmt);
+        }
+        return stmtsList;
+    }
+
+    public ArrayList<String> getLabelsList() {
+        return new ArrayList<String>(this.labelsToStmtsMap.keySet());
     }
 
     protected void setDefaultBranch(BasicBlock defaultBranch) {
@@ -34,5 +49,16 @@ public class BasicBlock {
 
     public BasicBlock getAlternativeBranch() {
         return alternativeBranch;
+    }
+
+    @Override
+    public String toString() {
+        String str = "";
+        for(String label : this.labelsToStmtsMap.keySet()){
+            str += String.format("%1$15s :  ", label);
+            str += this.labelsToStmtsMap.get(label) + "\n";
+
+        }
+        return str;
     }
 }
