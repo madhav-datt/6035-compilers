@@ -9,4 +9,8 @@ public abstract class LlAssignStmt extends LlStatement {
     public LlAssignStmt(LlLocation storeLocation) {
         this.storeLocation = storeLocation;
     }
+
+    public LlLocation getStoreLocation() {
+        return this.storeLocation;
+    }
 }

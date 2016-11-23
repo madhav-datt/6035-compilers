@@ -1,5 +1,6 @@
 package edu.mit.compilers.ll;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +15,14 @@ public class LlMethodCallStmt extends LlStatement {
         this.methodName = methodName;
         this.argsList = argsList;
         this.returnLocation = returnLocation;
+    }
+
+    public LlLocation getReturnLocation() {
+        return returnLocation;
+    }
+
+    public List<LlComponent> getArgsList() {
+        return new ArrayList<>(this.argsList);
     }
 
     @Override
