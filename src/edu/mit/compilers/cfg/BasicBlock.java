@@ -1,7 +1,7 @@
 package edu.mit.compilers.cfg;
 
-import edu.mit.compilers.ll.Ll;
-import edu.mit.compilers.ll.LlStatement;
+import edu.mit.compilers.ll.*;
+import org.w3c.dom.ls.LSSerializer;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,12 +10,14 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/20/16.
  */
 public class BasicBlock {
-    private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
+    private final LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
     private BasicBlock alternativeBranch;
+    private final LivenessTable livenessTable;
 
     public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap) {
         this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
+        this.livenessTable = LivenessTable.createLivenessTable(labelsToStmtsMap);
     }
 
     public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
