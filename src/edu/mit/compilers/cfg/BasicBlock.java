@@ -20,10 +20,6 @@ public class BasicBlock {
         this.livenessTable = LivenessTable.createLivenessTable(labelsToStmtsMap);
     }
 
-    public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
-        return new LinkedHashMap<>(getLabelsToStmtsMap());
-    }
-
     public ArrayList<LlStatement> getStmtsList() {
         ArrayList<LlStatement> stmtsList = new ArrayList<>();
         for (String label : this.labelsToStmtsMap.keySet()) {
@@ -37,20 +33,25 @@ public class BasicBlock {
         return new ArrayList<String>(this.labelsToStmtsMap.keySet());
     }
 
-    protected void setDefaultBranch(BasicBlock defaultBranch) {
-        this.defaultBranch = defaultBranch;
-    }
-
-    protected void setAlternativeBranch(BasicBlock alternativeBranch) {
-        this.alternativeBranch = alternativeBranch;
-    }
-
     public BasicBlock getDefaultBranch() {
         return defaultBranch;
     }
 
     public BasicBlock getAlternativeBranch() {
         return alternativeBranch;
+    }
+
+    public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
+        return new LinkedHashMap<>(getLabelsToStmtsMap());
+    }
+
+
+    protected void setDefaultBranch(BasicBlock defaultBranch) {
+        this.defaultBranch = defaultBranch;
+    }
+
+    protected void setAlternativeBranch(BasicBlock alternativeBranch) {
+        this.alternativeBranch = alternativeBranch;
     }
 
     @Override
