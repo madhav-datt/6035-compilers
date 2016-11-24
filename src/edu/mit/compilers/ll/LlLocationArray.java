@@ -19,4 +19,12 @@ public class LlLocationArray extends LlLocation {
     public String toString() {
         return this.getVarName() + "[" + elementIndex.toString() + "] ";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        // since we can't evaluate the array offset expression
+        // during compile time, it is very difficult to know
+        // if 2 LlLocationArray's are the same
+        return this == obj;
+    }
 }

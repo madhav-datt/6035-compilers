@@ -18,4 +18,13 @@ public class LlLiteralBool extends LlLiteral {
     public String toString() {
         return Boolean.toString(this.boolValue);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LlLiteralBool) {
+            LlLiteralBool that = (LlLiteralBool) obj;
+            return that.getBoolValue() == this.getBoolValue();
+        }
+        return false;
+    }
 }

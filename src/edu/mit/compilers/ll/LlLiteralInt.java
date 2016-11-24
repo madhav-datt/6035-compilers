@@ -18,4 +18,13 @@ public class LlLiteralInt extends LlLiteral {
     public String toString() {
         return Long.toString(this.intValue);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LlLiteralInt) {
+            LlLiteralInt that = (LlLiteralInt) obj;
+            return this.getIntValue() == that.getIntValue();
+        }
+        return false;
+    }
 }

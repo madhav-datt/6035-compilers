@@ -12,4 +12,13 @@ public class LlLocationVar extends LlLocation {
     public String toString() {
         return this.getVarName().toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LlLocationVar) {
+            LlLocationVar that = (LlLocationVar) obj;
+            return this.getVarName().equals(that.getVarName());
+        }
+        return false;
+    }
 }

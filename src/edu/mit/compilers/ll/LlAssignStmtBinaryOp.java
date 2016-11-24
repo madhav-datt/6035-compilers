@@ -19,6 +19,10 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
         return this.leftOperand;
     }
 
+    public String getOperation() {
+        return this.operation;
+    }
+
     public LlComponent getRightOperand() {
         return this.rightOperand;
     }
