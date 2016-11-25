@@ -14,7 +14,11 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
     }
 
     public LlComponent getOperand() {
-        return operand;
+        return this.operand;
+    }
+
+    public String getOperator() {
+        return this.operator;
     }
 
     @Override
