@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class BbDag {
     private final HashMap<LlComponent, ArrayList<Node>> componentsToUsesMap;
-    private final ArrayList<BinaryComputation> computationsList
+    private final ArrayList<Computation> computationsList;
 
     public static BbDag createBasicBlockDag(BasicBlock bb) {
         LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
@@ -28,10 +28,26 @@ public class BbDag {
                 dag.addUnaryComputationToDag(unaryOp);
             }
             else if (stmt instanceof LlAssignStmtRegular) {
-
+                LlAssignStmtRegular regular = (LlAssignStmtRegular) stmt;
+                dag.addAssignmentToDag(regular);
             }
         }
-        // TODO: figure out how to incorporate methodCalls, return stmts, and jumps
+    }
+
+    private void addAssignmentToDag(LlAssignStmtRegular regular) {
+        LlComponent operand = regular.getOperand();
+
+        // ensure that the operand component exists in the componentsToUsesMap
+        if (this.getReadCompFromUsedComps(operand) == null) {
+            this.addReadCompToUsedComps(operand);
+        }
+
+        // create/process the assignment
+        Node child = this.getReadCompFromUsedComps(operand);
+        LlLocation storeLoc = regular.getStoreLocation();
+        AssignmentComputation comp = new AssignmentComputation(child, storeLoc);
+        this.processVariableAndComputation(comp, storeLoc);
+        this.addWriteCompToUsedComps(storeLoc, comp);
     }
 
     private void addUnaryComputationToDag(LlAssignStmtUnaryOp unaryOp) {
@@ -42,6 +58,13 @@ public class BbDag {
             this.addReadCompToUsedComps(operand);
         }
 
+        // create/process the computation
+        Node child = this.getReadCompFromUsedComps(operand);
+        String operator = unaryOp.getOperator();
+        LlLocation storeLoc = unaryOp.getStoreLocation();
+        UnaryComputation comp = new UnaryComputation(child, storeLoc, operator);
+        this.processVariableAndComputation(comp, storeLoc);
+        this.addWriteCompToUsedComps(storeLoc, comp);
     }
 
     private void addBinaryComputationToDag(LlAssignStmtBinaryOp binaryOp) {
@@ -56,25 +79,14 @@ public class BbDag {
             this.addReadCompToUsedComps(rightOperand);
         }
 
-        // create the new computation
+        // create/process the new computation
         Node leftChild = this.getReadCompFromUsedComps(leftOperand);
         Node rightChild = this.getReadCompFromUsedComps(rightOperand);
         String operator = binaryOp.getOperation();
         LlLocation storeLoc = binaryOp.getStoreLocation();
-        BinaryComputation newComputation = new BinaryComputation(storeLoc, leftChild, operator, rightChild);
-
-        // search through computationsList to see if the computation exists already
-        for (BinaryComputation computation : this.computationsList) {
-
-            // don't create another computation if it already exists
-            if (newComputation.equals(computation)) {
-                computation.mapVariableToComputation(storeLoc);
-                return;
-            }
-        }
-
-        // if this computation is unique, add it to the list
-        this.computationsList.add(newComputation);
+        BinaryComputation comp = new BinaryComputation(leftChild, rightChild, storeLoc, operator);
+        this.processVariableAndComputation(comp, storeLoc);
+        this.addWriteCompToUsedComps(storeLoc, comp);
     }
 
     private Node getReadCompFromUsedComps(LlComponent comp) {
@@ -84,7 +96,6 @@ public class BbDag {
             ArrayList<Node> prevInstances = this.componentsToUsesMap.get(comp);
             return prevInstances.get( prevInstances.size() - 1) ;
         }
-
         return null;
     }
 
@@ -104,8 +115,42 @@ public class BbDag {
             // return the LeafNode
             return leaf;
         }
-
         return null;
+    }
+
+    private void addWriteCompToUsedComps(LlLocation storeLoc, Computation computation) {
+        Node node = Node.createNodeforComputation(computation);
+
+        if (!this.componentsToUsesMap.containsKey(storeLoc)) {
+            // add write variable to componentsToUsesMap
+            ArrayList<Node> prevInstances = new ArrayList<>();
+            prevInstances.add(node);
+
+            // put comp and prevInstances in the comps-->uses map
+            this.componentsToUsesMap.put(storeLoc, prevInstances);
+        }
+        else {
+            // update variable's ArrayList with new write value (node)
+            ArrayList<Node> previousWriteValues = this.componentsToUsesMap.get(storeLoc);
+            previousWriteValues.add(node);
+        }
+    }
+
+    private void processVariableAndComputation(Computation newComputation, LlLocation storeLoc) {
+        // search through computationsList to see if the computation exists already
+        for (Computation computation : this.computationsList) {
+
+            // don't create another computation if it already exists
+            if (newComputation.equals(computation)) {
+                computation.mapVariableToComputation(storeLoc);
+                return;
+            }
+        }
+
+        // if this computation is unique, add it to the list
+        this.computationsList.add(newComputation);
+
+
     }
 
     private static abstract class Computation {
@@ -122,6 +167,24 @@ public class BbDag {
 
         public void mapVariableToComputation(LlLocation storeLoc) {
             this.equivalentVars.add(storeLoc);
+        }
+    }
+
+    private static class AssignmentComputation extends Computation {
+        private final Node child;
+
+        public AssignmentComputation(Node child, LlLocation storeLoc) {
+            super(storeLoc, "NoOperator");
+            this.child = child;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof AssignmentComputation) {
+                AssignmentComputation that = (AssignmentComputation) obj;
+                return this.child.equals(that.child);
+            }
+            return false;
         }
     }
 
@@ -169,7 +232,23 @@ public class BbDag {
         }
     }
 
-    private static abstract class Node { }
+    private static abstract class Node {
+        public static Node createNodeforComputation(Computation computation) {
+            if (computation instanceof AssignmentComputation) {
+                AssignmentComputation comp = (AssignmentComputation) computation;
+                return new AssignmentComputationNode(comp);
+            }
+            else if (computation instanceof UnaryComputation) {
+                UnaryComputation comp = (UnaryComputation) computation;
+                return new UnaryComputationNode(comp);
+            }
+            else if (computation instanceof BinaryComputation) {
+                BinaryComputation comp = (BinaryComputation) computation;
+                return new BinaryComputationNode(comp);
+            }
+            return null;
+        }
+    }
 
     private static class LeafNode extends Node {
         private final LlComponent comp;
@@ -188,6 +267,23 @@ public class BbDag {
                 LeafNode that = (LeafNode) obj;
 
                 return this.getComp().equals(that.getComp());
+            }
+            return false;
+        }
+    }
+
+    private static class AssignmentComputationNode extends Node {
+        private final AssignmentComputation assignmentComputation;
+
+        public AssignmentComputationNode(AssignmentComputation assignmentComputation) {
+            this.assignmentComputation = assignmentComputation;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof AssignmentComputationNode) {
+                AssignmentComputationNode that = (AssignmentComputationNode) obj;
+                return this.assignmentComputation.equals(that.assignmentComputation);
             }
             return false;
         }
