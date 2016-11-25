@@ -8,7 +8,7 @@ import java.util.*;
  * Created by devinmorgan on 11/23/16.
  */
 public class BbDag {
-    private final HashMap<LlComponent, ArrayList<Node>> compsToUsesMap;
+    private final HashMap<LlComponent, ArrayList<Node>> componentsToUsesMap;
     private final ArrayList<BinaryComputation> computationsList
 
     public static BbDag createBasicBlockDag(BasicBlock bb) {
@@ -21,10 +21,11 @@ public class BbDag {
             // 1) add regular, unary, and binary stmts
             if (stmt instanceof LlAssignStmtBinaryOp) {
                 LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
-                dag.addBinaryComputationToDag(binaryOp, dag);
+                dag.addBinaryComputationToDag(binaryOp);
             }
             else if (stmt instanceof LlAssignStmtUnaryOp) {
-
+                LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
+                dag.addUnaryComputationToDag(unaryOp);
             }
             else if (stmt instanceof LlAssignStmtRegular) {
 
@@ -33,11 +34,21 @@ public class BbDag {
         // TODO: figure out how to incorporate methodCalls, return stmts, and jumps
     }
 
+    private void addUnaryComputationToDag(LlAssignStmtUnaryOp unaryOp) {
+        LlComponent operand = unaryOp.getOperand();
+
+        // ensure that the operand component exists in componentsToUsesMap
+        if (this.getReadCompFromUsedComps(operand) == null) {
+            this.addReadCompToUsedComps(operand);
+        }
+
+    }
+
     private void addBinaryComputationToDag(LlAssignStmtBinaryOp binaryOp) {
         LlComponent leftOperand = binaryOp.getLeftOperand();
         LlComponent rightOperand = binaryOp.getRightOperand();
 
-        // ensure the the left and right components exist in compsToUsesMap
+        // ensure the left and right components exist in componentsToUsesMap
         if (this.getReadCompFromUsedComps(leftOperand) == null) {
             this.addReadCompToUsedComps(leftOperand);
         }
@@ -52,13 +63,12 @@ public class BbDag {
         LlLocation storeLoc = binaryOp.getStoreLocation();
         BinaryComputation newComputation = new BinaryComputation(storeLoc, leftChild, operator, rightChild);
 
-        // search through computationsList to see if thiscomputation
-        // was performed already
+        // search through computationsList to see if the computation exists already
         for (BinaryComputation computation : this.computationsList) {
 
             // don't create another computation if it already exists
             if (newComputation.equals(computation)) {
-                computation.addVariableToComputation(storeLoc);
+                computation.mapVariableToComputation(storeLoc);
                 return;
             }
         }
@@ -68,10 +78,10 @@ public class BbDag {
     }
 
     private Node getReadCompFromUsedComps(LlComponent comp) {
-        if (this.compsToUsesMap.containsKey(comp)) {
+        if (this.componentsToUsesMap.containsKey(comp)) {
 
             // return the most recent use of the comp (i.e. size - 1)
-            ArrayList<Node> prevInstances = this.compsToUsesMap.get(comp);
+            ArrayList<Node> prevInstances = this.componentsToUsesMap.get(comp);
             return prevInstances.get( prevInstances.size() - 1) ;
         }
 
@@ -79,7 +89,7 @@ public class BbDag {
     }
 
     private Node addReadCompToUsedComps(LlComponent comp) {
-        if (!this.compsToUsesMap.containsKey(comp)) {
+        if (!this.componentsToUsesMap.containsKey(comp)) {
 
             // create the initial LeafNode
             LeafNode leaf = new LeafNode(comp);
@@ -89,7 +99,7 @@ public class BbDag {
             prevInstances.add(leaf);
 
             // put comp and prevInstances in the comps-->uses map
-            this.compsToUsesMap.put(comp, prevInstances);
+            this.componentsToUsesMap.put(comp, prevInstances);
 
             // return the LeafNode
             return leaf;
@@ -98,7 +108,68 @@ public class BbDag {
         return null;
     }
 
-    private static abstract class Node { /* TODO: createUnaryNode() */ }
+    private static abstract class Computation {
+        protected final ArrayList<LlLocation> equivalentVars;
+        protected final String operator;
+
+        public Computation(LlLocation storeLoc, String operator) {
+            this.operator = operator;
+
+            // add storeLoc as the first element in equivalentVars
+            this.equivalentVars = new ArrayList<>();
+            this.equivalentVars.add(storeLoc);
+        }
+
+        public void mapVariableToComputation(LlLocation storeLoc) {
+            this.equivalentVars.add(storeLoc);
+        }
+    }
+
+    private static class UnaryComputation extends Computation{
+        private final Node child;
+
+        public UnaryComputation(Node child, LlLocation storeLoc, String operator) {
+            super(storeLoc, operator);
+            this.child = child;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof UnaryComputation) {
+                UnaryComputation that = (UnaryComputation) obj;
+
+                return this.operator.equals(that.operator)
+                        && this.child.equals(that.child);
+            }
+            return false;
+        }
+    }
+
+    private static class BinaryComputation extends Computation{
+        private final Node leftChild;
+        private final Node rightChild;
+
+        public BinaryComputation(Node leftChild, Node rightChild, LlLocation storeLoc, String operator) {
+            super(storeLoc, operator);
+            this.leftChild = leftChild;
+            this.rightChild = rightChild;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof BinaryComputation) {
+                BinaryComputation that = (BinaryComputation) obj;
+                // TODO: deal with commutative and associative properites here
+
+                return this.leftChild.equals(that.leftChild)
+                        && this.operator.equals(that.operator)
+                        && this.rightChild.equals(that.rightChild);
+            }
+            return false;
+        }
+    }
+
+    private static abstract class Node { }
 
     private static class LeafNode extends Node {
         private final LlComponent comp;
@@ -122,6 +193,23 @@ public class BbDag {
         }
     }
 
+    private static class UnaryComputationNode extends Node {
+        private final UnaryComputation unaryComputation;
+
+        public UnaryComputationNode(UnaryComputation unaryComputation) {
+            this.unaryComputation = unaryComputation;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof UnaryComputationNode) {
+                UnaryComputationNode that = (UnaryComputationNode) obj;
+                return this.unaryComputation.equals(that.unaryComputation);
+            }
+            return false;
+        }
+    }
+
     private static class BinaryComputationNode extends Node {
         private final BinaryComputation binaryComputation;
 
@@ -139,39 +227,6 @@ public class BbDag {
         }
     }
 
-    private static class BinaryComputation {
-        private final ArrayList<LlLocation> equivalentVars;
-        private final Node leftChild;
-        private final String operator;
-        private final Node rightChild;
-
-        public BinaryComputation(LlLocation storeLoc, Node leftChild, String operator, Node rightChild) {
-            this.leftChild = leftChild;
-            this.operator = operator;
-            this.rightChild = rightChild;
-
-            // add storeLoc as the first element in equivalentVars
-            this.equivalentVars = new ArrayList<>();
-            this.equivalentVars.add(storeLoc);
-        }
-
-        public void addVariableToComputation(LlLocation storeLoc) {
-            this.equivalentVars.add(storeLoc);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof BinaryComputation) {
-                BinaryComputation that = (BinaryComputation) obj;
-                // TODO: deal with commutative and associative properites here
-
-                return this.leftChild.equals(that.leftChild)
-                        && this.operator.equals(that.operator)
-                        && this.rightChild.equals(that.rightChild);
-            }
-            return false;
-        }
-    }
 }
 
 
