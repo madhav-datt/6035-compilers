@@ -8,10 +8,10 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
     private final String operation;
     private final LlComponent rightOperand;
 
-    public LlAssignStmtBinaryOp(LlLocation storeLocation, LlComponent leftOperand, String operand, LlComponent rightOperand) {
+    public LlAssignStmtBinaryOp(LlLocation storeLocation, LlComponent leftOperand, String operation, LlComponent rightOperand) {
         super(storeLocation);
         this.leftOperand = leftOperand;
-        this.operation = operand;
+        this.operation = operation;
         this.rightOperand = rightOperand;
     }
 
