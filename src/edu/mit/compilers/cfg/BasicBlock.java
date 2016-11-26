@@ -1,5 +1,6 @@
 package edu.mit.compilers.cfg;
 
+import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 import org.w3c.dom.ls.LSSerializer;
 
@@ -14,10 +15,12 @@ public class BasicBlock {
     private BasicBlock defaultBranch;
     private BasicBlock alternativeBranch;
     private final LivenessTable livenessTable;
+    private final LlBuilder builder;
 
-    public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap) {
+    public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap, LlBuilder builder) {
         this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
         this.livenessTable = LivenessTable.createLivenessTable(labelsToStmtsMap);
+        this.builder = builder;
     }
 
     public ArrayList<LlStatement> getStmtsList() {
@@ -27,6 +30,10 @@ public class BasicBlock {
             stmtsList.add(stmt);
         }
         return stmtsList;
+    }
+
+    public LlBuilder getBuilder() {
+        return this.builder;
     }
 
     public ArrayList<String> getLabelsList() {
