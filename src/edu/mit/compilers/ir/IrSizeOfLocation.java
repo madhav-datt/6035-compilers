@@ -78,7 +78,7 @@ public class IrSizeOfLocation extends IrSizeOf {
         return prettyString;
     }
 
-    //TODO: Implement the array param case
+
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         LlLocationVar tempLocation = builder.generateTemp();

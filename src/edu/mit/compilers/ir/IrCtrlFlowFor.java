@@ -97,7 +97,8 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         LlLocation initialIndexTemp = this.intialIndexExpr.generateLlIr(builder, symbolTable);
 
         // generate the initial assignment statement
-        LlAssignStmtRegular initialIndexAssignmentStatement = new LlAssignStmtRegular(new LlLocationVar(this.counter.getLocationName().toString()), initialIndexTemp);
+        LlAssignStmtRegular initialIndexAssignmentStatement = new LlAssignStmtRegular(new LlLocationVar(this.counter.getLocationName().getValue()), initialIndexTemp);
+        builder.appendStatement(initialIndexAssignmentStatement);
         String loopCondition = "FOR_COND_" + builder.generateLabel();
         String startLoopLabel = "FOR_" + builder.generateLabel();
 

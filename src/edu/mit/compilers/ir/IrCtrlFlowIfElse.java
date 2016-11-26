@@ -59,7 +59,7 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
         String endIfLabel = "END_" + ifBlockLabel;
 
         String elseBlockLabel = "ELSE_IF_" + builder.generateLabel();
-
+        String endElseBlockLabel = "END_ELSE_" + builder.generateLabel();
         // Generate the conditional statement.
         LlLocation conditionalTemp = this.condExpr.generateLlIr(builder, symbolTable);
         LlJumpConditional conditionalJump = new LlJumpConditional(ifBlockLabel, conditionalTemp);
@@ -73,7 +73,7 @@ public class IrCtrlFlowIfElse extends IrCtrlFlow{
 
         // after the else block is executed, jump to the end of the if block.
         LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(endIfLabel);
-
+        builder.appendStatement(unconditionalJump);
         // add the label to the if body block
         LlEmptyStmt emptyStmt = new LlEmptyStmt();
         builder.appendStatement(ifBlockLabel, emptyStmt);
