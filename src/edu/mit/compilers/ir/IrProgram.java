@@ -11,6 +11,7 @@ public class IrProgram extends Ir{
     private ArrayList<IrMethodDecl> methodDecls;
     private ArrayList<IrExternDecl> externDecls;
     private String errorMessage;
+    private ArrayList<LlBuilder> builderList;
 
     public void addFieldDecl(IrFieldDecl field) { this.fieldDecls.add(field); }
     public void addMethodDecl(IrMethodDecl method) {
@@ -104,14 +105,6 @@ public class IrProgram extends Ir{
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
-        for (IrMethodDecl methodDecl: this.methodDecls) {
-            LlBuilder llBuilder = new LlBuilder();
-            LlSymbolTable llSymbolTable = new LlSymbolTable();
-            methodDecl.generateLlIr(llBuilder, llSymbolTable);
-            System.out.print("\n\n\n");
-            System.out.print("Method:  " + methodDecl.getName().toString() + "\n");
-            System.out.print(llBuilder);
-        }
         return null;
     }
 
@@ -139,5 +132,18 @@ public class IrProgram extends Ir{
         }
 
         return prettyString;
+    }
+
+    public ArrayList<LlBuilder> getBuilderList() {
+        ArrayList<LlBuilder> buildersList = new ArrayList<>();
+
+        for (IrMethodDecl methodDecl: this.methodDecls) {
+            LlBuilder llBuilder = new LlBuilder();
+            LlSymbolTable llSymbolTable = new LlSymbolTable();
+            methodDecl.generateLlIr(llBuilder, llSymbolTable);
+
+            buildersList.add(llBuilder);
+        }
+        return buildersList;
     }
 }

@@ -1,4 +1,6 @@
 #include <stdbool.h>
+#define int long long
+
 
 extern printf();
 // test shortcircuit and other stuff

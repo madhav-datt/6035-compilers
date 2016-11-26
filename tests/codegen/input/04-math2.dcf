@@ -1,3 +1,5 @@
+#define int long long
+
 extern printf();
 // test as many operators as we can
 void main ( ) {
