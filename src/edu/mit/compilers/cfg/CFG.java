@@ -76,7 +76,7 @@ public class CFG {
                 }
 
                 // create the actual BasicBlock and it to the LinkedHashMap
-                BasicBlock bb = new BasicBlock(bbLabelsToStmtsMap);
+                BasicBlock bb = new BasicBlock(bbLabelsToStmtsMap, builder);
                 leadersToBBMap.put(leaderLabel, bb);
 
             } while (labelsQueue.size() > 0);
