@@ -1,10 +1,7 @@
 package edu.mit.compilers.cfg;
 
 import edu.mit.compilers.LlBuilder;
-import edu.mit.compilers.ll.LlJump;
-import edu.mit.compilers.ll.LlJumpConditional;
-import edu.mit.compilers.ll.LlJumpUnconditional;
-import edu.mit.compilers.ll.LlStatement;
+import edu.mit.compilers.ll.*;
 
 import java.util.*;
 
@@ -14,6 +11,59 @@ import java.util.*;
 public class CFG {
     private final LlBuilder builder;
     private final ArrayList<BasicBlock> basicBlocks;
+    private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
+
+    private class Tuple {
+        public String blockName;
+        public String label;
+
+        public Tuple(String x, String y) {
+            this.blockName = x;
+            this.label = y;
+        }
+    }
+
+    private class DefUses {
+        public Tuple def;
+        public ArrayList<Tuple> uses;
+
+        public DefUses(Tuple def) {
+            this.def = def;
+            this.uses = new ArrayList<>();
+        }
+    }
+
+    private HashMap<LlLocationVar, DefUses> defUseChain = new HashMap<>();
+    private HashSet<Edge> isVisited = new HashSet<>();
+
+    private void buildUseDefRecursive(BasicBlock head) {
+        //Add def-use chains of basic block head
+        for (LlStatement statement : head.getStmtsList()) {
+            if (statement instanceof LlEmptyStmt)
+                continue;
+            else if (statement instanceof )
+        }
+
+        Edge left = head.getLeft();
+        Edge right = head.getRight();
+
+        if (!isVisited.contains(left)) {
+            isVisited.add(head.getLeft());
+            buildUseDefRecursive(head.getDefaultBranch());
+        }
+
+        if (!isVisited.contains(right)) {
+            isVisited.add(head.getRight());
+            buildUseDefRecursive(head.getAlternativeBranch());
+        }
+    }
+
+    //Build def-use chains for each symbol from updated/changed LlBuilder
+    public HashMap<LlLocationVar, DefUses> buildUseDefChains() {
+        BasicBlock head = basicBlocks.get(0);
+        buildUseDefRecursive(head);
+        return defUseChain;
+    }
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
@@ -24,6 +74,7 @@ public class CFG {
 
         if (labelsList.size() == 0) {
             this.basicBlocks = new ArrayList<BasicBlock>();
+            this.leadersToBBMap = new LinkedHashMap<>();
         }
         else {
             // 1) determine the leaders in the LLIR
@@ -110,7 +161,7 @@ public class CFG {
             for (String leaderLabel : orderedLeadersList) {
                 basicBlocks.add(leadersToBBMap.get(leaderLabel));
             }
-
+            this.leadersToBBMap = leadersToBBMap;
             this.basicBlocks = basicBlocks;
         }
     }

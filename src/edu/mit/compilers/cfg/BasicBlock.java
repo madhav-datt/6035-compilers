@@ -10,6 +10,18 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/20/16.
  */
 public class BasicBlock {
+
+    public Edge getLeft() {
+        return this.left;
+    }
+
+    public Edge getRight() {
+        return this.right;
+    }
+
+    private Edge left = new Edge();
+    private Edge right = new Edge();
+
     private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
     private BasicBlock alternativeBranch;
