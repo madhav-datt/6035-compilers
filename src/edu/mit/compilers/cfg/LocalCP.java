@@ -48,6 +48,22 @@ public class LocalCP {
                 // remove this var from the copyTable
                 cp.copyTable.remove(binaryOp.getStoreLocation());
             }
+            else if (stmt instanceof LlJumpConditional) {
+                LlJumpConditional condJmp = (LlJumpConditional) stmt;
+
+                // swap out operand in statement if its a copy
+                LlJumpConditional optStmt = cp.swapVariableForConditionalJump(condJmp);
+                String optLabel = cp.builder.generateLabel();
+                optimizedMap.put(optLabel, optStmt);
+            }
+            else if (stmt instanceof LlReturn) {
+                LlReturn rtnStmt = (LlReturn) stmt;
+
+                // swap out operand in statement if its a copy
+                LlReturn optStmt = cp.swapVariableForReturnStmt(rtnStmt);
+                String optLabel = cp.builder.generateLabel();
+                optimizedMap.put(optLabel, optStmt);
+            }
             else if (stmt instanceof LlAssignStmtRegular) {
                 LlAssignStmtRegular stmtRegular = (LlAssignStmtRegular) stmt;
 
@@ -66,6 +82,32 @@ public class LocalCP {
         }
 
         return new BasicBlock(optimizedMap, cp.builder);
+    }
+
+    private LlReturn swapVariableForReturnStmt(LlReturn rtnStmt) {
+        // check if the operand is a variable in the copyTable
+        if (rtnStmt.getReturnValue() instanceof LlLocationVar) {
+            LlLocationVar var = (LlLocationVar) rtnStmt.getReturnValue();
+
+            // return a new statement with the var from copyTable if it exists
+            if (this.copyTable.containsKey(var)) {
+                return new LlReturn(var);
+            }
+        }
+        return rtnStmt;
+    }
+
+    private LlJumpConditional swapVariableForConditionalJump(LlJumpConditional condJmp) {
+        // check if the operand is a variable in the copyTable
+        if (condJmp.getCondition() instanceof LlLocationVar) {
+            LlLocationVar var = (LlLocationVar) condJmp.getCondition();
+
+            // return a new statement with the var from copyTable if it exists
+            if (this.copyTable.containsKey(var)) {
+                return new LlJumpConditional(condJmp.getJumpToLabel(), var);
+            }
+        }
+        return condJmp;
     }
 
     private LlAssignStmtRegular swapOperandsForRegularStmt(LlAssignStmtRegular regular) {
