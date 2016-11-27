@@ -58,7 +58,7 @@ public class LocalCF {
                     break;
                 case "!":
                     boolean boolVal = ((LlLiteralBool) unaryOp.getOperand()).getBoolValue();
-                    computedVal = new LlLiteralInt(!boolVal);
+                    computedVal = new LlLiteralBool(!boolVal);
                     break;
                 default:
                     computedVal = new LlLiteralInt(69696969); // this case should never happen
