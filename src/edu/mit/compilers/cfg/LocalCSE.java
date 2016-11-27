@@ -162,11 +162,18 @@ public class LocalCSE {
             this.operation = operation;
             this.rightOperand = rightOperand;
         }
+
+        public abstract boolean containsVariable(LlComponent comp);
     }
 
     private class UnaryExprObject extends ExprObject {
         public UnaryExprObject(LlAssignStmtUnaryOp unaryOp) {
             super(unaryOp.getOperator(), unaryOp.getOperand());
+        }
+
+        @Override
+        public boolean containsVariable(LlComponent comp) {
+            return this.rightOperand.equals(comp);
         }
 
         @Override
@@ -185,6 +192,11 @@ public class LocalCSE {
         public BinaryExprObject(LlAssignStmtBinaryOp binaryOp) {
             super(binaryOp.getOperation(), binaryOp.getRightOperand());
             this.leftOperand = binaryOp.getLeftOperand();
+        }
+
+        @Override
+        public boolean containsVariable(LlComponent comp) {
+            return this.leftOperand.equals(comp) || this.rightOperand.equals(comp);
         }
 
         @Override
