@@ -2,7 +2,6 @@ package edu.mit.compilers.cfg;
 
 import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
-import jdk.nashorn.internal.ir.Symbol;
 
 import java.util.*;
 
@@ -83,7 +82,7 @@ public class CFG {
     }
 
     //Recursively (DFS) build defUseChains
-    private void buildUseDefRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
+    private void buildDefUseRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
         //Add def-use chains of basic block head
         for (Map.Entry<String, LlStatement> statementRow : head.getLabelsToStmtsMap().entrySet()) {
             String label = statementRow.getKey();
@@ -156,20 +155,20 @@ public class CFG {
 
         if (!isVisited.contains(left)) {
             isVisited.add(head.getLeft());
-            buildUseDefRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
+            buildDefUseRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
         }
 
         if (!isVisited.contains(right)) {
             isVisited.add(head.getRight());
-            buildUseDefRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
+            buildDefUseRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
         }
     }
 
     //Build def-use chains for each symbol from updated/changed LlBuilder
-    public HashMap<SymbolDef, ArrayList<Tuple>> buildUseDefChains() {
+    public HashMap<SymbolDef, ArrayList<Tuple>> buildDefUseChains() {
         BasicBlock head = basicBlocks.get(0);
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
-        buildUseDefRecursive(head, recentDef);
+        buildDefUseRecursive(head, recentDef);
         return defUseChain;
     }
 
