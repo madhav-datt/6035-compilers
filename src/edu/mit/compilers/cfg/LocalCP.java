@@ -3,7 +3,6 @@ package edu.mit.compilers.cfg;
 import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -31,23 +30,29 @@ public class LocalCP {
                 LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
                 // swap out operand in statement if its a copy
-                LlAssignStmtUnaryOp optStmt = cp.getOptimizedStatementsForUnaryStmt(unaryOp);
+                LlAssignStmtUnaryOp optStmt = cp.swapOperandsForUnaryStmt(unaryOp);
                 String optLabel = cp.builder.generateLabel();
                 optimizedMap.put(optLabel, optStmt);
+                
+                // remove this var from the copyTable
+                cp.copyTable.remove(unaryOp.getStoreLocation());
             }
             else if (stmt instanceof LlAssignStmtBinaryOp) {
                 LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
 
                 // swap out left and/or right operand if its a copy
-                LlAssignStmtBinaryOp optStmt = cp.getOptimizedStatementsForBinaryStmt(binaryOp);
+                LlAssignStmtBinaryOp optStmt = cp.swapOperandForBinaryStmt(binaryOp);
                 String optLabel = cp.builder.generateLabel();
                 optimizedMap.put(optLabel, optStmt);
+
+                // remove this var from the copyTable
+                cp.copyTable.remove(binaryOp.getStoreLocation());
             }
             else if (stmt instanceof LlAssignStmtRegular) {
                 LlAssignStmtRegular stmtRegular = (LlAssignStmtRegular) stmt;
 
                 // swap out operand in statement if its a copy
-                LlAssignStmtRegular optStmt = cp.getOptimizedStatementsForRegularStmt(stmtRegular);
+                LlAssignStmtRegular optStmt = cp.swapOperandsForRegularStmt(stmtRegular);
                 String optLabel = cp.builder.generateLabel();
                 optimizedMap.put(optLabel, optStmt);
 
@@ -63,7 +68,7 @@ public class LocalCP {
         return new BasicBlock(optimizedMap, cp.builder);
     }
 
-    private LlAssignStmtRegular getOptimizedStatementsForRegularStmt(LlAssignStmtRegular regular) {
+    private LlAssignStmtRegular swapOperandsForRegularStmt(LlAssignStmtRegular regular) {
         // check if the operand is a variable in the copyTable
         if (regular.getOperand() instanceof LlLocationVar) {
             LlLocationVar var = (LlLocationVar) regular.getOperand();
@@ -76,7 +81,7 @@ public class LocalCP {
         return regular;
     }
 
-    private LlAssignStmtUnaryOp getOptimizedStatementsForUnaryStmt(LlAssignStmtUnaryOp unaryOp) {
+    private LlAssignStmtUnaryOp swapOperandsForUnaryStmt(LlAssignStmtUnaryOp unaryOp) {
         // check if the operand is a variable in the copyTable
         if (unaryOp.getOperand() instanceof LlLocationVar) {
             LlLocationVar var = (LlLocationVar) unaryOp.getOperand();
@@ -89,7 +94,7 @@ public class LocalCP {
         return unaryOp;
     }
 
-    private LlAssignStmtBinaryOp getOptimizedStatementsForBinaryStmt(LlAssignStmtBinaryOp binaryOp) {
+    private LlAssignStmtBinaryOp swapOperandForBinaryStmt(LlAssignStmtBinaryOp binaryOp) {
         LlComponent newLeftOperand = binaryOp.getLeftOperand();
         LlComponent newRightOperand = binaryOp.getRightOperand();
 
