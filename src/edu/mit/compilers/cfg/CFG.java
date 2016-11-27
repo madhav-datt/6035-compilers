@@ -42,26 +42,27 @@ public class CFG {
 
     private class SymbolDef {
         public LlLocation symbol;
-        public Tuple def;
+        public Tuple useDef;
 
-        public SymbolDef(LlLocation symbol, Tuple def) {
-            this.def = def;
+        public SymbolDef(LlLocation symbol, Tuple useDef) {
+            this.useDef = useDef;
             this.symbol = symbol;
         }
 
         @Override
         public boolean equals(Object o) {
             return (o instanceof SymbolDef) && (((SymbolDef) o).symbol.equals(this.symbol)) &&
-                    (((SymbolDef) o).def.equals(this.def));
+                    (((SymbolDef) o).useDef.equals(this.useDef));
         }
 
         @Override
         public int hashCode() {
-            return this.symbol.hashCode() + this.def.hashCode();
+            return this.symbol.hashCode() + this.useDef.hashCode();
         }
     }
 
     private HashMap<SymbolDef, ArrayList<Tuple>> defUseChain = new HashMap<>();
+    private HashMap<SymbolDef, ArrayList<Tuple>> useDefChain = new HashMap<>();
     private HashSet<Edge> isVisited = new HashSet<>();
 
     //Mark use of arg at currentUseDefLocation in defUseChain using recentDef
@@ -94,7 +95,7 @@ public class CFG {
 
             //Method call statements
             if (statement instanceof LlMethodCallStmt) {
-                //Mark def for returnLocation
+                //Mark useDef for returnLocation
                 if (((LlMethodCallStmt) statement).getReturnLocation() != null) {
                     LlLocation returnLocation = ((LlMethodCallStmt) statement).getReturnLocation();
                     SymbolDef currentSymbolDef = new SymbolDef(returnLocation, currentUseDefLocation);
@@ -120,7 +121,7 @@ public class CFG {
             //Assign statements and sub-class statements
             else if (statement instanceof LlAssignStmt) {
 
-                //Mark def for storeLocation
+                //Mark useDef for storeLocation
                 LlLocation returnLocation = ((LlAssignStmt) statement).getStoreLocation();
                 SymbolDef currentSymbolDef = new SymbolDef(returnLocation, currentUseDefLocation);
 
@@ -169,7 +170,30 @@ public class CFG {
         BasicBlock head = basicBlocks.get(0);
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
-        return defUseChain;
+        return this.defUseChain;
+    }
+
+    //Build use-def chains for each symbol from updated/changed LlBuilder
+    public HashMap<SymbolDef, ArrayList<Tuple>> buildUseDefChains() {
+        this.buildDefUseChains();
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> duChain : this.defUseChain.entrySet()) {
+            ArrayList<Tuple> useList = duChain.getValue();
+            LlLocation symbol = duChain.getKey().symbol;
+            Tuple defLocation = duChain.getKey().useDef;
+
+            //Add reaching defs for each corresponding use to useDefChain
+            for (Tuple useLocation : useList) {
+                SymbolDef currentUseSymbol = new SymbolDef(symbol, useLocation);
+                if (!this.useDefChain.containsKey(currentUseSymbol)) {
+                    ArrayList<Tuple> defList = new ArrayList<>();
+                    defList.add(defLocation);
+                    this.useDefChain.put(currentUseSymbol, defList);
+                }
+                else {
+                    this.useDefChain.get(currentUseSymbol).add(defLocation);
+                }
+            }
+        }
     }
 
     public CFG(LlBuilder builder) {
