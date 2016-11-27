@@ -194,6 +194,8 @@ public class CFG {
                 }
             }
         }
+
+        return this.useDefChain;
     }
 
     public CFG(LlBuilder builder) {
