@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/26/16.
  */
 public class LocalCSE {
-//    private final HashSet<ExprObject> computedExpressions = new HashSet<>();
     private final HashMap<ExprObject, LlLocationVar> tempsForExpressions = new HashMap<>();
     private final LlBuilder builder;
 
@@ -46,7 +45,7 @@ public class LocalCSE {
                 // perform the CSE and the optimized stmts to optimizedMap
                 ArrayList<LlStatement> optimizedStmts = cse.getOptimizedStatementsForBinaryComputation(binaryOp);
                 for (LlStatement optStmt : optimizedStmts) {
-                    String optLabel = bb.getBuilder().generateLabel();
+                    String optLabel = cse.builder.generateLabel();
                     optimizedMap.put(optLabel, optStmt);
                 }
             }
@@ -147,13 +146,6 @@ public class LocalCSE {
         return optimizedStatements;
     }
 
-
-    // create the ExprObject
-    // Required API:
-    // 1) .containsVariable()
-    // 2) .equals()
-    // 3) .hash() **
-
     private abstract class ExprObject {
         protected final String operation;
         protected final LlComponent rightOperand;
@@ -223,9 +215,4 @@ public class LocalCSE {
             return false;
         }
     }
-
-
-
-
-
 }
