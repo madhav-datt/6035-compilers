@@ -31,7 +31,7 @@ public class BasicBlock {
     }
 
     public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
-        return new LinkedHashMap<>(getLabelsToStmtsMap());
+        return this.labelsToStmtsMap;
     }
 
     public ArrayList<LlStatement> getStmtsList() {

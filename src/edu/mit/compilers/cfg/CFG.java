@@ -11,7 +11,7 @@ import java.util.*;
 public class CFG {
     private final LlBuilder builder;
     private final ArrayList<BasicBlock> basicBlocks;
-    private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
+    private final LinkedHashMap<BasicBlock, String> blockLabels;
 
     private class Tuple {
         public String blockName;
@@ -33,15 +33,22 @@ public class CFG {
         }
     }
 
-    private HashMap<LlLocationVar, DefUses> defUseChain = new HashMap<>();
+    private HashMap<LlLocation, DefUses> defUseChain = new HashMap<>();
     private HashSet<Edge> isVisited = new HashSet<>();
 
-    private void buildUseDefRecursive(BasicBlock head) {
+    private void buildUseDefRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
         //Add def-use chains of basic block head
-        for (LlStatement statement : head.getStmtsList()) {
-            if (statement instanceof LlEmptyStmt)
-                continue;
-            else if (statement instanceof )
+        for (Map.Entry<String, LlStatement> statementRow : head.getLabelsToStmtsMap().entrySet()) {
+            String label = statementRow.getKey();
+            LlStatement statement = statementRow.getValue();
+
+            if (statement instanceof LlMethodCallStmt) {
+                //Mark def for returnLocation
+                recentDef.put(((LlMethodCallStmt) statement).getReturnLocation(),
+                       new Tuple(blockLabels.get(head), label));
+
+                //Mark use for argsList values
+            }
         }
 
         Edge left = head.getLeft();
@@ -49,19 +56,20 @@ public class CFG {
 
         if (!isVisited.contains(left)) {
             isVisited.add(head.getLeft());
-            buildUseDefRecursive(head.getDefaultBranch());
+            buildUseDefRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
         }
 
         if (!isVisited.contains(right)) {
             isVisited.add(head.getRight());
-            buildUseDefRecursive(head.getAlternativeBranch());
+            buildUseDefRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
         }
     }
 
     //Build def-use chains for each symbol from updated/changed LlBuilder
-    public HashMap<LlLocationVar, DefUses> buildUseDefChains() {
+    public HashMap<LlLocation, DefUses> buildUseDefChains() {
         BasicBlock head = basicBlocks.get(0);
-        buildUseDefRecursive(head);
+        HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
+        buildUseDefRecursive(head, recentDef);
         return defUseChain;
     }
 
@@ -74,7 +82,7 @@ public class CFG {
 
         if (labelsList.size() == 0) {
             this.basicBlocks = new ArrayList<BasicBlock>();
-            this.leadersToBBMap = new LinkedHashMap<>();
+            this.blockLabels = new LinkedHashMap<>();
         }
         else {
             // 1) determine the leaders in the LLIR
@@ -161,9 +169,16 @@ public class CFG {
             for (String leaderLabel : orderedLeadersList) {
                 basicBlocks.add(leadersToBBMap.get(leaderLabel));
             }
-            this.leadersToBBMap = leadersToBBMap;
+            this.blockLabels = new LinkedHashMap<>(reverse(leadersToBBMap));
             this.basicBlocks = basicBlocks;
         }
+    }
+
+    private static HashMap<BasicBlock, String> reverse(Map<String, BasicBlock> map) {
+        HashMap<BasicBlock, String> rev = new HashMap<BasicBlock, String>();
+        for(Map.Entry<String, BasicBlock> entry : map.entrySet())
+            rev.put(entry.getValue(), entry.getKey());
+        return rev;
     }
 
     public BasicBlock getRootBasicBlock() {
