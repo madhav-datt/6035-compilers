@@ -10,6 +10,10 @@ public class LlReturn extends LlStatement {
         this.returnValue = returnValue;
     }
 
+    public LlComponent getReturnValue() {
+        return this.returnValue;
+    }
+
     @Override
     public String toString() {
         return "return " + this.returnValue.toString();
