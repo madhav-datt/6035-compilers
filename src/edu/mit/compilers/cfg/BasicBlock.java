@@ -11,15 +11,13 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/20/16.
  */
 public class BasicBlock {
-    private final LinkedHashMap<String, LlStatement> labelsToStmtsMap;
+    private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
     private BasicBlock alternativeBranch;
-    private final LivenessTable livenessTable;
     private final LlBuilder builder;
 
     public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap, LlBuilder builder) {
         this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
-        this.livenessTable = LivenessTable.createLivenessTable(labelsToStmtsMap);
         this.builder = builder;
     }
 
@@ -50,6 +48,10 @@ public class BasicBlock {
 
     public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
         return new LinkedHashMap<>(getLabelsToStmtsMap());
+    }
+
+    public void setLabelsToStmtsMap(LinkedHashMap<String, LlStatement> labelsToStmtsMap) {
+        this.labelsToStmtsMap = labelsToStmtsMap;
     }
 
 

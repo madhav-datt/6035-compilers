@@ -119,6 +119,10 @@ public class CFG {
         return this.basicBlocks.get(0);
     }
 
+    public ArrayList<BasicBlock> getBasicBlocks() {
+        return this.basicBlocks;
+    }
+
     @Override
     public String toString() {
         String str = "CFG:\n";
