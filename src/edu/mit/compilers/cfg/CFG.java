@@ -93,17 +93,27 @@ public class CFG {
 
                 // connect if there is a jump from the end of B to the beginning of C
                 if (lastStmtOfCurrentBB instanceof LlJump) {
+
+                    // set forward edge B --> C
                     String targetLabel = ((LlJump) lastStmtOfCurrentBB).getJumpToLabel();
                     BasicBlock targetBB = this.leadersToBBMap.get(targetLabel);
                     bb.setAlternativeBranch(targetBB);
+
+                    // set reverse edge B <-- C
+                    targetBB.addPredecessorNode(bb);
                 }
 
                 // C immediately follows B and B does not end in an unconditional jump
                 // (this only holds if B is not the last block))
                 if (!(lastStmtOfCurrentBB instanceof LlJumpUnconditional) && (i < this.orderedLeadersList.size() - 1)) {
+
+                    // set forward edge B --> C
                     String nextBBLeaderLabel = this.orderedLeadersList.get(i + 1);
                     BasicBlock nextBB = this.leadersToBBMap.get(nextBBLeaderLabel);
                     bb.setDefaultBranch(nextBB);
+
+                    // set reverse edge B --> C
+                    nextBB.addPredecessorNode(bb);
                 }
             }
 
