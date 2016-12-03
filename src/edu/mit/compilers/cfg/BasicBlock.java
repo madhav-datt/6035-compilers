@@ -5,6 +5,7 @@ import edu.mit.compilers.ll.*;
 import org.w3c.dom.ls.LSSerializer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 public class BasicBlock {
     private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
+    private HashSet<BasicBlock> predecessors;
     private BasicBlock alternativeBranch;
     private final LlBuilder builder;
 
@@ -63,6 +65,14 @@ public class BasicBlock {
         this.alternativeBranch = alternativeBranch;
     }
 
+    protected void addPredecessorNode(BasicBlock parent) {
+        this.predecessors.add(parent);
+    }
+
+    protected HashSet<BasicBlock> getPredecessors() {
+        return new HashSet<>(this.predecessors);
+    }
+
     @Override
     public String toString() {
         String str = "";
@@ -72,5 +82,10 @@ public class BasicBlock {
 
         }
         return str;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
     }
 }

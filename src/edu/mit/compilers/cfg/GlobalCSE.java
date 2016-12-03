@@ -100,7 +100,3 @@ public class ProgramPointsCFG {
 
     }
 }
-
-/*
-    1) re-create the same graph as the cfg using nodes.....
- */
