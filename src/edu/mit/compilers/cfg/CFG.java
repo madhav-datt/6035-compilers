@@ -14,6 +14,8 @@ import java.util.*;
 public class CFG {
     private final LlBuilder builder;
     private final ArrayList<BasicBlock> basicBlocks;
+    private final ArrayList<String> orderedLeadersList;
+    private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
@@ -49,10 +51,10 @@ public class CFG {
             }
 
             // 2) create basic blocks from LlStatements
-            LinkedHashMap<String, BasicBlock> leadersToBBMap = new LinkedHashMap<>();
+            this.leadersToBBMap = new LinkedHashMap<>();
             HashSet<String> tempLeadersSet = new HashSet<>(leadersSet);
             LinkedList<String> labelsQueue = new LinkedList<>(labelsList);
-            ArrayList<String> orderedLeadersList = new ArrayList<>();
+            this.orderedLeadersList = new ArrayList<>();
             do {
                 LinkedHashMap<String, LlStatement> bbLabelsToStmtsMap = new LinkedHashMap<>();
 
@@ -64,7 +66,7 @@ public class CFG {
                 // remove this leader from the leadersSet and add it
                 // to the leadersList
                 tempLeadersSet.remove(leaderLabel);
-                orderedLeadersList.add(leaderLabel);
+                this.orderedLeadersList.add(leaderLabel);
 
                 // keep adding LlStatments until you get to the next leader
                 while (labelsQueue.size() > 0 && !tempLeadersSet.contains(labelsQueue.peek())) {
@@ -77,14 +79,14 @@ public class CFG {
 
                 // create the actual BasicBlock and it to the LinkedHashMap
                 BasicBlock bb = new BasicBlock(bbLabelsToStmtsMap, builder);
-                leadersToBBMap.put(leaderLabel, bb);
+                this.leadersToBBMap.put(leaderLabel, bb);
 
             } while (labelsQueue.size() > 0);
 
             // 3) appropriately connect the basic blocks
-            for (int i = 0; i < orderedLeadersList.size(); i++) { // loop through the leaders in the order of the linear order of the basic blocks
-                String leaderLabel = orderedLeadersList.get(i);
-                BasicBlock bb = leadersToBBMap.get(leaderLabel);
+            for (int i = 0; i < this.orderedLeadersList.size(); i++) { // loop through the leaders in the order of the linear order of the basic blocks
+                String leaderLabel = this.orderedLeadersList.get(i);
+                BasicBlock bb = this.leadersToBBMap.get(leaderLabel);
 
                 List<LlStatement> bbStmtsList = bb.getStmtsList();
                 LlStatement lastStmtOfCurrentBB = bbStmtsList.get(bbStmtsList.size() - 1);
@@ -92,27 +94,35 @@ public class CFG {
                 // connect if there is a jump from the end of B to the beginning of C
                 if (lastStmtOfCurrentBB instanceof LlJump) {
                     String targetLabel = ((LlJump) lastStmtOfCurrentBB).getJumpToLabel();
-                    BasicBlock targetBB = leadersToBBMap.get(targetLabel);
+                    BasicBlock targetBB = this.leadersToBBMap.get(targetLabel);
                     bb.setAlternativeBranch(targetBB);
                 }
 
                 // C immediately follows B and B does not end in an unconditional jump
                 // (this only holds if B is not the last block))
-                if (!(lastStmtOfCurrentBB instanceof LlJumpUnconditional) && (i < orderedLeadersList.size() - 1)) {
-                    String nextBBLeaderLabel = orderedLeadersList.get(i + 1);
-                    BasicBlock nextBB = leadersToBBMap.get(nextBBLeaderLabel);
+                if (!(lastStmtOfCurrentBB instanceof LlJumpUnconditional) && (i < this.orderedLeadersList.size() - 1)) {
+                    String nextBBLeaderLabel = this.orderedLeadersList.get(i + 1);
+                    BasicBlock nextBB = this.leadersToBBMap.get(nextBBLeaderLabel);
                     bb.setDefaultBranch(nextBB);
                 }
             }
 
             // 4) assign the list of basic blocks as a field of THIS object
             ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
-            for (String leaderLabel : orderedLeadersList) {
-                basicBlocks.add(leadersToBBMap.get(leaderLabel));
+            for (String leaderLabel : this.orderedLeadersList) {
+                basicBlocks.add(this.leadersToBBMap.get(leaderLabel));
             }
 
             this.basicBlocks = basicBlocks;
         }
+    }
+
+    public ArrayList<String> getOrderedLeadersList() {
+        return new ArrayList<>(orderedLeadersList);
+    }
+
+    public LinkedHashMap<String, BasicBlock> getLeadersToBBMap() {
+        return new LinkedHashMap<>(leadersToBBMap);
     }
 
     public BasicBlock getRootBasicBlock() {
