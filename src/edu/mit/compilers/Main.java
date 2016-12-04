@@ -4,6 +4,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
+import edu.mit.compilers.ll.LlStatement;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.tools.CLI.Action;
@@ -235,14 +236,9 @@ class Main {
            walker.walk(listener, tree);
 
            IrProgram program = listener.getGeneratedProgram();
+           CodeGenerator cg = new CodeGenerator();
 
-           ArrayList<LlBuilder> buildersList = program.getBuilderList();
-           for (LlBuilder builder : buildersList) {
-//               System.out.println(builder.toString());
-               CFG cfg = new CFG(builder);
-               System.out.println(cfg.toString());
-           }
-
+           cg.generateCode(program);
 
 
        }

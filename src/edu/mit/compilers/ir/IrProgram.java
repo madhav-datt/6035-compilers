@@ -2,8 +2,10 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class IrProgram extends Ir{
 
@@ -134,16 +136,32 @@ public class IrProgram extends Ir{
         return prettyString;
     }
 
-    public ArrayList<LlBuilder> getBuilderList() {
-        ArrayList<LlBuilder> buildersList = new ArrayList<>();
+    public LlBuildersList getLlBuilders(){
+        LlBuildersList buildersList = new LlBuildersList();
 
         for (IrMethodDecl methodDecl: this.methodDecls) {
             LlBuilder llBuilder = new LlBuilder();
             LlSymbolTable llSymbolTable = new LlSymbolTable();
             methodDecl.generateLlIr(llBuilder, llSymbolTable);
-
-            buildersList.add(llBuilder);
+            buildersList.addBuilder(llBuilder);
+            buildersList.addSymbolTable(llSymbolTable);
         }
         return buildersList;
+    }
+    public HashMap<String, ArrayList<LlLocationVar>> getMethodArgs(){
+        HashMap<String, ArrayList<LlLocationVar>> table = new HashMap<>();
+        for(IrMethodDecl decl : this.methodDecls){
+            ArrayList<LlLocationVar> methodArgs = new ArrayList<>();
+            for(IrParamDecl param: decl.getParamsList()){
+                LlLocationVar thisParam = new LlLocationVar(param.getParamName().getValue());
+                methodArgs.add(thisParam);
+            }
+        table.put(decl.getName(), methodArgs);
+        }
+        return table;
+    }
+
+    public ArrayList<LlBuilder> getBuilderList() {
+        return this.getLlBuilders().getBuilders();
     }
 }

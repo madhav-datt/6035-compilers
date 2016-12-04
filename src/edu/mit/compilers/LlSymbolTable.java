@@ -1,8 +1,6 @@
 package edu.mit.compilers;
 
-import edu.mit.compilers.ll.Ll;
-import edu.mit.compilers.ll.LlComponent;
-import edu.mit.compilers.ll.LlStatement;
+import edu.mit.compilers.ll.*;
 
 import java.util.Hashtable;
 
@@ -10,17 +8,37 @@ import java.util.Hashtable;
  * Created by abel on 11/18/16.
  */
 public class LlSymbolTable {
-    public Hashtable<LlComponent, String> llTable;
-
+    public Hashtable<LlComponent, String> llStringTable;
+    public Hashtable<LlLocationVar, String> paramTable;
     public LlSymbolTable(){
-        llTable = new Hashtable<>();
+        this.llStringTable = new Hashtable<>();
+        this.paramTable = new Hashtable<>();
     }
 
-    public void put(LlComponent key, String value){
-        this.llTable.put(key, value);
+    public void putOnStringTable(LlComponent key, String value){
+        this.llStringTable.put(key, value);
     }
 
-    public String get(LlComponent key){
-        return this.llTable.get(key);
+    public String getFromStringTable(LlComponent key){
+        return this.llStringTable.get(key);
+    }
+    public Hashtable<LlComponent, String> getLlStringTable(){
+        return this.llStringTable;
+    }
+    public void putOnParamTable(LlLocationVar key, String value){
+        this.paramTable.put(key, value);
+    }
+
+    public String getFromParamTable(LlLocationVar key){
+       for(LlLocationVar loc : this.paramTable.keySet()){
+           if(key.equals(loc)){
+               return this.paramTable.get(loc);
+           }
+
+       }
+       return null;
+    }
+    public Hashtable<LlLocationVar, String> getParamTable(){
+        return this.paramTable;
     }
 }

@@ -2,6 +2,7 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/16/16.
@@ -41,6 +42,8 @@ public class IrArgString extends IrArg {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
-        return builder.generateStrTemp();
+        LlLocationVar locationVar = builder.generateStrTemp();
+        symbolTable.putOnStringTable(locationVar, (String) this.getArgValue());
+        return locationVar;
     }
 }

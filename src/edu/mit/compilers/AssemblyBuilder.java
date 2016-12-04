@@ -1,115 +1,103 @@
 package edu.mit.compilers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by abel on 10/26/16.
+ * Table mapping of lines --> strings
  */
 public class AssemblyBuilder {
 
-    private StringBuilder assemblyHeader;
-    private StringBuilder assemblyBody;
-    private StringBuilder assemblyBottom;
-
-    private String footNote;
-
-    private int labelCount;
-    private Stack<String> currentBlockLabel = new Stack<>();
-    private StringBuilder getFormatedLine(int offset, String asm){
-        StringBuilder tempAsm = new StringBuilder();
-        for(int i = 0; i < offset; i ++){
-            tempAsm.append(" ");
-        }
-        tempAsm.append(asm);
-        tempAsm.append("\n");
-
-        return tempAsm;
-    };
-
-
+    private HashMap<Integer, String> code;
+    private int labelCounter = 0;
+    private HashMap<String, String> stringTable;
+    private HashMap<String, Integer> enterLines;
     public AssemblyBuilder(){
-        this.assemblyHeader = new StringBuilder("");
-        this.assemblyBody = new StringBuilder("");
-        this.assemblyBottom = new StringBuilder("");
+        code = new HashMap<>();
+        this.stringTable = new HashMap<>();
+        enterLines = new HashMap<>();
     }
 
-    public void append(StringBuilder asm){
-        this.assemblyBody.append(asm);
+    public void append(String s){
+        this.code.put(this.code.size(), s);
     }
-    public void concat(AssemblyBuilder other){
-        this.assemblyBody.append(other.getAssemblyBody());
-        this.assemblyBottom.append(other.getAssemblyBottom());
-        this.assemblyHeader.append(other.assemblyHeader);
-    }
-    public void addLine(String asm){
-       this.assemblyBody.append(this.getFormatedLine(5, asm));
-    }
-    public void addLine(){
-        this.assemblyBody.append(this.getFormatedLine(5, ""));
-    }
+
     public void addLabel(String label){
-        this.assemblyBody.append(this.getFormatedLine(0, label + ":"));
-    }
-    public void appendLineToBottom(String bottom){
-        this.assemblyHeader.append(this.getFormatedLine(5, bottom));
-    }
-    public void appendLableToBottom(String bottom){
-        this.assemblyHeader.append(this.getFormatedLine(0, bottom + ":"));
+        this.append(label + ":");
     }
 
-    public void putOnFootNote(String string){
-        this.footNote = string;
-    }
-    public String getFootNote(){
-        return this.footNote;
+    public void addLine(){
+
+            this.append("");
+
     }
 
-    public StringBuilder generateAssembly(){
-        StringBuilder finalAsm = new StringBuilder();
-        finalAsm.append(this.assemblyHeader);
-        finalAsm.append("\n");
-        finalAsm.append(assemblyBody);
-        finalAsm.append("\n");
-        finalAsm.append(assemblyBottom);
-        finalAsm.append("\n");
-        return finalAsm;
+    public void addLinef(String command, String body){
+        String st = "";
+        st += String.format("%1$-6s %2$1s", command, body);
+        this.addLine(st);
     }
-    public String getLabelName(){
-        return "L" + this.labelCount++;
-    }
-    public String getStringLabel(){
-        return "STR_" + this.labelCount++;
+    public void addComment(String comment){
+        //this.addLine("# " + comment);
     }
 
-    @Override
-    public String toString() {
-        return this.getAssemblyBody().toString();
+    public int getEnterLine(String methodName){
+        return this.enterLines.get(methodName);
     }
 
-    public StringBuilder getAssemblyBottom() {
-        return assemblyBottom;
-    }
-    public StringBuilder getAssemblyBody() {
-        return assemblyBody;
-    }
-    public StringBuilder getAssemblyHeader() {
-        return assemblyHeader;
-    }
-    // Call this before you get into any block.
-    public void getInBlock(String loopLabel){
-        currentBlockLabel.push(loopLabel);
+    public void setEnterLine(String methodName) {
+        this.enterLines.put(methodName, this.code.size());
+        this.addLine();
     }
 
-    // Call this when you get out of a block.
-    public void getOutOfBlock(){
-        currentBlockLabel.pop();
+
+
+    public int getCodeLength(){
+        return this.code.size();
     }
-    public String getCurrentBlock(){
-        if(currentBlockLabel.size() > 0){
-            return currentBlockLabel.peek();
+
+    public void replaceEnterLine(String methodName, int stackSize){
+        String replaceWith = "$(8*" + Integer.toString(stackSize) + "), $0";
+        this.replaceLine(this.getEnterLine(methodName), String.format("     "+ "%1$-6s %2$1s", "enter", replaceWith));
+    }
+
+
+    public void addLine(String s){
+        this.append("     " + s);
+    }
+
+    public void replaceLine(int lineNum, String s){
+        this.code.put(lineNum, s);
+    }
+
+    public void replaceLineWithLabel(int lineNum, String label){
+        this.replaceLine(lineNum, label + ":");
+    }
+
+    public void replaceLineWithCode(int lineNum, String s){
+        this.replaceLine(lineNum, "     " + s);
+    }
+
+    public String generateStringLabel(){
+        return ".STR_" + Integer.toString(labelCounter++);
+    }
+
+    public void  putOnStringTable(String key, String value){
+        this.stringTable.put(key, value);
+    }
+    public String getFromStringTable(String key){
+        return this.stringTable.get(key);
+    }
+
+    public String assemble(){
+        // sort the keys first
+        Set<Integer> keys = this.code.keySet();
+        StringBuilder assembled = new StringBuilder("");
+        for(Integer key : keys){
+            assembled.append(this.code.get(key) + "\n");
         }
-        return null;
+
+        return assembled.toString();
     }
+
 }
