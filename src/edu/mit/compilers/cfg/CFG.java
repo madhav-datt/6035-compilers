@@ -24,7 +24,7 @@ public class CFG {
         return this.builder;
     }
 
-    private class Tuple {
+    public class Tuple {
         public String blockName;
         public String label;
 
@@ -45,7 +45,7 @@ public class CFG {
         }
     }
 
-    private class SymbolDef {
+    public class SymbolDef {
         public LlLocation symbol;
         public Tuple useDef;
 

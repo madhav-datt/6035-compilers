@@ -1,11 +1,12 @@
 package edu.mit.compilers.opt;
 
 import edu.mit.compilers.LlBuilder;
-import edu.mit.compilers.Register;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.ll.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by madhav on 11/26/16.
@@ -17,7 +18,7 @@ public class RegisterAllocation {
 
     private HashMap<LlLocation, Integer> varUsageCount;
     private HashMap<LlLocation, String> varRegisterAllocations;
-    private PriorityQueue<LlLocation> mostUsedVar;
+    private HashMap<CFG.SymbolDef, ArrayList<CFG.Tuple>> defUseChain;
 
     public HashMap<LlLocation, Integer> getVarUsageCount() {
         return varUsageCount;
@@ -38,9 +39,38 @@ public class RegisterAllocation {
         this.varUsageCount.put((LlLocation) arg, currentUsage + usageConstant);
     }
 
+    //Get label number from label string
+    private int getLabelNum(String input) {
+        final Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
+        Matcher matcher = lastIntPattern.matcher(input);
+        String someNumberStr = matcher.group(1);
+        return Integer.parseInt(someNumberStr);
+    }
+
     //Check if allocating var to register creates conflicts
     private boolean isConflict(LlLocation var, String register) {
 
+        ArrayList<CFG.Tuple> duVar = new ArrayList<>();
+        for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
+            CFG.SymbolDef currentDef = duChain.getKey();
+
+            if (currentDef.symbol.equals(var)) {
+                duVar.add(currentDef.useDef);
+                duVar.addAll(duChain.getValue());
+            }
+        }
+
+        for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
+            LlLocation otherVar = statementEntry.getKey();
+            //Continue if otherVar is allocated different register
+            if (!register.equals(statementEntry.getValue()))
+                continue;
+
+            //Check if var and otherVar conflict, if yes, return False
+            for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
+
+            }
+        }
         return true;
     }
 
@@ -67,6 +97,7 @@ public class RegisterAllocation {
         this.methodCFG = methodCFG;
         this.varUsageCount = new HashMap<>();
         this.varRegisterAllocations = new HashMap<>();
+        this.defUseChain = methodCFG.buildDefUseChains();
 
         int currentDepth = 0;
 
