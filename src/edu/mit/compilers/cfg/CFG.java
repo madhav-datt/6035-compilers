@@ -9,6 +9,7 @@ import java.util.*;
  * Created by devinmorgan on 11/20/16.
  */
 public class CFG {
+
     private final LlBuilder builder;
     private final ArrayList<BasicBlock> basicBlocks;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
@@ -18,6 +19,10 @@ public class CFG {
     }
 
     private final Tuple noDefTuple = new Tuple("NO_DEF", "NO_DEF");
+
+    public LlBuilder getBuilder() {
+        return this.builder;
+    }
 
     private class Tuple {
         public String blockName;
@@ -115,6 +120,13 @@ public class CFG {
                 LlComponent arg = ((LlJumpConditional) statement).getCondition();
 
                 //Mark use of arg location
+                this.addUseArg(recentDef, arg, currentUseDefLocation);
+            }
+
+            //Return statements
+            else if (statement instanceof LlReturn) {
+                //Mark variable use for return statement
+                LlComponent arg = ((LlReturn) statement).getReturnValue();
                 this.addUseArg(recentDef, arg, currentUseDefLocation);
             }
 
