@@ -10,24 +10,24 @@ import java.util.LinkedHashMap;
 /**
  * Created by devinmorgan on 12/4/16.
  */
-public class AvailableCopyAssignmnets {
-    private HashSet<Computation> universalSet = new HashSet<>();
-    private final HashMap<BasicBlock, HashSet<Computation>> availCopyIN = new HashMap<>();
-    private final HashMap<BasicBlock, HashSet<Computation>> availCopyOUT = new HashMap<>();
+public class CopyAssignments {
+    private HashSet<Quadruple> universalSet = new HashSet<>();
+    private final HashMap<BasicBlock, HashSet<Quadruple>> availCopyIN = new HashMap<>();
+    private final HashMap<BasicBlock, HashSet<Quadruple>> availCopyOUT = new HashMap<>();
 
-    private AvailableCopyAssignmnets(CFG cfg) {
+    private CopyAssignments(CFG cfg) {
         ArrayList<BasicBlock> bbList = cfg.getBasicBlocks();
 
         // 1) initial allExpressions with the union of all EVAL(bb)'s
         for (BasicBlock bb : bbList) {
-            this.universalSet.addAll(EVAL(bb));
+            this.universalSet.addAll(COPY(bb));
         }
 
         // 2) perform the worklist algorithm
 
-        // OUT[n] = E for all nodes
+        // IN[n] = E for all nodes
         for (BasicBlock bb: bbList) {
-            this.availCopyOUT.put(
+            this.availCopyIN.put(
                     bb, new HashSet<>(this.universalSet) // prevent mutability issues
             );
         }
@@ -39,7 +39,7 @@ public class AvailableCopyAssignmnets {
         this.availCopyIN.put(entry, new HashSet<>());
 
         // OUT[Entry] = EVAL[Entry];
-        this.availCopyOUT.put(entry, EVAL(entry));
+        this.availCopyOUT.put(entry, COPY(entry));
 
         // Changed = N - {Entry};
         activeNodes.remove(0); // remove the entry since it was accounted for
@@ -49,26 +49,26 @@ public class AvailableCopyAssignmnets {
             // get a node and remove it from active nodes
             BasicBlock node = activeNodes.get(0);
             activeNodes.remove(0);
-            HashSet<Computation> oldOUT = this.availCopyOUT.get(node);
+            HashSet<Quadruple> oldOUT = this.availCopyOUT.get(node);
 
             // IN[n] = IN[n] intersect OUT[p] for all p in predecessors
-            HashSet<Computation> IN = new HashSet<>(this.universalSet); // IN[n] = E
+            HashSet<Quadruple> IN = new HashSet<>(this.universalSet); // IN[n] = E
             for (BasicBlock pred : node.getPredecessors()) {
                 IN.removeAll(this.availCopyOUT.get(pred));
             }
             this.availCopyIN.put(node, IN);
 
             // KILL[n]
-            HashSet<Computation> KILL = KILL(node, new HashSet<>(this.universalSet));
+            HashSet<Quadruple> KILL = KILL(node, new HashSet<>(this.universalSet));
 
             // (IN[n]-KILL[n])
-            HashSet<Computation> INminusKILL = new HashSet<>(this.availCopyIN.get(node)); // make separate copy of IN
+            HashSet<Quadruple> INminusKILL = new HashSet<>(this.availCopyIN.get(node)); // make separate copy of IN
             INminusKILL.removeAll(KILL);
 
             // OUT[n] = EVAL[n] U (IN[n]-KILL[n])
-            HashSet<Computation> EVALplusINminusKILL = EVAL(node);
-            EVALplusINminusKILL.addAll(INminusKILL);
-            this.availCopyOUT.put(node, EVALplusINminusKILL);
+            HashSet<Quadruple> COPYplusINminusKILL = COPY(node);
+            COPYplusINminusKILL.addAll(INminusKILL);
+            this.availCopyOUT.put(node, COPYplusINminusKILL);
 
             // if OUT[n] changed, add its successors to activeNodes
             if (!this.availCopyOUT.equals(oldOUT)) {
@@ -82,8 +82,8 @@ public class AvailableCopyAssignmnets {
         }
     }
 
-    public static HashMap<BasicBlock, HashSet<Computation>> getAvailableExpressionsForCFG(CFG cfg) {
-        AvailableCopyAssignmnets ae = new AvailableCopyAssignmnets(cfg);
+    public static HashMap<BasicBlock, HashSet<Quadruple>> getCopyAssignmentsForCFG(CFG cfg) {
+        CopyAssignments ae = new CopyAssignments(cfg);
         return ae.availCopyIN;
     }
 
