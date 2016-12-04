@@ -189,10 +189,37 @@ public class AvailableCopyAssignmnets {
         return validCopyAssignments;
     }
 
-    // returns the sub-set of passed set of expressions that are killed
-    // by this BasicBlock
-    private HashSet<Quadruple> KILL(BasicBlock bb) {
+    // returns the set of Quadruples (u, v, block, pos) of copy
+    // assignment instances killed by bb where block != bb
+    private HashSet<Quadruple> KILL(BasicBlock bb, HashSet<Quadruple> superSet) {
+        LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
+        HashSet<Quadruple> killedSet = new HashSet<>();
 
+        // loop through each stmt in the BasicBlock
+        for (String label : labelsToStmtsMap.keySet()) {
+            LlStatement stmt = labelsToStmtsMap.get(label);
+
+            // only consider assignment statements where u <-- ? or v <-- ?
+            // for some Quadruple (u ,v, ..., ...)
+            if (stmt instanceof LlAssignStmt) {
+                LlAssignStmt assignStmt = (LlAssignStmt) stmt;
+                if (assignStmt.getStoreLocation() instanceof LlLocationVar) {
+                    LlLocationVar var = (LlLocationVar) assignStmt.getStoreLocation();
+                    for (Quadruple quad : superSet) {
+
+                        // don't consider Quads if block == bb
+                        if (!quad.getBlock().equals(bb)) {
+
+                            // if either u or v gets reassigned, add quad to the killed set
+                            if (quad.containsVar(var)) {
+                                killedSet.add(quad);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return killedSet;
     }
 
 
@@ -215,5 +242,8 @@ public class AvailableCopyAssignmnets {
             return this.u.equals(var) || this.v.equals(var);
         }
 
+        public BasicBlock getBlock() {
+            return block;
+        }
     }
 }
