@@ -17,7 +17,6 @@ public class LlBuilder {
     private int tempCounter = 0;
 
     private Stack<String> currentBlockLabel = new Stack<>();
-
     private Object pocket;
 
     public LlBuilder(){

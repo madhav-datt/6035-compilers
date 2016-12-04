@@ -4,6 +4,10 @@ package edu.mit.compilers.ll;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlAssignStmtUnaryOp extends LlAssignStmt{
+    public LlComponent getArg() {
+        return arg;
+    }
+
     private final LlComponent arg;
     private final String operand;
 

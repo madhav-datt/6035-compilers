@@ -4,6 +4,10 @@ package edu.mit.compilers.ll;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlJumpConditional extends LlJump{
+    public LlComponent getCondition() {
+        return condition;
+    }
+
     private final LlComponent condition;
 
     public LlJumpConditional(String jumpToLabel, LlComponent condition) {

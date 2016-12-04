@@ -4,6 +4,14 @@ package edu.mit.compilers.ll;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlAssignStmtBinaryOp extends LlAssignStmt{
+    public LlComponent getLeftArg() {
+        return leftArg;
+    }
+
+    public LlComponent getRightArg() {
+        return rightArg;
+    }
+
     private final LlComponent leftArg;
     private final String operation;
     private final LlComponent rightArg;
