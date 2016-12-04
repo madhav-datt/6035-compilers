@@ -1,9 +1,6 @@
 package edu.mit.compilers.cfg;
 
-import edu.mit.compilers.ll.LlAssignStmtBinaryOp;
-import edu.mit.compilers.ll.LlAssignStmtUnaryOp;
-import edu.mit.compilers.ll.LlComponent;
-import edu.mit.compilers.ll.LlStatement;
+import edu.mit.compilers.ll.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,35 +32,38 @@ public class AvailableExpressions {
             if (stmt instanceof LlAssignStmtUnaryOp) {
                 LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
-                // we only care about cases where the
-                // store location is NOT the same as the read location
-                // If i = i + 1 then i+1 is generated FIRST but then
-                // immediately killed
-                LlComponent storeLoc = unaryOp.getStoreLocation();
-                String operation = unaryOp.getOperator();
-                LlComponent operand = unaryOp.getOperand();
-                if (!storeLoc.equals(operand)) {
-                    Computation uniComp = Computation.createUnaryComputation(operation, operand);
-                    generatedExpressions.add(uniComp);
-                }
+                // add all new computations to generatedExpressions
+                Computation uniComp = Computation.createUnaryComputation(
+                        unaryOp.getOperator(),
+                        unaryOp.getOperand()
+                );
+                generatedExpressions.add(uniComp);
             }
             else if (stmt instanceof LlAssignStmtBinaryOp) {
                 LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
 
-                // we only care about cases where the
-                // store location is NOT the same as the read location
-                // If i = i + 1 then i+1 is generated FIRST but then
-                // immediately killed
-                LlComponent storeLoc = binaryOp.getStoreLocation();
-                LlComponent op1 = binaryOp.getLeftOperand();
-                String operation = binaryOp.getOperation();
-                LlComponent op2 = binaryOp.getRightOperand();
-                if (!storeLoc.equals(op1) && !storeLoc.equals(op2)) {
-                    Computation binComp = Computation.createBinaryComputation(op1, operation, op2);
-                    generatedExpressions.add(binComp);
+                // add all new computations to generatedExpressions
+                Computation binComp = Computation.createBinaryComputation(
+                        binaryOp.getLeftOperand(),
+                        binaryOp.getOperation(),
+                        binaryOp.getRightOperand()
+                );
+                generatedExpressions.add(binComp);
+            }
+
+            // remove all expressions that contain the storeLocation
+            // variable from generatedExpressions because those
+            // computations are no longer valid
+            if (stmt instanceof LlAssignStmt) {
+                LlAssignStmt assignStmt = (LlAssignStmt) stmt;
+                for (Computation comp : new HashSet<>(generatedExpressions)) {
+                    if (comp.contains(assignStmt.getStoreLocation())) {
+                        generatedExpressions.remove(comp);
+                    }
                 }
             }
-        }
 
+        }
+        return generatedExpressions;
     }
 }
