@@ -50,25 +50,45 @@ public class RegisterAllocation {
     //Check if allocating var to register creates conflicts
     private boolean isConflict(LlLocation var, String register) {
 
-        ArrayList<CFG.Tuple> duVar = new ArrayList<>();
+        //List of def and use line numbers of var in question
+        HashSet<Integer> duVar = new HashSet<>();
         for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
             CFG.SymbolDef currentDef = duChain.getKey();
 
             if (currentDef.symbol.equals(var)) {
-                duVar.add(currentDef.useDef);
-                duVar.addAll(duChain.getValue());
+                duVar.add(this.getLabelNum(currentDef.useDef.label));
+                for (CFG.Tuple varUses : duChain.getValue())
+                    duVar.add(this.getLabelNum(varUses.label));
             }
         }
 
+        //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
             //Continue if otherVar is allocated different register
             if (!register.equals(statementEntry.getValue()))
                 continue;
 
-            //Check if var and otherVar conflict, if yes, return False
+            //Check if var and otherVar conflict, for all chains with otherVar
             for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
+                CFG.SymbolDef duOtherVar = duChain.getKey();
 
+                //Check if selected du-chain corresponds to otherVar
+                if (duOtherVar.symbol.equals(otherVar)) {
+                    ArrayList<Integer> otherVarUseList = new ArrayList<>();
+                    int defOtherVar = this.getLabelNum(duOtherVar.useDef.label);
+
+                    //Find last use of otherVar in selected du chain
+                    for (CFG.Tuple varUses : duChain.getValue())
+                        otherVarUseList.add(this.getLabelNum(varUses.label));
+                    int maxUseOtherVar = Collections.max(otherVarUseList);
+
+                    //Check if any use/def of var lies on a def-use chain of otherVar
+                    for (int varDefUses : duVar) {
+                        if (varDefUses >= defOtherVar && varDefUses <= maxUseOtherVar)
+                            return false;
+                    }
+                }
             }
         }
         return true;

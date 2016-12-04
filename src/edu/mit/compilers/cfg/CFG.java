@@ -179,6 +179,7 @@ public class CFG {
 
     //Build def-use chains for each symbol from updated/changed LlBuilder
     public HashMap<SymbolDef, ArrayList<Tuple>> buildDefUseChains() {
+        this.defUseChain = new HashMap<>();
         BasicBlock head = basicBlocks.get(0);
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
@@ -188,6 +189,7 @@ public class CFG {
     //Build use-def chains for each symbol from updated/changed LlBuilder
     public HashMap<SymbolDef, ArrayList<Tuple>> buildUseDefChains() {
         this.buildDefUseChains();
+        this.useDefChain = new HashMap<>();
         for (Map.Entry<SymbolDef, ArrayList<Tuple>> duChain : this.defUseChain.entrySet()) {
             ArrayList<Tuple> useList = duChain.getValue();
             LlLocation symbol = duChain.getKey().symbol;
@@ -206,7 +208,6 @@ public class CFG {
                 }
             }
         }
-
         return this.useDefChain;
     }
 
