@@ -56,7 +56,6 @@ public class BasicBlock {
         this.labelsToStmtsMap = labelsToStmtsMap;
     }
 
-
     protected void setDefaultBranch(BasicBlock defaultBranch) {
         this.defaultBranch = defaultBranch;
     }
