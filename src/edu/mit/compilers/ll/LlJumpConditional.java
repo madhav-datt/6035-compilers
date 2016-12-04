@@ -37,7 +37,7 @@ public class LlJumpConditional extends LlJump{
         builder.addComment("generating code for " + this.toString());
         String resultOfConditional = this.condition.generateCode(builder, frame, symbolTable);
         builder.addLinef("mov", resultOfConditional + ", %r10");
-        builder.addLinef("mov", "$1, %r11");
+        builder.addLinef("movq", "$1, %r11");
         builder.addLinef("cmpq", "%r10, %r11");
         builder.addLinef("je ", this.jumpToLabel);
         builder.addLine();

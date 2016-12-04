@@ -39,7 +39,7 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         String storeToLoc = frame.getNextStackLocation();
         frame.pushToStackFrame(this.storeLocation);
 
-        builder.addLinef("mov", exprResultLocation+", " + storeToLoc);
+        builder.addLinef("movq", exprResultLocation+", " + storeToLoc);
         builder.addLine();
         return storeToLoc;
 

@@ -20,8 +20,8 @@ public class LlReturn extends LlStatement {
     }
 
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
-
+        String returnAdd = returnValue.generateCode(builder, frame, symbolTable);
+        builder.addLinef("movq", returnAdd + ", %rax");
         return "%rax";
-
     }
 }

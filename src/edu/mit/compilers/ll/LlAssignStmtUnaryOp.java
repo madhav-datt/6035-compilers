@@ -38,7 +38,7 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         // compute the value of the expression and figure out where it is stored
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.arg.generateCode(builder, frame, symbolTable);
-        builder.addLinef("mov ", exprResultLocation + ", %r10");
+        builder.addLinef("movq", exprResultLocation + ", %r10");
         builder.addLine();
         return "%r10";
 

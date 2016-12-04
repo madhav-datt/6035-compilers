@@ -48,7 +48,7 @@ public class LlMethodCallStmt extends LlStatement {
             if(((LlLocationVar) argsList.get(i)).isStringLoc()){
                 String storedStringLabel = builder.getFromStringTable(((LlLocationVar) argsList.get(i)).getVarName());
                 if(i < 6) {
-                    builder.addLinef("mov", storedStringLabel + ", " + paramRegs[i]);
+                    builder.addLinef("movq", storedStringLabel + ", " + paramRegs[i]);
                 }
                 else{
                     int stackBottom = -(16 + (i-6)*8);
@@ -58,11 +58,11 @@ public class LlMethodCallStmt extends LlStatement {
             else{
                 String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
                 if(i < 6) {
-                    builder.addLinef("mov", storageLoc + ", " + paramRegs[i]);
+                    builder.addLinef("movq", storageLoc + ", " + paramRegs[i]);
                 }
                 else{
                     int stackBottom = -(16 + (i-6)*8);
-                    builder.addLinef("mov", storageLoc + ", %" + Integer.toString(stackBottom)+"rbp");
+                    builder.addLinef("movq", storageLoc + ", %" + Integer.toString(stackBottom)+"rbp");
                 }
             }
 

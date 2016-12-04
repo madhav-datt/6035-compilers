@@ -74,8 +74,10 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
                 break;
             case "==":
                 retCommand = "cmove ";
+                break;
             default:
-                System.err.print("Runtime Error: Unrecognized Operation");
+                System.err.println("Runtime Error: Unrecognized Operation");
+                System.err.println(operation);
                 break;
         }
         return retCommand;
@@ -94,23 +96,23 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
 
         builder.addComment("generating code for " + this.toString());
 
-        builder.addLinef("mov",leftExprResultStorageLoc + ", %r10");
-        builder.addLinef("mov",rightExprResultStorageLoc + ", %r11");
+        builder.addLinef("movq",leftExprResultStorageLoc + ", %r10");
+        builder.addLinef("movq",rightExprResultStorageLoc + ", %r11");
 
         if(!isComparison(this.operation)) {
             builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
 
         }
         else{
-            builder.addLinef("cmp", "%r10, %r11");
-            builder.addLinef("mov", "$0, %r11");
-            builder.addLinef("mov", "$1, %r10");
+            builder.addLinef("cmpq", "%r10, %r11");
+            builder.addLinef("movq", "$0, %r11");
+            builder.addLinef("movq", "$1, %r10");
             builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
         }
 
         String resultTemp = frame.getNextStackLocation();
-        frame.pushToRegisterStackFrame("%r11");
-        builder.addLinef("mov", "%r11, " + resultTemp);
+        frame.pushToStackFrame(this.storeLocation);
+        builder.addLinef("movq", "%r11, " + resultTemp);
 
         builder.addLine();
 

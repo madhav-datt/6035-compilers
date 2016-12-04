@@ -3,6 +3,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -59,13 +60,23 @@ public class CodeGenerator {
 
                     assemblyBuilder.addLabel(label);
                 }
-
                 builder.getStatementTable().get(label).generateCode(assemblyBuilder, frame, symbolTable);
             }
             assemblyBuilder.replaceEnterLine(currentMethodName, frame.getStackSize());
+
+            assemblyBuilder.addLinef("leave","");
+            assemblyBuilder.addLinef("ret", "");
         }
         assembled += assemblyBuilder.assemble();
         System.out.println(assemblyBuilder.assemble());
+        ///Users/abel/Desktop
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("/Users/abel/Desktop/out.s"), "utf-8"))) {
+            writer.write(assembled);
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
         return assembled;
     }
 
