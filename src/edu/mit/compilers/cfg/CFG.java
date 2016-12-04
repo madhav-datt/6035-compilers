@@ -26,6 +26,8 @@ public class CFG {
 
         if (labelsList.size() == 0) {
             this.basicBlocks = new ArrayList<BasicBlock>();
+            this.orderedLeadersList = new ArrayList<>();
+            this.leadersToBBMap = new LinkedHashMap<>();
         }
         else {
             // 1) determine the leaders in the LLIR
