@@ -54,7 +54,11 @@ public class CopyAssignments {
             // IN[n] = IN[n] intersect OUT[p] for all p in predecessors
             HashSet<Quadruple> IN = new HashSet<>(this.universalSet); // IN[n] = E
             for (BasicBlock pred : node.getPredecessors()) {
-                IN.removeAll(this.availCopyOUT.get(pred));
+                IN.retainAll(this.availCopyOUT.get(pred));
+            }
+            if (node.getPredecessors().size() == 0) {
+                // IN should be there empty set if there are no predecessors
+                IN = new HashSet<>();
             }
             this.availCopyIN.put(node, IN);
 
