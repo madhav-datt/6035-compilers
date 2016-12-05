@@ -48,11 +48,14 @@ public class AvailableExpressions {
             activeNodes.remove(0);
             HashSet<Computation> oldOUT = this.availExprOUT.get(node);
 
-            // IN[n] = E
             // IN[n] = IN[n] intersect OUT[p] for all p in predecessors
-            HashSet<Computation> IN = new HashSet<>(this.universalSet);
+            HashSet<Computation> IN = new HashSet<>(this.universalSet); // IN[n] = E
             for (BasicBlock pred : node.getPredecessors()) {
-                IN.removeAll(this.availExprOUT.get(pred));
+                IN.retainAll(this.availExprOUT.get(pred));
+            }
+            if (node.getPredecessors().size() == 0) {
+                // IN should be there empty set if there are no predecessors
+                IN = new HashSet<>();
             }
             this.availExprIN.put(node, IN);
 
