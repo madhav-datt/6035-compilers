@@ -118,7 +118,7 @@ public class LivenessAnalysis {
         return setOfNewDefs;
     }
 
-    // returns the set of (block, label) paris that represent LlAssignStmts
+    // returns the set of (block, label) pairs that represent LlAssignStmts
     // where the storeLocation has a USE somewhere in the BasicBlock
     private HashSet<Tuple> USE(BasicBlock bb) {
         HashSet<Tuple> setOfNeededDefs = new HashSet<Tuple>();
