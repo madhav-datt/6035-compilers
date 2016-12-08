@@ -3,29 +3,33 @@ package edu.mit.compilers.cfg;
 import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
  * Created by devinmorgan on 11/26/16.
  */
-public class LocalCP {
-    private final HashMap<LlLocation, LlComponent> copyTable = new HashMap<>();
+public class GlobalCP {
+    private final HashMap<LlLocation, LlComponent> copyTable;
     private final LlBuilder builder;
 
-    public LocalCP(LlBuilder builder) {
+    public GlobalCP(LlBuilder builder, HashMap<LlLocation, LlComponent> copyTable) {
+        this.copyTable = copyTable;
         this.builder = builder;
     }
 
-    public static BasicBlock performLocalCSE(BasicBlock bb) {
-        LocalCP cp = new LocalCP(bb.getBuilder());
+    // mutates the BasicBlock by performing copy
+    // propagation using the passed HashMap. If
+    // the HashMap is empty, then it performs local
+    // copy propagation.
+    private static void performLocalCP(BasicBlock bb, GlobalCP cp) {
         LinkedHashMap<String, LlStatement> optimizedMap = new LinkedHashMap<>();
 
         // 2) loop through the current linked hashmap
         for (String label : bb.getLabelsToStmtsMap().keySet()) {
             LlStatement stmt = bb.getLabelsToStmtsMap().get(label);
 
-            // CP only applies to Binary, Unary, and Regular Assignments
             if (stmt instanceof LlAssignStmtUnaryOp) {
                 LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
@@ -75,13 +79,28 @@ public class LocalCP {
                 // add LHS definitions to the copyTable
                 // TODO: Figure out how to make this work for a[i] (i.e. arrays)
                 if (stmtRegular.getStoreLocation() instanceof LlLocationVar
-                        && !(stmtRegular.getOperand() instanceof LlLocationArray)) {
+                        && !(stmtRegular.getOperand() instanceof LlLocationArray)) { // <-- this means it works for constants of vars
                     cp.copyTable.put(stmtRegular.getStoreLocation(), stmtRegular.getOperand());
                 }
             }
         }
 
-        return new BasicBlock(optimizedMap, cp.builder);
+        bb.setLabelsToStmtsMap(optimizedMap);
+    }
+
+    public static void performGlobalCP(CFG cfg) {
+        ArrayList<BasicBlock> basicBlocks = cfg.getBasicBlocks();
+
+        // get the HashMap of BasicBlock => (u <-- v)
+        HashMap<BasicBlock, HashMap<LlLocation, LlComponent>> copyAssignmentsIN
+                = CopyAssignments.getCopyAssignmentsForCFG(cfg);
+
+        // perform copy propagation inside the block with the
+        // set of copyAssignments available at the start of the BB
+        for (BasicBlock bb : basicBlocks) {
+            GlobalCP cp = new GlobalCP(bb.getBuilder(), copyAssignmentsIN.get(bb));
+            GlobalCP.performLocalCP(bb, cp);
+        }
     }
 
     private LlReturn swapVariableForReturnStmt(LlReturn rtnStmt) {
