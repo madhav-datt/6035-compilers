@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 /**
  * Created by devinmorgan on 12/4/16.
  */
-public class GlobalConstantPropgationAndFolding {
+public class GlobalCF {
 
     // mutates the orignal CFG by performing Global Constant Propogation
     // and Folding on it.
