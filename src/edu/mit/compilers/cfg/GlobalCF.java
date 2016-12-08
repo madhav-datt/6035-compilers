@@ -12,7 +12,7 @@ public class GlobalCF {
 
     // mutates the orignal CFG by performing Global Constant Propogation
     // and Folding on it.
-    public static void performGlobalContantPropogationAndFolding(CFG cfg) {
+    public static void performGlobalCodeFolding(CFG cfg) {
         ArrayList<BasicBlock> basicBlocks = cfg.getBasicBlocks();
 
         // loop through each BasicBlock
