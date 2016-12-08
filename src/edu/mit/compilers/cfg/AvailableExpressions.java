@@ -98,27 +98,31 @@ public class AvailableExpressions {
         for (String label : labelsToStmtsMap.keySet()) {
             LlStatement stmt = labelsToStmtsMap.get(label);
 
-            // TODO: Handle a[i] = -a[i] (+ a[i]). That is, handle arrays!!
             if (stmt instanceof LlAssignStmtUnaryOp) {
                 LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
                 // add all new computations to generatedExpressions
-                Computation uniComp = Computation.createUnaryComputation(
-                        unaryOp.getOperator(),
-                        unaryOp.getOperand()
-                );
-                generatedExpressions.add(uniComp);
+                if (unaryOp.getOperand() instanceof LlLocationVar) {
+                    Computation uniComp = Computation.createUnaryComputation(
+                            unaryOp.getOperator(),
+                            unaryOp.getOperand()
+                    );
+                    generatedExpressions.add(uniComp);
+                }
             }
             else if (stmt instanceof LlAssignStmtBinaryOp) {
                 LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
 
                 // add all new computations to generatedExpressions
-                Computation binComp = Computation.createBinaryComputation(
-                        binaryOp.getLeftOperand(),
-                        binaryOp.getOperation(),
-                        binaryOp.getRightOperand()
-                );
-                generatedExpressions.add(binComp);
+                if (binaryOp.getLeftOperand() instanceof LlLocationVar
+                        && binaryOp.getRightOperand() instanceof LlLocationVar) {
+                    Computation binComp = Computation.createBinaryComputation(
+                            binaryOp.getLeftOperand(),
+                            binaryOp.getOperation(),
+                            binaryOp.getRightOperand()
+                    );
+                    generatedExpressions.add(binComp);
+                }
             }
 
             // remove all expressions that contain the storeLocation
