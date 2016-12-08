@@ -86,9 +86,23 @@ public class CopyAssignments {
         }
     }
 
-    public static HashMap<BasicBlock, HashSet<Quadruple>> getCopyAssignmentsForCFG(CFG cfg) {
+    public static HashMap<BasicBlock, HashMap<LlLocation, LlComponent>> getCopyAssignmentsForCFG(CFG cfg) {
         CopyAssignments ae = new CopyAssignments(cfg);
-        return ae.availCopyIN;
+        HashMap<BasicBlock, HashMap<LlLocation, LlComponent>> bbToCopyTableMap = new HashMap<>();
+
+        // loop through each BasicBlock
+        for (BasicBlock bb : cfg.getBasicBlocks()) {
+            HashMap<LlLocation, LlComponent> copyTable = new HashMap<>();
+
+            // populate the copyTable for the BasicBlock
+            for (Quadruple quad : ae.availCopyIN.get(bb)) {
+                LlLocationVar u = quad.getU();
+                LlLocationVar v = quad.getV();
+                copyTable.put(u, v);
+            }
+            bbToCopyTableMap.put(bb, copyTable);
+        }
+        return bbToCopyTableMap;
     }
 
     // returns the set of quadruples (u, v, block, pos) such
@@ -226,8 +240,7 @@ public class CopyAssignments {
         return killedSet;
     }
 
-
-    private class Quadruple {
+    public class Quadruple {
         // the quadruple is of the form
         // (u, v, i, pos) which represents u <-- v; @ instruction pos in block i
         private final LlLocationVar u;
@@ -240,6 +253,14 @@ public class CopyAssignments {
             this.v = v;
             this.block = block;
             this.stmtLabel = stmtLabel;
+        }
+
+        public LlLocationVar getU() {
+            return this.u;
+        }
+
+        public LlLocationVar getV() {
+            return this.v;
         }
 
         public boolean containsVar(LlLocationVar var) {
