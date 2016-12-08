@@ -17,7 +17,7 @@ public abstract class Computation {
         return new BinaryComputation(op1, operation, op2);
     }
 
-    private static class BinaryComputation extends Computation{
+    public static class BinaryComputation extends Computation{
         private final LlComponent op1;
         private final String operation;
         private final LlComponent op2;
@@ -45,7 +45,7 @@ public abstract class Computation {
         }
     }
 
-    private static class UnaryComputation extends Computation {
+    public static class UnaryComputation extends Computation {
         private final String operation;
         private final LlComponent op;
 
