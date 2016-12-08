@@ -129,6 +129,10 @@ public class CFG {
         }
     }
 
+    public LlBuilder getBuilder() {
+        return this.builder;
+    }
+
     public ArrayList<String> getOrderedLeadersList() {
         return new ArrayList<>(orderedLeadersList);
     }
