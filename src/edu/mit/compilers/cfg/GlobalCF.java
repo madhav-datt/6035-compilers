@@ -60,10 +60,18 @@ public class GlobalCF {
                         boolean op1 = ((LlLiteralBool) binaryOp.getLeftOperand()).getBoolValue();
                         boolean op2 = ((LlLiteralBool) binaryOp.getRightOperand()).getBoolValue();
 
-                        // compute the expression depending on whether its || or &&
+                        // compute the expression depending on whether its && or || or ==
                         boolean evaluatedExpr = op1 && op2;
-                        if (binaryOp.getOperation().equals("||")) {
-                            evaluatedExpr = op1 || op2;
+                        switch (binaryOp.getOperation()) {
+                            case "||":
+                                evaluatedExpr = op1 || op2;
+                                break;
+                            case "==":
+                                evaluatedExpr = op1 == op2;
+                                break;
+                            case "!=":
+                                evaluatedExpr = op1 != op2;
+                                break;
                         }
                         LlLiteralBool newBool = new LlLiteralBool(evaluatedExpr);
 
