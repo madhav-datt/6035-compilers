@@ -11,6 +11,11 @@ import java.util.*;
 public class CFG {
 
     private final LlBuilder builder;
+
+    public ArrayList<BasicBlock> getBasicBlocks() {
+        return basicBlocks;
+    }
+
     private final ArrayList<BasicBlock> basicBlocks;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
 
