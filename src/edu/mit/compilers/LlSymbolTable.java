@@ -10,9 +10,11 @@ import java.util.Hashtable;
 public class LlSymbolTable {
     public Hashtable<LlComponent, String> llStringTable;
     public Hashtable<LlLocationVar, String> paramTable;
+    public Hashtable<LlLocationVar, Integer> arrayTable;
     public LlSymbolTable(){
         this.llStringTable = new Hashtable<>();
         this.paramTable = new Hashtable<>();
+        this.arrayTable = new Hashtable<>();
     }
 
     public void putOnStringTable(LlComponent key, String value){
@@ -40,5 +42,21 @@ public class LlSymbolTable {
     }
     public Hashtable<LlLocationVar, String> getParamTable(){
         return this.paramTable;
+    }
+
+    public void putOnArrayTable(LlLocationVar key, int val){
+        this.arrayTable.put(key, val);
+    }
+    public Integer getFromArrayTable(LlLocationVar key){
+        for(LlLocationVar loc : this.arrayTable.keySet()){
+            if(key.equals(loc)){
+                return this.arrayTable.get(loc);
+            }
+
+        }
+        return null;
+    }
+    public Hashtable<LlLocationVar, Integer> getArrayTable(){
+        return this.arrayTable;
     }
 }

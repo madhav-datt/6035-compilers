@@ -91,6 +91,7 @@ public class IrLocationArray extends IrLocation {
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         LlLocation indexExpressionTemp = this.elementIndex.generateLlIr(builder, symbolTable);
         LlLocationArray locationArray = new LlLocationArray(this.varName.getValue(), ((LlLocationVar)indexExpressionTemp));
+
         return locationArray;
 
     }

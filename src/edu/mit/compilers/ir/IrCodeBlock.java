@@ -55,6 +55,11 @@ public class IrCodeBlock extends Ir {
             }
             statement.generateLlIr(builder, symbolTable);
         }
+        for (IrFieldDecl field: this.fieldsList) {
+            if(field instanceof IrFieldDeclArray){
+                field.generateLlIr(builder, symbolTable);
+            }
+        }
         return null;
     }
 

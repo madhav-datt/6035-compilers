@@ -36,10 +36,28 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.arg.generateCode(builder, frame, symbolTable);
         // might be replaced by reg-alloc vals
-        String storeToLoc = frame.getNextStackLocation();
-        frame.pushToStackFrame(this.storeLocation);
+        // check if the storeLocation already exists, if not, create a new one
+        String storeToLoc;
+        // check if the storage location is an array access
+        if(this.storeLocation instanceof LlLocationArray){
+            storeToLoc = this.storeLocation.generateCode(builder, frame, symbolTable);
+            builder.addComment("adding something to " + storeToLoc);
+            builder.addLinef("movq",  storeToLoc + ", %r10");
+            builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
+            builder.addLinef("movq", "%r10, " + storeToLoc);
+        }
+        else {
+            String checkFrame = frame.getLlLocation(this.storeLocation);
+            if (checkFrame == null) {
+                storeToLoc = frame.getNextStackLocation();
+                frame.pushToStackFrame(this.storeLocation);
+            } else {
+                storeToLoc = checkFrame;
+            }
+            builder.addLinef("movq", exprResultLocation+", %r10" );
+            builder.addLinef("movq",  "%r10, " + storeToLoc);
+        }
 
-        builder.addLinef("movq", exprResultLocation+", " + storeToLoc);
         builder.addLine();
         return storeToLoc;
 

@@ -21,6 +21,7 @@ public class CodeGenerator {
         AssemblyBuilder assemblyBuilder = new AssemblyBuilder();
         assemblyBuilder.addLine(".globl main");
         assemblyBuilder.addLine();
+
         // keeps track of what strings are created and
 
         for(LlSymbolTable table : buildersList.getSymbolTables()){
@@ -33,8 +34,12 @@ public class CodeGenerator {
                 }
             }
         }
+        int countSymbolTables = 0;
         for(LlBuilder builder : buildersList.getBuilders()){
+            LlSymbolTable oldSymbolTable = buildersList.getSymbolTables().get(countSymbolTables++);
             LlSymbolTable symbolTable = new LlSymbolTable();
+            // push the array Access values on the symbolTable
+            this.pushArraysToSymbolTable(oldSymbolTable, symbolTable);
             String currentMethodName = "";
             assemblyBuilder.addLine("");
             StackFrame frame = new StackFrame();;
@@ -94,8 +99,14 @@ public class CodeGenerator {
             }
             else{
                 storageLoc =  Integer.toString(16 + (i-6)*8);
-                symbolTable.putOnParamTable(locations.get(i), storageLoc);
+                symbolTable.putOnParamTable(locations.get(i),storageLoc + "(%rbp)");
             }
+        }
+    }
+    // add the array names to the symbol table
+    public void pushArraysToSymbolTable(LlSymbolTable oldSymbolTable, LlSymbolTable newSymbolTable){
+        for(LlLocationVar key : oldSymbolTable.getArrayTable().keySet()){
+            newSymbolTable.putOnArrayTable(key, oldSymbolTable.getFromArrayTable(key));
         }
     }
 
