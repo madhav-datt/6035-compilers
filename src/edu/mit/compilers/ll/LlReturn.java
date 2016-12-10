@@ -8,6 +8,10 @@ import edu.mit.compilers.StackFrame;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlReturn extends LlStatement {
+    public LlComponent getReturnValue() {
+        return returnValue;
+    }
+
     private final LlComponent returnValue;
 
     public LlReturn(LlComponent returnValue) {

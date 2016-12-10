@@ -57,6 +57,7 @@ public class IrLocationArray extends IrLocation {
 
         return errorMessage;
     }
+
     @Override
     public boolean equals(Object that) {
         if (that == this) {
@@ -67,12 +68,6 @@ public class IrLocationArray extends IrLocation {
         }
         return (this.getLocationName().equals(((IrLocation) that).getLocationName()));
     }
-
-     /*
-        adds a block of code to the assembly builder and return a location on the stack where the
-        requested array element resides.
-     */
-
 
     @Override
     public String prettyPrint(String indentSpace) {

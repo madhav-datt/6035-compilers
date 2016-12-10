@@ -1,10 +1,7 @@
 package edu.mit.compilers.cfg;
 
 import edu.mit.compilers.LlBuilder;
-import edu.mit.compilers.ll.LlJump;
-import edu.mit.compilers.ll.LlJumpConditional;
-import edu.mit.compilers.ll.LlJumpUnconditional;
-import edu.mit.compilers.ll.LlStatement;
+import edu.mit.compilers.ll.*;
 
 import java.util.*;
 
@@ -12,8 +9,212 @@ import java.util.*;
  * Created by devinmorgan on 11/20/16.
  */
 public class CFG {
+
     private final LlBuilder builder;
+
+    public ArrayList<BasicBlock> getBasicBlocks() {
+        return basicBlocks;
+    }
+
     private final ArrayList<BasicBlock> basicBlocks;
+    private final LinkedHashMap<BasicBlock, String> blockLabels;
+
+    public Tuple getNoDefTuple() {
+        return this.noDefTuple;
+    }
+
+    private final Tuple noDefTuple = new Tuple("NO_DEF", "NO_DEF");
+
+    public LlBuilder getBuilder() {
+        return this.builder;
+    }
+
+    public class Tuple {
+        public String blockName;
+        public String label;
+
+        public Tuple(String x, String y) {
+            this.blockName = x;
+            this.label = y;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof Tuple) && (((Tuple) o).blockName.equals(this.blockName)) &&
+                    (((Tuple) o).label.equals(this.label));
+        }
+
+        @Override
+        public int hashCode() {
+            return this.blockName.hashCode() + this.label.hashCode();
+        }
+    }
+
+    public class SymbolDef {
+        public LlLocation symbol;
+        public Tuple useDef;
+
+        public SymbolDef(LlLocation symbol, Tuple useDef) {
+            this.useDef = useDef;
+            this.symbol = symbol;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof SymbolDef) && (((SymbolDef) o).symbol.equals(this.symbol)) &&
+                    (((SymbolDef) o).useDef.equals(this.useDef));
+        }
+
+        @Override
+        public int hashCode() {
+            return this.symbol.hashCode() + this.useDef.hashCode();
+        }
+    }
+
+    private HashMap<SymbolDef, ArrayList<Tuple>> defUseChain = new HashMap<>();
+    private HashMap<SymbolDef, ArrayList<Tuple>> useDefChain = new HashMap<>();
+    private HashSet<Edge> isVisited = new HashSet<>();
+
+    //Mark use of arg at currentUseDefLocation in defUseChain using recentDef
+    private void addUseArg(HashMap<LlLocation, Tuple> recentDef, LlComponent arg, Tuple currentUseDefLocation) {
+        if (arg instanceof LlLocation) {
+
+            //Default value (0) being used in arg
+            if (!recentDef.containsKey(arg)) {
+                recentDef.put((LlLocation) arg, this.noDefTuple);
+                this.defUseChain.put(new SymbolDef((LlLocation) arg, this.noDefTuple), new ArrayList<>());
+            }
+
+            //Add use to ArrayList of uses corresponding to recent def of LlLocation arg
+            Tuple latestDef = recentDef.get(arg);
+            ArrayList<Tuple> useList = this.defUseChain.get(new SymbolDef((LlLocation) arg, latestDef));
+            useList.add(currentUseDefLocation);
+        }
+    }
+
+    //Recursively (DFS) build defUseChains
+    private void buildDefUseRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
+        //Add def-use chains of basic block head
+        for (Map.Entry<String, LlStatement> statementRow : head.getLabelsToStmtsMap().entrySet()) {
+            String label = statementRow.getKey();
+            LlStatement statement = statementRow.getValue();
+
+            //Tuple corresponding to location (blockName, label) of current statement
+            //All uses and defs in statement happen at this location
+            Tuple currentUseDefLocation = new Tuple(blockLabels.get(head), label);
+
+            //Method call statements
+            if (statement instanceof LlMethodCallStmt) {
+                //Mark useDef for returnLocation
+                if (((LlMethodCallStmt) statement).getReturnLocation() != null) {
+                    LlLocation returnLocation = ((LlMethodCallStmt) statement).getReturnLocation();
+                    SymbolDef currentSymbolDef = new SymbolDef(returnLocation, currentUseDefLocation);
+
+                    recentDef.put(returnLocation, currentUseDefLocation);
+                    this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+                }
+
+                //Mark use for argsList values
+                for (LlComponent arg : ((LlMethodCallStmt) statement).getArgsList()) {
+                    this.addUseArg(recentDef, arg, currentUseDefLocation);
+                }
+            }
+
+            //Conditional jump statements
+            else if (statement instanceof LlJumpConditional) {
+                LlComponent arg = ((LlJumpConditional) statement).getCondition();
+
+                //Mark use of arg location
+                this.addUseArg(recentDef, arg, currentUseDefLocation);
+            }
+
+            //Return statements
+            else if (statement instanceof LlReturn) {
+                //Mark variable use for return statement
+                LlComponent arg = ((LlReturn) statement).getReturnValue();
+                this.addUseArg(recentDef, arg, currentUseDefLocation);
+            }
+
+            //Assign statements and sub-class statements
+            else if (statement instanceof LlAssignStmt) {
+
+                //Mark useDef for storeLocation
+                LlLocation returnLocation = ((LlAssignStmt) statement).getStoreLocation();
+                SymbolDef currentSymbolDef = new SymbolDef(returnLocation, currentUseDefLocation);
+
+                recentDef.put(returnLocation, currentUseDefLocation);
+                this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+
+                if (statement instanceof LlAssignStmtRegular) {
+                    //Mark use of arg location
+                    LlComponent arg = ((LlAssignStmtRegular) statement).getArg();
+                    this.addUseArg(recentDef, arg, currentUseDefLocation);
+                }
+
+                else if (statement instanceof LlAssignStmtUnaryOp) {
+                    //Mark use of arg location
+                    LlComponent arg = ((LlAssignStmtUnaryOp) statement).getArg();
+                    this.addUseArg(recentDef, arg, currentUseDefLocation);
+                }
+
+                else if (statement instanceof LlAssignStmtBinaryOp) {
+                    //Mark use of leftArg and rightArg location
+                    LlComponent leftArg = ((LlAssignStmtBinaryOp) statement).getLeftArg();
+                    LlComponent rightArg = ((LlAssignStmtBinaryOp) statement).getRightArg();
+                    this.addUseArg(recentDef, leftArg, currentUseDefLocation);
+                    this.addUseArg(recentDef, rightArg, currentUseDefLocation);
+                }
+            }
+        }
+
+        //Visit default and alternate branches to continue depth first search
+        Edge left = head.getLeft();
+        Edge right = head.getRight();
+
+        if (!isVisited.contains(left)) {
+            isVisited.add(head.getLeft());
+            buildDefUseRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
+        }
+
+        if (!isVisited.contains(right)) {
+            isVisited.add(head.getRight());
+            buildDefUseRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
+        }
+    }
+
+    //Build def-use chains for each symbol from updated/changed LlBuilder
+    public HashMap<SymbolDef, ArrayList<Tuple>> buildDefUseChains() {
+        this.defUseChain = new HashMap<>();
+        BasicBlock head = basicBlocks.get(0);
+        HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
+        buildDefUseRecursive(head, recentDef);
+        return this.defUseChain;
+    }
+
+    //Build use-def chains for each symbol from updated/changed LlBuilder
+    public HashMap<SymbolDef, ArrayList<Tuple>> buildUseDefChains() {
+        this.buildDefUseChains();
+        this.useDefChain = new HashMap<>();
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> duChain : this.defUseChain.entrySet()) {
+            ArrayList<Tuple> useList = duChain.getValue();
+            LlLocation symbol = duChain.getKey().symbol;
+            Tuple defLocation = duChain.getKey().useDef;
+
+            //Add reaching defs for each corresponding use to useDefChain
+            for (Tuple useLocation : useList) {
+                SymbolDef currentUseSymbol = new SymbolDef(symbol, useLocation);
+                if (!this.useDefChain.containsKey(currentUseSymbol)) {
+                    ArrayList<Tuple> defList = new ArrayList<>();
+                    defList.add(defLocation);
+                    this.useDefChain.put(currentUseSymbol, defList);
+                }
+                else {
+                    this.useDefChain.get(currentUseSymbol).add(defLocation);
+                }
+            }
+        }
+        return this.useDefChain;
+    }
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
@@ -24,6 +225,7 @@ public class CFG {
 
         if (labelsList.size() == 0) {
             this.basicBlocks = new ArrayList<BasicBlock>();
+            this.blockLabels = new LinkedHashMap<>();
         }
         else {
             // 1) determine the leaders in the LLIR
@@ -110,9 +312,16 @@ public class CFG {
             for (String leaderLabel : orderedLeadersList) {
                 basicBlocks.add(leadersToBBMap.get(leaderLabel));
             }
-
+            this.blockLabels = new LinkedHashMap<>(reverse(leadersToBBMap));
             this.basicBlocks = basicBlocks;
         }
+    }
+
+    private static HashMap<BasicBlock, String> reverse(Map<String, BasicBlock> map) {
+        HashMap<BasicBlock, String> rev = new HashMap<BasicBlock, String>();
+        for(Map.Entry<String, BasicBlock> entry : map.entrySet())
+            rev.put(entry.getValue(), entry.getKey());
+        return rev;
     }
 
     public BasicBlock getRootBasicBlock() {

@@ -10,6 +10,14 @@ import java.util.List;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlMethodCallStmt extends LlStatement {
+    public LlLocation getReturnLocation() {
+        return returnLocation;
+    }
+
+    public List<LlComponent> getArgsList() {
+        return argsList;
+    }
+
     private final LlLocation returnLocation;
     private final String methodName;
     private final List<LlComponent> argsList;
