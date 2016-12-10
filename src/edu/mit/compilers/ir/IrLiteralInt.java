@@ -14,6 +14,10 @@ public class IrLiteralInt extends IrLiteral {
         this.value = value;
     }
 
+    public long getValue() {
+        return this.value;
+    }
+
     @Override
     public IrType getExpressionType() {
         return new IrTypeInt(this.getLineNumber(), this.getColNumber());
