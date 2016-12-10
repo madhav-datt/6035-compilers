@@ -89,39 +89,68 @@ public class IrSizeOfLocation extends IrSizeOf {
                 LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
                 builder.appendStatement(regularAssignment);
             }
-            else if(fieldDecl.getType() instanceof IrTypeInt){
+            else if(fieldDecl.getType() instanceof IrTypeBool){
                 LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
                 builder.appendStatement(regularAssignment);
             }
         }
          if(this.irDecl instanceof IrFieldDeclArray){
             IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) this.irDecl;
-            if(fieldDeclArray.getType() instanceof IrTypeBool){
+            if(fieldDeclArray.getType() instanceof IrTypeInt){
                 int arraySize = fieldDeclArray.getArraySize();
-                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize));
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize*8));
                 builder.appendStatement(regularAssignment);
             }
-            else if(fieldDeclArray.getType() instanceof IrTypeInt){
+            else if(fieldDeclArray.getType() instanceof IrTypeBool){
                 int arraySize = fieldDeclArray.getArraySize()*8;
-                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize));
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(arraySize*1));
                 builder.appendStatement(regularAssignment);
             }
-
-
         }
         else if(this.irDecl instanceof IrParamDecl){
             IrParamDecl paramDecl = (IrParamDecl)this.irDecl;
-                if(paramDecl.getParamType() instanceof IrTypeInt){
-                    LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
-                    builder.appendStatement(regularAssignment);
-                }
-                else if(paramDecl.getParamType() instanceof IrTypeInt){
-                    LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
-                    builder.appendStatement(regularAssignment);
-                }
+            if(paramDecl.getParamType() instanceof IrTypeInt){
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
+                builder.appendStatement(regularAssignment);
+            }
+            else if(paramDecl.getParamType() instanceof IrTypeBool){
+                LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
+                builder.appendStatement(regularAssignment);
+            }
         }
-
         return tempLocation;
+    }
 
+    public IrLiteralInt evaluateToIntLiteralExpr() {
+        if(this.irDecl instanceof IrFieldDeclVar){
+            IrFieldDecl fieldDecl = (IrFieldDecl) this.irDecl;
+            if(fieldDecl.getType() instanceof IrTypeInt){
+                return new IrLiteralInt(8, this.getLineNumber(), this.getColNumber());
+            }
+            else if(fieldDecl.getType() instanceof IrTypeBool){
+                return new IrLiteralInt(1, this.getLineNumber(), this.getColNumber());
+            }
+        }
+        if(this.irDecl instanceof IrFieldDeclArray){
+            IrFieldDeclArray fieldDeclArray = (IrFieldDeclArray) this.irDecl;
+            if(fieldDeclArray.getType() instanceof IrTypeInt){
+                int arraySize = fieldDeclArray.getArraySize();
+                return new IrLiteralInt(arraySize*8, this.getLineNumber(), this.getColNumber());
+            }
+            else if(fieldDeclArray.getType() instanceof IrTypeBool){
+                int arraySize = fieldDeclArray.getArraySize();
+                return new IrLiteralInt(arraySize*1, this.getLineNumber(), this.getColNumber());
+            }
+        }
+        else if(this.irDecl instanceof IrParamDecl){
+            IrParamDecl paramDecl = (IrParamDecl) this.irDecl;
+            if(paramDecl.getParamType() instanceof IrTypeInt){
+                return new IrLiteralInt(8, this.getLineNumber(), this.getColNumber());
+            }
+            else if(paramDecl.getParamType() instanceof IrTypeBool){
+                return new IrLiteralInt(1, this.getLineNumber(), this.getColNumber());
+            }
+        }
+        return null; // should never reach here
     }
 }
