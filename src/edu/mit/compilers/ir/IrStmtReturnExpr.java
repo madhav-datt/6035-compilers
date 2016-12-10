@@ -12,7 +12,7 @@ public class IrStmtReturnExpr extends IrStmtReturn{
 
     public IrStmtReturnExpr(IrExpr result) {
         super(result.getLineNumber(),result.getColNumber());
-        this.result = result;
+        this.result = IrExpr.canonicalizeExpr(result);
     }
 
     @Override

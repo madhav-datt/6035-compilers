@@ -16,7 +16,7 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
         super(condExpr, stmtBody);
         this.counter = counter;
         this.compoundAssignStmt = updateCounterStmt;
-        this.intialIndexExpr = intialIndexerExpr;
+        this.intialIndexExpr = IrExpr.canonicalizeExpr(intialIndexerExpr);
     }
 
     @Override

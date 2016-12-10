@@ -13,7 +13,7 @@ public class IrAssignStmtEqual extends IrAssignStmt {
 
     public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue) {
         super(storeLocation);
-        this.newValue = newValue;
+        this.newValue = IrExpr.canonicalizeExpr(newValue);
     }
 
     @Override

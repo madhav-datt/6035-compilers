@@ -11,8 +11,8 @@ public abstract class IrOperBinary extends IrOper {
     public IrOperBinary(String operation, IrExpr leftOperand, IrExpr rightOperand){
         super(leftOperand.getLineNumber(), leftOperand.getColNumber());
         this.operation = operation;
-        this.leftOperand = leftOperand;
-        this.rightOperand = rightOperand;
+        this.leftOperand = IrExpr.canonicalizeExpr(leftOperand);
+        this.rightOperand = IrExpr.canonicalizeExpr(rightOperand);
     }
 
     public IrExpr getLeftOperand() {

@@ -14,7 +14,7 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
 
     public IrAssignStmtMinusEqual(IrLocation storeLocation, IrExpr decrementBy) {
         super(storeLocation);
-        this.decrementBy = decrementBy;
+        this.decrementBy = IrExpr.canonicalizeExpr(decrementBy);
     }
 
     @Override

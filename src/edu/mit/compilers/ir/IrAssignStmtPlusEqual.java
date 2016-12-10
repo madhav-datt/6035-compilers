@@ -14,7 +14,7 @@ public class IrAssignStmtPlusEqual extends IrAssignStmt{
 
     public IrAssignStmtPlusEqual(IrLocation storeLocation, IrExpr incrementBy) {
         super(storeLocation);
-        this.incrementBy = incrementBy;
+        this.incrementBy = IrExpr.canonicalizeExpr(incrementBy);
     }
 
     @Override

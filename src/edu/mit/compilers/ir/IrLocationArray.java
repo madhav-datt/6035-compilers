@@ -13,7 +13,7 @@ public class IrLocationArray extends IrLocation {
 
     public IrLocationArray(IrExpr elementIndex, IrIdent varName, int lineNumber, int colNumber) {
         super(varName, lineNumber, colNumber);
-        this.elementIndex = elementIndex;
+        this.elementIndex = IrExpr.canonicalizeExpr(elementIndex);
     }
 
     @Override

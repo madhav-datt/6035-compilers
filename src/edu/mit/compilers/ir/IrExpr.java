@@ -287,7 +287,4 @@ public abstract  class IrExpr extends Ir {
         return expr;
     }
 
-    private boolean exprIsConstant() {
-        return this instanceof IrLiteral
-    }
 }

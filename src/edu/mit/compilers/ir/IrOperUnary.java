@@ -5,6 +5,6 @@ public abstract class IrOperUnary extends IrOper{
 
     public IrOperUnary(IrExpr operand){
         super(operand.getLineNumber(), operand.getColNumber());
-        this.operand = operand;
+        this.operand = IrExpr.canonicalizeExpr(operand);
     }
 }
