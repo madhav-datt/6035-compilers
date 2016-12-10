@@ -14,9 +14,19 @@ public abstract class IrOperBinary extends IrOper {
         this.leftOperand = leftOperand;
         this.rightOperand = rightOperand;
     }
+
+    public IrExpr getLeftOperand() {
+        return this.leftOperand;
+    }
+
+    public IrExpr getRightOperand() {
+        return this.rightOperand;
+    }
+
     public String getOperation(){
         return this.operation;
     }
+
     public String toString(){
        return leftOperand.toString() + " " +  operation + " "+ rightOperand.toString();
    }
