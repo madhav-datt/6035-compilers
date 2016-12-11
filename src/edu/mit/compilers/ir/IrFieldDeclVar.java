@@ -30,6 +30,7 @@ public class IrFieldDeclVar extends IrFieldDecl {
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         symbolTable.putOnStringTable(new LlLocationVar(this.getName()), "");
+
         return null;
     }
 }

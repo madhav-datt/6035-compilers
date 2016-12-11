@@ -52,32 +52,38 @@ public class LlMethodCallStmt extends LlStatement {
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         builder.addComment("generating code for " + this.toString());
         String paramRegs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-        /*
 
-        .cfi_startproc
-     pushq     %rbp
-     .cfi_def_cfa_offset 16
-     .cfi_offset 6, -16
-     movq %rsp, %rbp
-     .cfi_def_cfa_register 6
-         */
 
         for(int i = 0; i< argsList.size(); i++){
             if(argsList.get(i) instanceof LlLocationArray){
-                String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
-                builder.addLinef("movq",  storageLoc + ", %r10");
-                builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
-                if(i < 6) {
-                    builder.addLinef("movq",  "%r10, " + paramRegs[i]);
+                if(symbolTable.isInGlobalArraysTable(new LlLocationVar(((LlLocationArray)argsList.get(i)).getVarName()))){
+                    String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
+                    builder.addLinef("movq",  storageLoc + ", %r10");
+                    if(i < 6) {
+                        builder.addLinef("movq",  "%r10, " + paramRegs[i]);
+                    }
+                    else{
+                        int stackBottom = -(16 + (i-6)*8);
+                        builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                    }
                 }
                 else{
-                    int stackBottom = -(16 + (i-6)*8);
-                    builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                    String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
+                    builder.addLinef("movq",  storageLoc + ", %r10");
+                    builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
+                    if(i < 6) {
+                        builder.addLinef("movq",  "%r10, " + paramRegs[i]);
+                    }
+                    else{
+                        int stackBottom = -(16 + (i-6)*8);
+                        builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                    }
                 }
+
             }
             else{
                 if(((LlLocationVar) argsList.get(i)).isStringLoc()){
-                    String storedStringLabel = builder.getFromStringTable(((LlLocationVar) argsList.get(i)).getVarName());
+                    String storedStringLabel = builder.getFromStringTable(symbolTable.getMethodName()+"_"+((LlLocationVar) argsList.get(i)).getVarName());
                     if(i < 6) {
                         builder.addLinef("movq", "$"+storedStringLabel + ", " + paramRegs[i]);
                     }
@@ -93,7 +99,8 @@ public class LlMethodCallStmt extends LlStatement {
                     }
                     else{
                         int stackBottom = -(16 + (i-6)*8);
-                        builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                        builder.addLinef("push",  storageLoc);
+//                        builder.addLinef("movq", "%r10, " + Integer.toString(stackBottom)+"(%rbp)");
                     }
                 }
 

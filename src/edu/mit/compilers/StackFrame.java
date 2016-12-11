@@ -29,6 +29,7 @@ public class StackFrame {
     private Hashtable<String, String> registerStackFrame;
 
     private int stackTop = 0;
+
     public void pushToStackFrame(LlComponent value){
         // if it already exists dont add it!!
         for(LlComponent val : stackFrame.values()){
@@ -43,6 +44,7 @@ public class StackFrame {
     public StackFrame(){
         this.stackFrame = new Hashtable<>();
         this.registerStackFrame = new Hashtable<>();
+
     }
 
 

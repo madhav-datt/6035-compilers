@@ -43,6 +43,7 @@ public class IrFieldDeclArray extends IrFieldDecl {
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         symbolTable.putOnArrayTable(new LlLocationVar(this.getName()), this.arraySize);
+
         return null;
     }
 }

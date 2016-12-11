@@ -59,9 +59,6 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
             case "*":
                 retCommand = "imulq ";
                 break;
-            case "/":
-                retCommand = "idivq ";
-                break;
             case "%":
                 retCommand = "modq ";
                 break;
@@ -79,6 +76,12 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
                 break;
             case "!=":
                 retCommand = "cmovne ";
+                break;
+            case "||":
+                retCommand = "or ";
+                break;
+            case "&&":
+                retCommand = "and ";
                 break;
             case "==":
                 retCommand = "cmove ";
@@ -104,15 +107,24 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
 
         builder.addComment("generating code for " + this.toString());
 
-        builder.addLinef("movq",leftExprResultStorageLoc + ", %r10");
-        builder.addLinef("movq",rightExprResultStorageLoc + ", %r11");
+        builder.addLinef("movq",rightExprResultStorageLoc + ", %r10");
+        builder.addLinef("movq",leftExprResultStorageLoc + ", %r11");
 
         if(!isComparison(this.operation)) {
-            builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
+            if(this.operation.equals("/")){
+                builder.addLinef("movq", "%r11, %rax");
+                builder.addLinef("cqo", "");
+                builder.addLinef("idivq", "%r10");
+                builder.addLinef("movq", "%rax, %r11");
+            }
+            else{
+                builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
+            }
 
         }
         else{
-            builder.addLinef("cmpq", "%r10, %r11");
+
+            builder.addLinef("cmp", "%r10, %r11");
             builder.addLinef("movq", "$0, %r11");
             builder.addLinef("movq", "$1, %r10");
             builder.addLinef(this.getCommand(this.operation), "%r10, %r11");

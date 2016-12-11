@@ -11,7 +11,7 @@ import java.util.Stack;
  * Created by abel on 11/18/16.
  */
 public class LlBuilder {
-
+    private final String name;
     private LinkedHashMap<String, LlStatement> statementTable;
     private int labelCounter = 0;
     private int tempCounter = 0;
@@ -19,10 +19,14 @@ public class LlBuilder {
     private Stack<String> currentBlockLabel = new Stack<>();
     private Object pocket;
 
-    public LlBuilder(){
+    public LlBuilder(String name){
         this.statementTable = new LinkedHashMap<>();
+        this.name = name;
     }
 
+    public String getName(){
+        return this.name;
+    }
 
     // Add to the end of the list
 

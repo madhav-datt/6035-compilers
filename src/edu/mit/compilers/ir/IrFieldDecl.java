@@ -5,4 +5,5 @@ public abstract class IrFieldDecl extends IrMemberDecl {
         super(name, fieldType, name.getLineNumber(), name.getColNumber());
     }
 
+
 }

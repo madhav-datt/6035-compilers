@@ -1,7 +1,9 @@
 package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlLiteralInt;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationArray;
 import edu.mit.compilers.ll.LlLocationVar;
 
 import java.util.ArrayList;
@@ -140,11 +142,22 @@ public class IrProgram extends Ir{
         LlBuildersList buildersList = new LlBuildersList();
 
         for (IrMethodDecl methodDecl: this.methodDecls) {
-            LlBuilder llBuilder = new LlBuilder();
-            LlSymbolTable llSymbolTable = new LlSymbolTable();
+            LlBuilder llBuilder = new LlBuilder(methodDecl.getName());
+            LlSymbolTable llSymbolTable = new LlSymbolTable(methodDecl.getName());
             methodDecl.generateLlIr(llBuilder, llSymbolTable);
             buildersList.addBuilder(llBuilder);
             buildersList.addSymbolTable(llSymbolTable);
+        }
+
+        for(IrFieldDecl fieldDecl : this.fieldDecls){
+            if(fieldDecl instanceof IrFieldDeclArray){
+
+                buildersList.addToGlobalArrays(new LlLocationVar(fieldDecl.getName()), ((IrFieldDeclArray) fieldDecl).getArraySize());
+            }
+            if(fieldDecl instanceof IrFieldDeclVar){
+
+                buildersList.addToGlobalVars(new LlLocationVar(fieldDecl.getName()));
+            }
         }
         return buildersList;
     }

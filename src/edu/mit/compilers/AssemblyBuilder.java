@@ -12,10 +12,15 @@ public class AssemblyBuilder {
     private int labelCounter = 0;
     private HashMap<String, String> stringTable;
     private HashMap<String, Integer> enterLines;
+
+    private String footnote;
+
+
     public AssemblyBuilder(){
         code = new HashMap<>();
         this.stringTable = new HashMap<>();
         enterLines = new HashMap<>();
+        this.footnote = "";
     }
 
     public void append(String s){
@@ -50,15 +55,21 @@ public class AssemblyBuilder {
         this.addLine();
     }
 
+    public void putOnFootnote(String msg){
+        this.footnote = msg;
+    }
 
+    public String getFootnote(){
+        return this.footnote;
+    }
 
     public int getCodeLength(){
         return this.code.size();
     }
 
     public void replaceEnterLine(String methodName, int stackSize){
-        String replaceWith = "$(8*" + Integer.toString(stackSize) + "), $0";
-        this.replaceLine(this.getEnterLine(methodName), String.format("     "+ "%1$-6s %2$1s", "enter", replaceWith));
+        String replaceWith = "$(8*" + Integer.toString(stackSize + 1) + "), %rsp";
+        this.replaceLine(this.getEnterLine(methodName), String.format("     "+ "%1$-6s %2$1s", "subq", replaceWith));
     }
 
 

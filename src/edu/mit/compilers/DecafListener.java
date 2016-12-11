@@ -1095,7 +1095,7 @@ public class DecafListener extends DecafParserBaseListener {
         IrIdent varName = new IrIdent(ctx.ID().getText(), l.line, l.col);
 
         // create the IrSizeOfLocation and add it to the stack
-        IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName, l.line, l.col);
+        IrSizeOfLocation sizeOfField = new IrSizeOfLocation(varName,  l.line, l.col);
         this.irStack.push(sizeOfField);
     }
     /**

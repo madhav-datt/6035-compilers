@@ -25,6 +25,25 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
     public String toString() {
         return this.storeLocation.toString() + " = " + operand + " " + arg.toString();
     }
+    private String getCommand(String operation){
+        String retCommand = "";
+        switch (operation){
+            case "!":
+                retCommand = "not ";
+                break;
+            case "-":
+                retCommand = "neg ";
+                break;
+
+            default:
+                System.err.println("Runtime Error: Unrecognized Operation");
+                System.err.println(operation);
+                break;
+        }
+        return retCommand;
+    }
+
+
 
     @Override
     public boolean equals(Object obj) {
@@ -43,8 +62,12 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.arg.generateCode(builder, frame, symbolTable);
         builder.addLinef("movq", exprResultLocation + ", %r10");
+        builder.addLinef(this.getCommand(this.operand), "%r10");
+        String returnLocation = frame.getNextStackLocation();
+        builder.addLinef("movq", "%r10, " + returnLocation);
+        frame.pushToStackFrame(this.storeLocation);
         builder.addLine();
-        return "%r10";
+        return returnLocation;
 
 
     }

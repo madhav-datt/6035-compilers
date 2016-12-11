@@ -44,22 +44,47 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         String storeToLoc;
         // check if the storage location is an array access
         if(this.storeLocation instanceof LlLocationArray){
+            builder.putOnFootnote("itis");
             storeToLoc = this.storeLocation.generateCode(builder, frame, symbolTable);
-            builder.addComment("adding something to " + storeToLoc);
-            builder.addLinef("movq",  storeToLoc + ", %r10");
-            builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
-            builder.addLinef("movq", "%r10, " + storeToLoc);
+
+            if(symbolTable.isInGlobalArraysTable(new LlLocationVar(this.getStoreLocation().getVarName()))){
+
+                builder.addComment("adding something to " + storeToLoc);
+
+                builder.addLinef("movq",  exprResultLocation + ", %r11");
+                builder.addLinef("movq",  "%r11, "+this.getStoreLocation().getVarName()+"(, %r10, 8)");
+//                builder.addLinef("movq",  this.getStoreLocation().getVarName()+"(, %r10, 8)" + ", %r10");
+//                builder.addLinef("movq", "%r10, " + storeToLoc);
+
+            }
+            else{
+                builder.addComment("adding something to " + storeToLoc);
+                builder.addLinef("movq",  storeToLoc + ", %r10");
+                builder.addLinef("movq",  exprResultLocation + ", %r11");
+                builder.addLinef("movq",  "%r11, (%rbp, %r10, 8)");
+            }
+
         }
         else {
-            String checkFrame = frame.getLlLocation(this.storeLocation);
-            if (checkFrame == null) {
-                storeToLoc = frame.getNextStackLocation();
-                frame.pushToStackFrame(this.storeLocation);
-            } else {
-                storeToLoc = checkFrame;
-            }
-            builder.addLinef("movq", exprResultLocation+", %r10" );
-            builder.addLinef("movq",  "%r10, " + storeToLoc);
+
+
+                String checkFrame = frame.getLlLocation(this.storeLocation);
+                if (checkFrame == null) {
+                    storeToLoc = frame.getNextStackLocation();
+                    frame.pushToStackFrame(this.storeLocation);
+                } else {
+                    storeToLoc = checkFrame;
+                }
+                if(symbolTable.isInGlobalVarsTable((LlLocationVar) this.storeLocation)){
+                    builder.addLinef("movq", exprResultLocation + ", %r10");
+                    builder.addLinef("movq", "%r10, " + this.storeLocation.getVarName() + "(%rip)");
+                }
+                else{
+                    builder.addLinef("movq", exprResultLocation + ", %r10");
+                    builder.addLinef("movq", "%r10, " + storeToLoc);
+                }
+
+
         }
 
         builder.addLine();

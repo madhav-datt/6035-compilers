@@ -38,7 +38,9 @@ public class LlLocationVar extends LlLocation {
         // Meaning we check the symbolTable and if it is not there, it must be declared in the method
         // body.
         // If it is declared in the method body ...
-
+        if(symbolTable.isInGlobalVarsTable(this)){
+            return this.getVarName() + "(%rip)";
+        }
         String stackLocation = frame.getLlLocation(this);
         if(stackLocation == null)
             return symbolTable.getFromParamTable(this);
