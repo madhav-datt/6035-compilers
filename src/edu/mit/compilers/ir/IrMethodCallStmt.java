@@ -13,6 +13,10 @@ import java.util.List;
  * Created by devinmorgan on 10/22/16.
  */
 public class IrMethodCallStmt extends IrStatement{
+    public IrIdent getMethodName() {
+        return methodName;
+    }
+
     private final IrIdent methodName;
     private final List<IrArg> argsList;
     private IrType methodType;

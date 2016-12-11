@@ -48,16 +48,29 @@ public class Parallelize {
         }
 
         //Call function set_num_threads from main with parameter i = numThreads
+        //Create method call for set_num_threads
         ArrayList<IrArg> numThreadsArgs = new ArrayList<>();
         numThreadsArgs.add(new IrArgExpr(new IrLiteralInt(this.numThreads, this.lineColNumber, this.lineColNumber),
                 this.lineColNumber, this.lineColNumber));
         IrMethodCallStmt setNumThreads = new IrMethodCallStmt(new IrIdent("set_num_threads", this.lineColNumber,
                 this.lineColNumber), numThreadsArgs);
+
+        //Add created method call to top of main
         ArrayList<IrStatement> mainMethodStatements = this.mainMethod.getMethodBody().getStmtsList();
         mainMethodStatements.add(0, setNumThreads);
 
 
         //Replace calls for each parallelizable method f() by create_and_run_threads(f) in main method
+        for (IrStatement statement : mainMethodStatements) {
+            if (statement instanceof IrMethodCallStmt) {
+                //Check if method is parallelizable
+                if (parallelizableMethods.contains(((IrMethodCallStmt) statement).getMethodName().getValue())) {
+                    IrParallelSpecialStmt updatedStatement =
+                            new IrParallelSpecialStmt(((IrMethodCallStmt) statement).getMethodName());
+                    mainMethodStatements.set(mainMethodStatements.indexOf(statement), updatedStatement);
+                }
+            }
+        }
 
     }
 
