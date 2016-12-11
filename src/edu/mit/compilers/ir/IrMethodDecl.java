@@ -7,6 +7,11 @@ import java.util.*;
 
 public class IrMethodDecl extends IrMemberDecl {
     private final List<IrParamDecl> paramsList;
+
+    public IrCodeBlock getMethodBody() {
+        return methodBody;
+    }
+
     private final IrCodeBlock methodBody;
 
     public IrMethodDecl(IrType returnType, List<IrParamDecl> paramsList,

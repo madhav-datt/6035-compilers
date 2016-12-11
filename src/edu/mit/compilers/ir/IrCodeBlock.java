@@ -6,6 +6,14 @@ import edu.mit.compilers.ll.LlLocation;
 import java.util.ArrayList;
 
 public class IrCodeBlock extends Ir {
+    public ArrayList<IrFieldDecl> getFieldsList() {
+        return fieldsList;
+    }
+
+    public ArrayList<IrStatement> getStmtsList() {
+        return stmtsList;
+    }
+
     private final ArrayList<IrFieldDecl> fieldsList;
     private final ArrayList<IrStatement> stmtsList;
 
