@@ -101,10 +101,7 @@ public class LlAssignStmtRegular extends LlAssignStmt {
                     builder.addLinef("movq", exprResultLocation + ", %r10");
                     builder.addLinef("movq", "%r10, " + this.storeLocation.getVarName() + "(%rip)");
                 }
-                else{
-                    builder.addLinef("movq", exprResultLocation + ", %r10");
-                    builder.addLinef("movq", "%r10, " + storeToLoc);
-                }
+
 
 
         }
