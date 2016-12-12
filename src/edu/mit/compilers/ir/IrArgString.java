@@ -31,6 +31,11 @@ public class IrArgString extends IrArg {
     }
 
     @Override
+    public int hashCode() {
+        return ((String) this.getArgValue()).hashCode();
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--argString:\n";
 

@@ -176,6 +176,11 @@ public class LocalCSE {
             }
             return false;
         }
+
+        @Override
+        public int hashCode() {
+            return this.operation.hashCode() * this.rightOperand.hashCode();
+        }
     }
 
     private class BinaryExprObject extends ExprObject {
@@ -213,6 +218,11 @@ public class LocalCSE {
                 }
             }
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.leftOperand.hashCode() * this.operation.hashCode() * this.rightOperand.hashCode();
         }
     }
 }

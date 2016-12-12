@@ -35,6 +35,11 @@ public class LlLiteralInt extends LlLiteral {
 
     }
 
+    @Override
+    public int hashCode() {
+        return (int) this.intValue;
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         builder.addComment("generating code for " + this.toString());
         builder.addLine();

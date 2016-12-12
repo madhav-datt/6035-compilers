@@ -26,8 +26,11 @@ public class LlLocationVar extends LlLocation {
             return false;
         }
         return ((LlLocationVar)obj).getVarName().equals(this.getVarName());
+    }
 
-
+    @Override
+    public int hashCode() {
+        return this.getVarName().hashCode();
     }
 
     public boolean isStringLoc(){

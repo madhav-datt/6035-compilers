@@ -71,6 +71,12 @@ public class IrLocationArray extends IrLocation {
     }
 
     @Override
+    public int hashCode() {
+        // hash the it according to its location name
+        return this.getLocationName().hashCode();
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|__arrayAccess\n";
 

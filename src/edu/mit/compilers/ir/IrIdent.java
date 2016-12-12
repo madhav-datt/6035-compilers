@@ -34,6 +34,11 @@ public class IrIdent extends Ir {
     }
 
     @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         return "";
     }

@@ -42,9 +42,15 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
             return false;
         }
         return ((LlAssignStmtUnaryOp)obj).operand.equals(this.operand)
-                &&((LlAssignStmtUnaryOp)obj).operand.equals(this.operand)
+                &&((LlAssignStmtUnaryOp)obj).operator.equals(this.operator)
                 &&((LlAssignStmtUnaryOp)obj).storeLocation.equals(this.storeLocation);
     }
+
+    @Override
+    public int hashCode() {
+        return this.operator.hashCode() * this.operand.hashCode() * this.storeLocation.hashCode();
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         // compute the value of the expression and figure out where it is stored
         builder.addComment("generating code for " + this.toString());

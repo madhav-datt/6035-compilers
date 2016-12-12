@@ -36,6 +36,12 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         return ((LlAssignStmtRegular)obj).operand.equals(this.operand)
                 &&((LlAssignStmtBinaryOp)obj).storeLocation.equals(this.storeLocation);
     }
+
+    @Override
+    public int hashCode() {
+        return this.operand.hashCode() * this.storeLocation.hashCode();
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         // compute the value of the expression and figure out where it is stored
         builder.addComment("generating code for " + this.toString());

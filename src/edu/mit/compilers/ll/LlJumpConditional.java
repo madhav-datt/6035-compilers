@@ -34,8 +34,13 @@ public class LlJumpConditional extends LlJump{
             return false;
         }
         return ((LlJumpConditional)obj).jumpToLabel.equals(this.jumpToLabel);
-
     }
+
+    @Override
+    public int hashCode() {
+        return this.jumpToLabel.hashCode();
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         // compute the value of the expression and figure out where it is stored
 
