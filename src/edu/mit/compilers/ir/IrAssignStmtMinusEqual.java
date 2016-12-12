@@ -69,7 +69,7 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         LlLocation decrementTemp = this.decrementBy.generateLlIr(builder, symbolTable);
         LlLocationVar minusExprTemp = builder.generateTemp();
-        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(minusExprTemp, new LlLocationVar(this.getStoreLocation().getLocationName().toString()), "-", decrementTemp);
+        LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(minusExprTemp, new LlLocationVar(this.getStoreLocation().getLocationName().getValue()), "-", decrementTemp);
         builder.appendStatement(assignStmtBinaryOp);
         LlAssignStmtRegular regularAssignment = new LlAssignStmtRegular(new LlLocationVar(this.getStoreLocation().getLocationName().getValue()),  minusExprTemp);
         builder.appendStatement(regularAssignment);

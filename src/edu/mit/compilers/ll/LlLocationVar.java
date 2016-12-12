@@ -42,8 +42,17 @@ public class LlLocationVar extends LlLocation {
             return this.getVarName() + "(%rip)";
         }
         String stackLocation = frame.getLlLocation(this);
-        if(stackLocation == null)
-            return symbolTable.getFromParamTable(this);
+        if(stackLocation == null) {
+            String checkParamTable  = symbolTable.getFromParamTable(this);
+            if (checkParamTable == null){
+                String newVarLoc = frame.getNextStackLocation();
+                frame.pushToStackFrame(this);
+                return newVarLoc;
+            }
+            else{
+                return checkParamTable;
+            }
+        }
         return stackLocation;
 
     }

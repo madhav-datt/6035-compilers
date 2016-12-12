@@ -35,8 +35,9 @@ public class IrStmtContinue extends IrStatement {
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
 
-        String endBlock = builder.getCurrentBlock();
-        LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(endBlock);
+        String loopCondition = builder.getCurrentLoopCondition();
+
+        LlJumpUnconditional unconditionalJump = new LlJumpUnconditional(loopCondition);
         builder.appendStatement(unconditionalJump);
         return null;
     }

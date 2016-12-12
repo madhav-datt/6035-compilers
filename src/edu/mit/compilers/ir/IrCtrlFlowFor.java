@@ -127,7 +127,7 @@ public class IrCtrlFlowFor extends IrCtrlFlow {
 
 
         // get into block
-        builder.getInBlock(loopCondition);
+        builder.getInBlock(startLoopLabel, loopCondition);
         // generate the code block Ll
         builder.putInPocket(this.compoundAssignStmt);
         this.stmtBody.generateLlIr(builder, symbolTable);

@@ -56,6 +56,7 @@ public class IrCodeBlock extends Ir {
             if(statement instanceof IrStmtContinue){
                 if(builder.pickPocket() != null) {
                     ((IrStatement) builder.pickPocket()).generateLlIr(builder, symbolTable);
+                    builder.emptyPocket();
                 }
             }
             statement.generateLlIr(builder, symbolTable);

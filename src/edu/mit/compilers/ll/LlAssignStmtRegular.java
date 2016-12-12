@@ -42,6 +42,7 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         // might be replaced by reg-alloc vals
         // check if the storeLocation already exists, if not, create a new one
         String storeToLoc;
+
         // check if the storage location is an array access
         if(this.storeLocation instanceof LlLocationArray){
             builder.putOnFootnote("itis");

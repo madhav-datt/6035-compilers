@@ -25,23 +25,6 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
     public String toString() {
         return this.storeLocation.toString() + " = " + operand + " " + arg.toString();
     }
-    private String getCommand(String operation){
-        String retCommand = "";
-        switch (operation){
-            case "!":
-                retCommand = "not ";
-                break;
-            case "-":
-                retCommand = "neg ";
-                break;
-
-            default:
-                System.err.println("Runtime Error: Unrecognized Operation");
-                System.err.println(operation);
-                break;
-        }
-        return retCommand;
-    }
 
 
 
@@ -61,10 +44,20 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         // compute the value of the expression and figure out where it is stored
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.arg.generateCode(builder, frame, symbolTable);
-        builder.addLinef("movq", exprResultLocation + ", %r10");
-        builder.addLinef(this.getCommand(this.operand), "%r10");
         String returnLocation = frame.getNextStackLocation();
-        builder.addLinef("movq", "%r10, " + returnLocation);
+
+        if(this.operand.equals("!")){
+            builder.addLinef("movq", exprResultLocation + ", %r10");
+            builder.addLinef("xorq", "$1, %r10");
+
+            builder.addLinef("movq", "%r10, " + returnLocation);
+        }
+        else if(this.operand.equals("-")){
+            builder.addLinef("movq", exprResultLocation + ", %r10");
+            builder.addLinef("neg",  "%r10");
+            builder.addLinef("movq", "%r10, " + returnLocation);
+        }
+
         frame.pushToStackFrame(this.storeLocation);
         builder.addLine();
         return returnLocation;

@@ -53,6 +53,7 @@ public class IrAssignStmtEqual extends IrAssignStmt {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+
         LlLocation tempVal = newValue.generateLlIr(builder, symbolTable);
 
         if(this.getStoreLocation() instanceof IrLocationArray){

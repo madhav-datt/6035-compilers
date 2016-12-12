@@ -12,7 +12,8 @@ public class AssemblyBuilder {
     private int labelCounter = 0;
     private HashMap<String, String> stringTable;
     private HashMap<String, Integer> enterLines;
-
+    public boolean hasReturned = false;
+    public boolean isLastReturn = false;
     private String footnote;
 
 

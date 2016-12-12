@@ -32,7 +32,7 @@ public class LlJumpUnconditional extends LlJump{
     @Override
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable) {
         builder.addComment("generating code for " + this.toString());
-        builder.addLinef("jmp", this.jumpToLabel);
+        builder.addLinef("jmp", symbolTable.getMethodName()+"_"+this.jumpToLabel);
         builder.addLine();
         return "";
     }

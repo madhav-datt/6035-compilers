@@ -26,7 +26,7 @@ public class CodeGenerator {
         assemblyBuilder.addLine();
 
         // keeps track of what strings are created and
-        int tableCounter = 0;
+        int countSymbolTables = 0;
         for(LlSymbolTable table : buildersList.getSymbolTables()){
             for (LlComponent component : table.getLlStringTable().keySet()){
 
@@ -37,10 +37,10 @@ public class CodeGenerator {
                     assemblyBuilder.addLine(".string " + table.getFromStringTable(component));
                     assemblyBuilder.putOnStringTable(table.getMethodName()+"_"+(((LlLocationVar) component).getVarName()), stringLable);
                 }
-                tableCounter ++;
+
             }
         }
-        int countSymbolTables = 0;
+
         for(LlBuilder builder : buildersList.getBuilders()){
 
             LlSymbolTable oldSymbolTable = buildersList.getSymbolTables().get(countSymbolTables++);
@@ -82,23 +82,38 @@ public class CodeGenerator {
 
                 pushParamsToSymbolTable(assemblyBuilder, currentMethodName, methodParams, symbolTable, frame);
             }
-
+            int statementCounter = 0;
             for(String label  : builder.getStatementTable().keySet())
             {
 
                 if(builder.getStatementTable().get(label) instanceof  LlEmptyStmt && !label.equals(currentMethodName)){
 
-                    assemblyBuilder.addLabel(label);
+                    assemblyBuilder.addLabel(symbolTable.getMethodName()+"_"+label);
+                }
+                if(statementCounter == builder.getStatementTable().size()-1){
+                    assemblyBuilder.isLastReturn = true;
                 }
                 builder.getStatementTable().get(label).generateCode(assemblyBuilder, frame, symbolTable);
+                statementCounter++;
             }
             assemblyBuilder.replaceEnterLine(currentMethodName, frame.getStackSize());
 
-            assemblyBuilder.addLinef("leave","");
-            assemblyBuilder.addLinef(".cfi_def_cfa","7, 8");
-            assemblyBuilder.addLinef("ret", "");
-            assemblyBuilder.addLinef(".cfi_endproc", "");
-            assemblyBuilder.addLine();
+
+            if(assemblyBuilder.hasReturned){
+                assemblyBuilder.hasReturned = false;
+                assemblyBuilder.isLastReturn = false;
+            }
+            else{
+                assemblyBuilder.addLinef("leave","");
+                assemblyBuilder.addLinef(".cfi_def_cfa","7, 8");
+                assemblyBuilder.addLinef("ret", "");
+                assemblyBuilder.addLinef(".cfi_endproc", "");
+                assemblyBuilder.addLine();
+                assemblyBuilder.hasReturned = false;
+                assemblyBuilder.isLastReturn = false;
+            }
+
+
         }
         assembled += assemblyBuilder.assemble();
         System.out.println(assemblyBuilder.assemble());
@@ -114,6 +129,7 @@ public class CodeGenerator {
           // put it in the stack
             String storageLoc;
             String stackLoc = frame.getNextStackLocation();
+
             if(i<6){
                 storageLoc = paramRegs[i];
                 builder.addLinef("movq", storageLoc + ", " + stackLoc);
@@ -121,7 +137,7 @@ public class CodeGenerator {
 
             }
             else{
-                storageLoc =  Integer.toString(8*( locations.size() - (i - 6)));
+                storageLoc =  Integer.toString(16 + (i-6)*8);
                 builder.addLinef("movq", storageLoc + "(%rbp)" + ", %r10");
                 builder.addLinef("movq", "%r10, " + stackLoc);
                 symbolTable.putOnParamTable(locations.get(i), stackLoc);

@@ -24,8 +24,41 @@ public class LlReturn extends LlStatement {
     }
 
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
-        String returnAdd = returnValue.generateCode(builder, frame, symbolTable);
-        builder.addLinef("movq", returnAdd + ", %rax");
+        if(this.returnValue == null){
+
+            if(builder.isLastReturn){
+                builder.addLinef("leave","");
+                builder.addLinef(".cfi_def_cfa","7, 8");
+                builder.addLinef("ret", "");
+                builder.addLinef(".cfi_endproc", "");
+                builder.addLine();
+                builder.isLastReturn = false;
+                builder.hasReturned = true;
+                return "%rax";
+            }
+            builder.addLinef("leave","");
+            builder.addLinef("ret", "");
+            builder.addLine();
+        }
+
+        else{
+            String returnAdd = returnValue.generateCode(builder, frame, symbolTable);
+            builder.addLinef("movq", returnAdd + ", %rax");
+            if(builder.isLastReturn){
+                builder.addLinef("leave","");
+                builder.addLinef(".cfi_def_cfa","7, 8");
+                builder.addLinef("ret", "");
+                builder.addLinef(".cfi_endproc", "");
+                builder.addLine();
+                builder.isLastReturn = false;
+                builder.hasReturned = true;
+                return "%rax";
+            }
+            builder.addLinef("leave","");
+            builder.addLinef("ret", "");
+            builder.addLine();
+        }
+
         return "%rax";
     }
 }

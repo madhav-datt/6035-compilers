@@ -15,8 +15,11 @@ public class LlBuilder {
     private LinkedHashMap<String, LlStatement> statementTable;
     private int labelCounter = 0;
     private int tempCounter = 0;
+    //flags
+    public  boolean arrLeftSide = false;
 
     private Stack<String> currentBlockLabel = new Stack<>();
+    private String currentLoopCondition = "";
     private Object pocket;
 
     public LlBuilder(String name){
@@ -92,6 +95,14 @@ public class LlBuilder {
 
     public void getInBlock(String loopLabel){
         currentBlockLabel.push(loopLabel);
+    }
+    public void getInBlock(String loopLabel, String loopCondition){
+        currentBlockLabel.push(loopLabel);
+        this.currentLoopCondition = loopCondition;
+    }
+
+    public String getCurrentLoopCondition() {
+        return this.currentLoopCondition;
     }
 
     @Override

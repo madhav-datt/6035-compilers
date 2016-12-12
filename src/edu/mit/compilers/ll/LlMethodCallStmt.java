@@ -5,6 +5,7 @@ import edu.mit.compilers.LlSymbolTable;
 import edu.mit.compilers.StackFrame;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by devinmorgan on 11/18/16.
@@ -53,59 +54,69 @@ public class LlMethodCallStmt extends LlStatement {
         builder.addComment("generating code for " + this.toString());
         String paramRegs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
-
+        Stack<String> argPushStack = new Stack<>();
         for(int i = 0; i< argsList.size(); i++){
             if(argsList.get(i) instanceof LlLocationArray){
                 if(symbolTable.isInGlobalArraysTable(new LlLocationVar(((LlLocationArray)argsList.get(i)).getVarName()))){
-                    String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
-                    builder.addLinef("movq",  storageLoc + ", %r10");
+
                     if(i < 6) {
+                        String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
+                        builder.addLinef("movq",  storageLoc + ", %r10");
                         builder.addLinef("movq",  "%r10, " + paramRegs[i]);
                     }
                     else{
-                        int stackBottom = -(16 + (i-6)*8);
-                        builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                        String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
+//                        builder.addLinef("movq",  storageLoc + ", %r10");
+//                        builder.addLinef("push",  "%r10");
+                        argPushStack.push(storageLoc);
                     }
                 }
                 else{
                     String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
                     builder.addLinef("movq",  storageLoc + ", %r10");
-                    builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
+
                     if(i < 6) {
                         builder.addLinef("movq",  "%r10, " + paramRegs[i]);
                     }
                     else{
-                        int stackBottom = -(16 + (i-6)*8);
-                        builder.addLinef("movq", storageLoc + ", " + Integer.toString(stackBottom)+"(%rbp)");
+                        builder.addLinef("movq",  "%r10, " + storageLoc);
+                        argPushStack.push(storageLoc);
                     }
                 }
 
             }
             else{
                 if(((LlLocationVar) argsList.get(i)).isStringLoc()){
+
                     String storedStringLabel = builder.getFromStringTable(symbolTable.getMethodName()+"_"+((LlLocationVar) argsList.get(i)).getVarName());
                     if(i < 6) {
                         builder.addLinef("movq", "$"+storedStringLabel + ", " + paramRegs[i]);
                     }
                     else{
-                        int stackBottom = -(16 + (i-6)*8);
-                        builder.addLinef("mov", storedStringLabel + ", %" + Integer.toString(stackBottom)+"rbp");
+                        argPushStack.push(storedStringLabel);
+                    }
+                    while(argPushStack.size() > 0){
+                        builder.addLinef("push",  argPushStack.pop());
                     }
                 }
                 else{
+
                     String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
                     if(i < 6) {
                         builder.addLinef("movq", storageLoc + ", " + paramRegs[i]);
                     }
                     else{
-                        int stackBottom = -(16 + (i-6)*8);
-                        builder.addLinef("push",  storageLoc);
+                        argPushStack.push(storageLoc);
 //                        builder.addLinef("movq", "%r10, " + Integer.toString(stackBottom)+"(%rbp)");
                     }
+
                 }
 
             }
 
+        }
+        while(argPushStack.size() > 0){
+            builder.addLinef("push",  argPushStack.pop());
         }
         // take care of caller saving here
         builder.addLinef("movq", "$0, %rax");

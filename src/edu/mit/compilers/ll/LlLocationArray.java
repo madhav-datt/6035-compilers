@@ -104,7 +104,8 @@ public class LlLocationArray extends LlLocation {
 
             if(builder.getFootnote().equals("")){
 
-                builder.addLinef("movq",  "(%rbp, %r10, 8), "+ returnLocation);
+                builder.addLinef("movq",  "(%rbp, %r10, 8), %r10");
+                builder.addLinef("movq",  "%r10, "+ returnLocation);
                 frame.pushToRegisterStackFrame("%r10");
 
             }

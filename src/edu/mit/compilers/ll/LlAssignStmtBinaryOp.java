@@ -117,6 +117,12 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
                 builder.addLinef("idivq", "%r10");
                 builder.addLinef("movq", "%rax, %r11");
             }
+            else if(this.operation.equals("%")){
+                builder.addLinef("movq", "%r11, %rax");
+                builder.addLinef("cqo", "");
+                builder.addLinef("idivq", "%r10");
+                builder.addLinef("movq", "%rdx, %r11");
+            }
             else{
                 builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
             }

@@ -84,7 +84,7 @@ public class IrCtrlFlowWhile extends IrCtrlFlow{
 
 
         // get into block
-        builder.getInBlock(loopCondition);
+        builder.getInBlock(startLoopLabel, loopCondition);
         // generate the code block Ll
 
         this.stmtBody.generateLlIr(builder, symbolTable);
