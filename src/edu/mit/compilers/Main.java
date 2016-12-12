@@ -268,7 +268,7 @@ class Main {
 
 //        String illegalTests = "./tests/semantics-hidden/illegal/";
 //        Main.runFilesInDirectory(illegalTests);
-// //
+
        
    }
 }

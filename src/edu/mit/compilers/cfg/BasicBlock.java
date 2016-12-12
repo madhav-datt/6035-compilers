@@ -12,6 +12,18 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/20/16.
  */
 public class BasicBlock {
+
+    public Edge getLeft() {
+        return this.left;
+    }
+
+    public Edge getRight() {
+        return this.right;
+    }
+
+    private Edge left = new Edge();
+    private Edge right = new Edge();
+
     private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
     private BasicBlock defaultBranch;
     private HashSet<BasicBlock> predecessors;
@@ -21,6 +33,10 @@ public class BasicBlock {
     public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap, LlBuilder builder) {
         this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
         this.builder = builder;
+    }
+
+    public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
+        return this.labelsToStmtsMap;
     }
 
     public ArrayList<LlStatement> getStmtsList() {
@@ -46,10 +62,6 @@ public class BasicBlock {
 
     public BasicBlock getAlternativeBranch() {
         return alternativeBranch;
-    }
-
-    public LinkedHashMap<String, LlStatement> getLabelsToStmtsMap() {
-        return new LinkedHashMap<>(getLabelsToStmtsMap());
     }
 
     public void setLabelsToStmtsMap(LinkedHashMap<String, LlStatement> labelsToStmtsMap) {
