@@ -13,59 +13,102 @@ import java.util.LinkedHashMap;
  * Created by devinmorgan on 11/26/16.
  */
 public class LocalCSE {
-    private final HashMap<ExprObject, LlLocationVar> tempsForExpressions = new HashMap<>();
+    private final HashMap<ExprObject, LlLocationVar> tempsForExpressions;
     private final LlBuilder builder;
 
     public LocalCSE(LlBuilder builder) {
         this.builder = builder;
+        this.tempsForExpressions = new HashMap<>();
     }
 
-    public static BasicBlock performLocalCSE(BasicBlock bb) {
+    public static void performLocalCSE(BasicBlock bb) {
         LocalCSE cse = new LocalCSE(bb.getBuilder());
-        LinkedHashMap<String, LlStatement> optimizedMap = new LinkedHashMap<>();
+        LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
 
         // 2) loop through the current linked hashmap
-        for (String label : bb.getLabelsToStmtsMap().keySet()) {
-            LlStatement stmt = bb.getLabelsToStmtsMap().get(label);
+        for (String label : labelsToStmtsMap.keySet()) {
+            LlStatement stmt = labelsToStmtsMap.get(label);
 
             // 3) only do CSE on stmts that have a computation
             if (stmt instanceof LlAssignStmtUnaryOp) {
                 LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
-                // perform the CSE and the optimized stmts to optimizedMap
-                ArrayList<LlStatement> optimizedStmts = cse.getOptimizedStatementsForUnaryComputation(unaryOp);
-                for (LlStatement optStmt : optimizedStmts) {
-                    String optLabel = cse.builder.generateLabel();
-                    optimizedMap.put(optLabel, optStmt);
+                // we only store computations if they are variables (we don't do this for a[i]'s)
+                if (unaryOp.getStoreLocation() instanceof LlLocationVar
+                        && !(unaryOp.getOperand() instanceof LlLocationArray)) {
+
+                    // check to see if this computation has been made before
+                    UnaryExprObject uniExpr = cse.new UnaryExprObject(unaryOp);
+                    if (cse.tempsForExpressions.containsKey(uniExpr)) {
+
+                        // if it has been made before, swap the computation
+                        // with the temp that already stores the value
+                        LlAssignStmtRegular optimalStmt = new LlAssignStmtRegular(
+                                unaryOp.getStoreLocation(),
+                                cse.tempsForExpressions.get(uniExpr)
+                        );
+                        labelsToStmtsMap.put(label, optimalStmt);
+                    }
+                    // if the computation has not been made before, store it for later
+                    else {
+                        cse.tempsForExpressions.put(uniExpr, (LlLocationVar) unaryOp.getStoreLocation());
+                    }
+
+                    // check cse.tempsForExpressions for any expressions whose operand
+                    // is the storeLocation and remove those expressions because they are no longer valid.
+                    for (ExprObject exprObject : new HashSet<>(cse.tempsForExpressions.keySet())) {
+                        if (exprObject.containsVariable(unaryOp.getStoreLocation())) {
+                            cse.tempsForExpressions.remove(exprObject);
+                        }
+                    }
                 }
             }
             else if (stmt instanceof LlAssignStmtBinaryOp) {
                 LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
 
-                // perform the CSE and the optimized stmts to optimizedMap
-                ArrayList<LlStatement> optimizedStmts = cse.getOptimizedStatementsForBinaryComputation(binaryOp);
-                for (LlStatement optStmt : optimizedStmts) {
-                    String optLabel = cse.builder.generateLabel();
-                    optimizedMap.put(optLabel, optStmt);
+                // we only store computations if they are variables (we don't do this for a[i]'s)
+                if (binaryOp.getStoreLocation() instanceof LlLocationVar
+                        && !(binaryOp.getLeftOperand() instanceof LlLocationArray)
+                        && !(binaryOp.getRightOperand() instanceof LlLocationArray)) {
+
+                    // check to see if this computation has been made before
+                    BinaryExprObject binaryExpr = cse.new BinaryExprObject(binaryOp);
+                    if (cse.tempsForExpressions.containsKey(binaryExpr)) {
+
+                        // if it has been made before, swap the computation
+                        // with the temp that already stores the value
+                        LlAssignStmtRegular optimalStmt = new LlAssignStmtRegular(
+                                binaryOp.getStoreLocation(),
+                                cse.tempsForExpressions.get(binaryExpr)
+                        );
+                        labelsToStmtsMap.put(label, optimalStmt);
+                    }
+                    // if the computation has not been made before, store it for later
+                    else {
+                        cse.tempsForExpressions.put(binaryExpr, (LlLocationVar) binaryOp.getStoreLocation());
+                    }
+
+                    // check cse.tempsForExpressions for any expressions whose operand
+                    // is the storeLocation and remove those expressions because they are no longer valid.
+                    for (ExprObject exprObject : new HashSet<>(cse.tempsForExpressions.keySet())) {
+                        if (exprObject.containsVariable(binaryOp.getStoreLocation())) {
+                            cse.tempsForExpressions.remove(exprObject);
+                        }
+                    }
                 }
             }
             else if (stmt instanceof LlAssignStmtRegular) {
                 LlAssignStmtRegular stmtRegular = (LlAssignStmtRegular) stmt;
 
-                // delete any rows in the hashtable that contains the var being assigned in this row
-                for (ExprObject expr : new ArrayList<ExprObject>(cse.tempsForExpressions.keySet())) {
-                    if (expr.containsVariable(stmtRegular.getStoreLocation())) {
-                        cse.tempsForExpressions.remove(expr);
+                // check cse.tempsForExpressions for any expressions whose operand
+                // is the storeLocation and remove those expressions because they are no longer valid.
+                for (ExprObject exprObject : new HashSet<>(cse.tempsForExpressions.keySet())) {
+                    if (exprObject.containsVariable(stmtRegular.getStoreLocation())) {
+                        cse.tempsForExpressions.remove(exprObject);
                     }
                 }
             }
-            else {
-                // if stmt does not contain computation, just add it directly
-                optimizedMap.put(label, stmt);
-            }
         }
-
-        return new BasicBlock(optimizedMap, cse.builder);
     }
 
     private ArrayList<LlStatement> getOptimizedStatementsForUnaryComputation(LlAssignStmtUnaryOp unaryOp) {
@@ -226,3 +269,8 @@ public class LocalCSE {
         }
     }
 }
+
+
+/*
+    1) if this is the first time you have see the computation
+ */
