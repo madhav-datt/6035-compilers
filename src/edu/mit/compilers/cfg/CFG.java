@@ -119,7 +119,37 @@ public class CFG {
                 }
             }
 
-            // 4) assign the list of basic blocks as a field of THIS object
+            // add an empty BasicBlock as the entry node and
+            // connect it and the orignal first BB to each other
+            String trueFirstBBLabel = this.orderedLeadersList.get(0);
+            BasicBlock trueFirstBB = this.leadersToBBMap.get(trueFirstBBLabel);
+
+            String entryBBLabel = "entry";
+            this.orderedLeadersList.add(0, entryBBLabel);
+            LinkedHashMap<String, LlStatement> entryBBStmtsList = new LinkedHashMap<>();
+            entryBBStmtsList.put(entryBBLabel, new LlEmptyStmt());
+            BasicBlock entryBB = new BasicBlock(entryBBStmtsList, builder);
+            this.leadersToBBMap.put(entryBBLabel, entryBB);
+
+            trueFirstBB.addPredecessorNode(entryBB);
+            entryBB.setDefaultBranch(trueFirstBB);
+
+            // add an empty BasicBlock as the exit node and
+            // connect it and the orignal last BB to each other
+            String trueLastBBLabel = this.orderedLeadersList.get(this.orderedLeadersList.size() - 1);
+            BasicBlock trueLastBB = this.leadersToBBMap.get(trueLastBBLabel);
+
+            String exitBBLabel = "eixt";
+            this.orderedLeadersList.add(exitBBLabel);
+            LinkedHashMap<String, LlStatement> exitBBStmtsList = new LinkedHashMap<>();
+            exitBBStmtsList.put(exitBBLabel, new LlEmptyStmt());
+            BasicBlock exitBB = new BasicBlock(exitBBStmtsList, builder);
+            this.leadersToBBMap.put(exitBBLabel, exitBB);
+
+            trueLastBB.addPredecessorNode(exitBB);
+            exitBB.setDefaultBranch(trueLastBB);
+
+            // 5) assign the list of basic blocks as a field of THIS object
             ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
             for (String leaderLabel : this.orderedLeadersList) {
                 basicBlocks.add(this.leadersToBBMap.get(leaderLabel));

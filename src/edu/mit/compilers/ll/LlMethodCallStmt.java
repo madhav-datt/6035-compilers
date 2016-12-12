@@ -52,6 +52,12 @@ public class LlMethodCallStmt extends LlStatement {
                 && ((LlMethodCallStmt)obj).argsList.equals(this.argsList);
 
     }
+
+    @Override
+    public int hashCode() {
+        return this.returnLocation.hashCode() * this.methodName.hashCode() * this.argsList.hashCode();
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         builder.addComment("generating code for " + this.toString());
         String paramRegs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};

@@ -39,6 +39,18 @@ public class IrArgExpr extends IrArg {
     }
 
     @Override
+    public int hashCode() {
+        // if the argValue is an IrLocation, then
+        // hash it according to its locationName
+        if (this.getArgValue() instanceof IrLocation) {
+            IrLocation argVar= (IrLocation) this.getArgValue();
+            return argVar.getLocationName().hashCode();
+        }
+
+        return this.getArgValue().hashCode();
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         String prettyString = indentSpace + "|--argExpr:\n";
 

@@ -37,4 +37,8 @@ public abstract class IrLocation extends IrExpr {
         return (this.getLocationName().equals(((IrLocation)otherIr).getLocationName())) && (this.getLocationType().equals(((IrLocation)otherIr).getLocationType()));
     }
 
+    @Override
+    public int hashCode() {
+        return this.varName.hashCode() * this.varType.hashCode();
+    }
 }

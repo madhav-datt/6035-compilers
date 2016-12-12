@@ -35,6 +35,12 @@ public class LlLiteralBool extends LlLiteral {
 
     }
 
+    @Override
+    public int hashCode() {
+        // hash to 2 different primes depending on whether it's true or false
+        return this.boolValue ? 3 : 5;
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         builder.addComment("generating code for " + this.toString());
         builder.addLine();

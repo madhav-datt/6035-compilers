@@ -52,6 +52,14 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
                 &&((LlAssignStmtBinaryOp)obj).storeLocation.equals(this.storeLocation);
     }
 
+    @Override
+    public int hashCode() {
+        return this.rightOperand.hashCode()
+                * this.leftOperand.hashCode()
+                * this.operation.hashCode()
+                * this.storeLocation.hashCode();
+    }
+
     private String getCommand(String operation){
         String retCommand = "";
         switch (operation){

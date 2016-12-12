@@ -93,6 +93,10 @@ public class IrLocationVar extends IrLocation {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return this.getLocationName().hashCode();
+    }
 
     @Override
     public String prettyPrint(String indentSpace) {

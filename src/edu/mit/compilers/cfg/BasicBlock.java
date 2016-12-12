@@ -100,4 +100,9 @@ public class BasicBlock {
     public boolean equals(Object obj) {
         return obj == this;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

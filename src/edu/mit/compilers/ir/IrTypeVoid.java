@@ -20,6 +20,11 @@ public class IrTypeVoid extends IrType {
     }
 
     @Override
+    public int hashCode() {
+        return 13; // some arbitrary prime;
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         return indentSpace + "|--type: void\n";
     }

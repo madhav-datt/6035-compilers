@@ -8,6 +8,7 @@ public class IrTypeInt extends IrType {
     public IrTypeInt(int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
     }
+
     @Override
     public boolean equals(Object that) {
         if (that == this) {
@@ -17,6 +18,11 @@ public class IrTypeInt extends IrType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return 11; // some arbitrary prime
     }
 
     @Override

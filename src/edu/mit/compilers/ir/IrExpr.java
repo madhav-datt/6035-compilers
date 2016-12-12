@@ -18,7 +18,7 @@ public abstract  class IrExpr extends Ir {
     // canonical form according to the 20 rules found
     // the whale book
     public static IrExpr canonicalizeExpr(IrExpr expr) {
-//
+
 //        if (expr instanceof IrOperBinaryArith) {
 //            IrOperBinaryArith binArth = (IrOperBinaryArith) expr;
 //            IrExpr op1 = binArth.getLeftOperand();

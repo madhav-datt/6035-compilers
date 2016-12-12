@@ -36,6 +36,11 @@ public class LlLocationArray extends LlLocation {
                 && ((LlLocationArray)obj).getVarName().equals(this.getVarName());
     }
 
+    @Override
+    public int hashCode() {
+        return this.elementIndex.hashCode() * this.getVarName().hashCode();
+    }
+
     // the return value of this didnt neccesarily have to be an integer :)
     public String getArrayHead(String arrayLocation){
 

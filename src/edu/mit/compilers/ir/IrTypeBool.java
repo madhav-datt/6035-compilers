@@ -20,6 +20,11 @@ public class IrTypeBool extends IrType {
     }
 
     @Override
+    public int hashCode() {
+        return 17; // some arbitrary prime
+    }
+
+    @Override
     public String prettyPrint(String indentSpace) {
         return indentSpace + "|--type: bool\n";
     }

@@ -43,6 +43,11 @@ public abstract class Computation {
             }
             return false;
         }
+
+        @Override
+        public int hashCode() {
+            return this.op1.hashCode() * this.operation.hashCode() * this.op2.hashCode();
+        }
     }
 
     public static class UnaryComputation extends Computation {
