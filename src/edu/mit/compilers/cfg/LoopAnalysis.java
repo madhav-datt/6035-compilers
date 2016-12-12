@@ -1,5 +1,7 @@
 package edu.mit.compilers.cfg;
 
+import edu.mit.compilers.ll.*;
+
 import java.util.*;
 
 
@@ -7,20 +9,6 @@ import java.util.*;
  * Created by devinmorgan on 12/10/16.
  */
 public class LoopAnalysis {
-    private final CFG cfg;
-//    private final HashMap<BasicBlock, HashSet<BasicBlock>>;
-
-    private LoopAnalysis(CFG cfg) {
-        this.cfg = cfg;
-    }
-
-    public static Loop performLoopInvariantCodeMotion(CFG cfg) {
-        // 1) get the loops of this graph in their nested hierarchy
-
-        // 2)
-    }
-
-    private static
 
     // returns a map where there is a key for each node in the CFG
     // and the corresponding value is the set of all nodes that
@@ -211,8 +199,7 @@ public class LoopAnalysis {
 
     // returns a map where the key is a loop header and the value is
     // the set of headers that the key immediately dominates
-    private static HashMap<BasicBlock, HashSet<BasicBlock>> getHeadersImmediateDominatorsGraph(CFG cfg) {
-        HashMap<BasicBlock, Loop> headersToLoops = getHeadersToLoopMap(cfg);
+    private static HashMap<BasicBlock, HashSet<BasicBlock>> getHeadersImmediateDominatorsGraph(HashMap<BasicBlock, Loop> headersToLoops) {
         Set<BasicBlock> headersSet = headersToLoops.keySet();
 
         // find the set of loop headers that each header immediately dominates
@@ -221,7 +208,7 @@ public class LoopAnalysis {
             Loop headerLoop = headersToLoops.get(header);
 
             // we only care about the nodes that are nested headers
-            HashSet<BasicBlock> nestedHeaders = new HashSet<>(headerLoop.getLoopBlocks());
+            HashSet<BasicBlock> nestedHeaders = new HashSet<>(headerLoop.getLoopBlocksSet());
             nestedHeaders.retainAll(headersSet);
 
             // header does not immediately dominate x if there exists a
@@ -236,7 +223,7 @@ public class LoopAnalysis {
 
                     // this is a y that header dominates but this y also
                     // dominates x so header does not immediately dominate x
-                    if (headersToLoops.get(y).getLoopBlocks().contains(x)) {
+                    if (headersToLoops.get(y).getLoopBlocksSet().contains(x)) {
                         immediateNestedHeaders.remove(x);
                     }
                 }
@@ -246,6 +233,66 @@ public class LoopAnalysis {
         }
         return headersImmediateDomMap;
     }
+
+
+    // IMPORTANT: this optimization should not be called more than once (most likely)
+    public static void performLoopInvariantCodeMotionOnCFG(CFG cfg) {
+        HashMap<BasicBlock, Loop> headersToLoopMap = getHeadersToLoopMap(cfg);
+        HashMap<BasicBlock, HashSet<BasicBlock>> headersDominatorGraph = getHeadersImmediateDominatorsGraph(headersToLoopMap);
+
+        // find the outermost root nodes in the graph (i.e. the entry points)
+        HashSet<BasicBlock> rootNodes = new HashSet<>(headersDominatorGraph.keySet());
+        for (BasicBlock header : headersDominatorGraph.keySet()) {
+
+            // consider all the other headers when deciding if header is an entry point
+            HashSet<BasicBlock> otherHeaders = new HashSet<>(headersDominatorGraph.keySet());
+            otherHeaders.remove(header);
+            for (BasicBlock otherHeader : otherHeaders) {
+
+                // if another header dominates the current header, then this is not a root node
+                if (headersDominatorGraph.get(otherHeader).contains(header)) {
+                    rootNodes.remove(header);
+                }
+            }
+        }
+
+        // 2) preform DFS on this nested hierarchy to obtain the
+        // correct order to perform code hoisting on
+        Stack<BasicBlock> masterOrderStack = new Stack<>();
+        for (BasicBlock rootLoop : rootNodes) {
+            masterOrderStack.push(rootLoop);
+
+            // initialize DFS
+            Stack<BasicBlock> localStack = new Stack<>();
+            localStack.push(rootLoop);
+            HashSet<BasicBlock> visited = new HashSet<>();
+
+            // run DFS
+            while (localStack.size() > 0) {
+                BasicBlock loop = localStack.pop();
+
+                if (!visited.contains(loop)) {
+                    visited.add(loop);
+
+                    for (BasicBlock nestedLoop : headersDominatorGraph.get(loop)) {
+                        localStack.push(nestedLoop);
+
+                        // add to master stack to ensure the correct code-hoisting order
+                        masterOrderStack.push(nestedLoop);
+                    }
+                }
+            }
+        }
+
+        // 3) perform loop invariant code motion in
+        // the order that the nodes get popped from the stack
+        while (masterOrderStack.size() > 0) {
+            BasicBlock loopHeader = masterOrderStack.pop();
+            Loop loop = headersToLoopMap.get(loopHeader);
+            Loop.performCodeHoistingOnLoop(loop, cfg);
+        }
+    }
+
 
     private static class BackEdge {
         private final BasicBlock headerNode;
@@ -266,16 +313,43 @@ public class LoopAnalysis {
     }
 
     private static class Loop {
-        private final HashSet<BasicBlock> loopBlocks;
+        private final HashSet<BasicBlock> loopBlocksSet;
+        private final ArrayList<BasicBlock> loopBlocksArray;
         private final BasicBlock header;
 
         private Loop(HashSet<BasicBlock> loopBlocks, BasicBlock header) {
-            this.loopBlocks = loopBlocks;
+            this.loopBlocksSet = loopBlocks;
             this.header = header;
+            this.loopBlocksArray = new ArrayList<>();
+
+            // run DFS to initialize loopBlocksArray to contain
+            // the ordered loop nodes (starting from the header)
+            LinkedList<BasicBlock> queue = new LinkedList();
+            queue.push(this.header);
+            HashSet<BasicBlock> visited = new HashSet<>();
+            while (queue.size() > 0) {
+                BasicBlock node = queue.pop();
+
+                // only look at nodes we haven't visited yet
+                if (!visited.contains(node)) {
+                    visited.add(node);
+                    this.loopBlocksArray.add(node);
+
+                    // if a node has children that are in the loop, add them to the queue
+                    if (node.getDefaultBranch() != null
+                            && this.loopBlocksSet.contains(node.getDefaultBranch())) {
+                        queue.push(node.getDefaultBranch());
+                    }
+                    if (node.getAlternativeBranch() != null
+                            && this.loopBlocksSet.contains(node.getAlternativeBranch())) {
+                        queue.push(node.getAlternativeBranch());
+                    }
+                }
+            }
         }
 
-        public HashSet<BasicBlock> getLoopBlocks() {
-            return this.loopBlocks;
+        public HashSet<BasicBlock> getLoopBlocksSet() {
+            return this.loopBlocksSet;
         }
 
         public static Loop loopForBackEdge(BackEdge backEdge) {
@@ -306,10 +380,177 @@ public class LoopAnalysis {
             HashSet<BasicBlock> mergedLoopNodes = new HashSet<>();
 
             for (Loop loop : loopSet) {
-                mergedLoopNodes.addAll(loop.getLoopBlocks());
+                mergedLoopNodes.addAll(loop.getLoopBlocksSet());
             }
 
             return new Loop(mergedLoopNodes, header);
+        }
+
+        // assumes any nested loops have already have their code hoisted
+        public static void performCodeHoistingOnLoop(Loop loop, CFG cfg) {
+
+            // initialize all stmts to be NOT invariant at the start
+            HashMap<String, Boolean> invariantStmts = new HashMap<>();
+            for (BasicBlock bb : loop.loopBlocksArray) {
+                LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
+
+                for (String label : labelsToStmtsMap.keySet()) {
+                    invariantStmts.put(label, false);
+                }
+            }
+
+            // mark all stmts whose operands are all constants or whose
+            // operands have reaching definitions that exist entirely
+            // outside of the loop
+            for (BasicBlock bb : loop.loopBlocksArray) {
+                LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
+
+                for (String label : labelsToStmtsMap.keySet()) {
+                    LlStatement stmt = labelsToStmtsMap.get(label);
+
+                    // check unaryOps
+                    if (stmt instanceof LlAssignStmtUnaryOp) {
+                        LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
+
+                        // is the operand a constant
+                        if (unaryOp.getOperand() instanceof LlLiteral) {
+                            invariantStmts.put(label, true);
+                        }
+
+                        // are all def's for this use outside of the loop
+                        else if (unaryOp.getOperand() instanceof LlLocationVar) {
+                            HashSet<Tuple> defForOpUse = GET_DEFS_FOR_USE(bb,label, unaryOp.getOperand());
+
+                            // check if at least one of the Op's uses are outside the loop
+                            invariantStmts.put(label, true);
+                            for (Tuple tuple : defForOpUse) {
+                                BasicBlock defBlock = tuple.GET_BASIC_BLOCK();
+
+                                if (loop.loopBlocksSet.contains(defBlock)) {
+                                    invariantStmts.put(label, false);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // check binaryOps
+                    else if (stmt instanceof LlAssignStmtBinaryOp) {
+                        LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
+
+                        if ((binaryOp.getLeftOperand() instanceof LlLiteral)
+                                && (binaryOp.getRightOperand() instanceof LlLiteral)) {
+                            invariantStmts.put(label, true);
+                        }
+
+                        // are all def's for this use outside of the loop
+                        else if ((binaryOp.getLeftOperand() instanceof LlLocationVar)
+                                && (binaryOp.getRightOperand() instanceof LlLocationVar)) {
+                            HashSet<Tuple> defsForLeftOpUse = GET_DEFS_FOR_USE(bb,label, binaryOp.getLeftOperand());
+                            HashSet<Tuple> defsForRightOpUse = GET_DEFS_FOR_USE(bb,label, binaryOp.getRightOperand());
+
+                            // check if at least one of the Ops' uses are outside the loop
+                            invariantStmts.put(label, true);
+                            for (Tuple tuple : defsForLeftOpUse) {
+                                BasicBlock defBlock = tuple.GET_BASIC_BLOCK();
+
+                                if (loop.loopBlocksSet.contains(defBlock)) {
+                                    invariantStmts.put(label, false);
+                                    break;
+                                }
+                            }
+                            for (Tuple tuple : defsForRightOpUse) {
+                                BasicBlock defBlock = tuple.GET_BASIC_BLOCK();
+
+                                if (loop.loopBlocksSet.contains(defBlock)) {
+                                    invariantStmts.put(label, false);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // go through loop stmts again and check if any stmts have
+            // exactly one reaching definition that points to an invariant piece of code
+            for (BasicBlock bb : loop.loopBlocksArray) {
+                LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
+
+                for (String label : labelsToStmtsMap.keySet()) {
+                    LlStatement stmt = labelsToStmtsMap.get(label);
+
+                    // check unaryOps
+                    if (stmt instanceof LlAssignStmtUnaryOp) {
+                        LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
+
+                        if (unaryOp.getOperand() instanceof LlLocationVar) {
+                            HashSet<Tuple> defForOpUse = GET_DEFS_FOR_USE(bb,label, unaryOp.getOperand());
+
+                            // if the operand has exactly 1 reaching def and its reaching
+                            // def is invariant, then mark this stmt as invariant
+                            if (defForOpUse.size() == 1) {
+
+                                for (Tuple tuple : defForOpUse) {
+                                    String defLineLabel = tuple.GET_LABEL();
+
+                                    // exactly 1 def, and that def is invariant
+                                    if (invariantStmts.containsKey(defLineLabel) && invariantStmts.get(defLineLabel) == true) {
+                                        invariantStmts.put(label, true);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // check binaryOps
+                    if (stmt instanceof LlAssignStmtBinaryOp) {
+                        LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
+
+                        if ((binaryOp.getLeftOperand() instanceof LlLocationVar)
+                                && (binaryOp.getRightOperand() instanceof LlLocationVar)) {
+                            HashSet<Tuple> defsForLeftOpUse = GET_DEFS_FOR_USE(bb,label, binaryOp.getLeftOperand());
+                            HashSet<Tuple> defsForRightOpUse = GET_DEFS_FOR_USE(bb,label, binaryOp.getRightOperand());
+
+                            // if left operand and right operand have exactly 1 reaching definition
+                            boolean leftIsInvariant = false;
+                            boolean rightIsInvariant = false;
+                            if ((defsForLeftOpUse.size() == 1) && (defsForRightOpUse.size() == 1)) {
+
+                                // the left op must have a reaching def that is loop invariant for it to also be loop invariant
+                                for (Tuple tuple : defsForLeftOpUse) {
+                                    String defLineLabel = tuple.GET_LABEL();
+
+                                    // exactly 1 def, and that def is invariant
+                                    if (invariantStmts.containsKey(defLineLabel) && invariantStmts.get(defLineLabel) == true) {
+                                        leftIsInvariant = true;
+                                    }
+                                    break;
+                                }
+
+                                // the right op must have a reaching def that is loop invariant for it to also be loop invariant
+                                for (Tuple tuple : defsForRightOpUse) {
+                                    String defLineLabel = tuple.GET_LABEL();
+
+                                    // exactly 1 def, and that def is invariant
+                                    if (invariantStmts.containsKey(defLineLabel) && invariantStmts.get(defLineLabel) == true) {
+                                        rightIsInvariant = true;
+                                    }
+                                    break;
+                                }
+                            }
+
+                            if (leftIsInvariant && rightIsInvariant) {
+                                invariantStmts.put(label, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            //
         }
 
     }
