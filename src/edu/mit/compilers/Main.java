@@ -241,11 +241,11 @@ class Main {
            for (LlBuilder builder : buildersList) {
 //               System.out.println(builder.toString());
                CFG cfg = new CFG(builder);
-               System.out.println(cfg.toString());
+//               System.out.println(cfg.toString());
            }
 
-//           CodeGenerator cg = new CodeGenerator();
-//           cg.generateCode(program);
+           CodeGenerator cg = new CodeGenerator();
+           cg.generateCode(program);
 
 
        }

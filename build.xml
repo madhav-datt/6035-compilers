@@ -20,7 +20,7 @@
   <property name="tests"   location="tests"   />
 
   <!-- We rely (now) on ANTLR 4.5.3  -->
-  
+
   <!-- Build up a path structure for a classpath 
        that includes the binaries (jars) in bin/ and 
        the existing classpath.  Not used now, 
@@ -58,9 +58,9 @@
     <echo>Generating the scanner...</echo>
     <!-- Replaces <antlr> element -->
     <java classname="org.antlr.v4.Tool" fork="true" failonerror="true">
-      <operand value="${src}/${base_package_dir}/grammar/DecafScanner.g4"/>
-      <operand value="-o"/>
-      <operand value="${autogen}/${base_package_dir}/grammar"/>
+      <arg value="${src}/${base_package_dir}/grammar/DecafScanner.g4"/>
+      <arg value="-o"/>
+      <arg value="${autogen}/${base_package_dir}/grammar"/>
       <classpath>
         <pathelement location="${lib}/antlr.jar" />
       </classpath>
@@ -72,9 +72,9 @@
     <echo>Generating the parser...</echo>
     <!-- Replaces <antlr> element -->
     <java classname="org.antlr.v4.Tool" fork="true" failonerror="true">
-      <operand value="${src}/${base_package_dir}/grammar/DecafParser.g4"/>
-      <operand value="-o"/>
-      <operand value="${autogen}/${base_package_dir}/grammar"/>
+      <arg value="${src}/${base_package_dir}/grammar/DecafParser.g4"/>
+      <arg value="-o"/>
+      <arg value="${autogen}/${base_package_dir}/grammar"/>
       <classpath>
         <pathelement location="${lib}/antlr.jar" />
       </classpath>
@@ -90,11 +90,11 @@
 
   <target name="jar" depends="compile" description="JARs the Task">
     <jar jarfile="${dist}/Compiler.jar" basedir="${classes}">
-     <manifest>
-       <attribute name="Main-Class" value="${base_package_name}.Main" />
-       <!-- ANTLR runtime is needed for parsing! -->
-       <attribute name="Class-Path" value="antlr.jar" />
-     </manifest>
+      <manifest>
+        <attribute name="Main-Class" value="${base_package_name}.Main" />
+        <!-- ANTLR runtime is needed for parsing! -->
+        <attribute name="Class-Path" value="antlr.jar" />
+      </manifest>
     </jar>
     <!-- Third party libraries can only be found by java -jar if they
          reside in the same dir but we don't a billion copies floating around,
@@ -148,7 +148,7 @@
     <delete file="${env.USER}-handin.tar" />
     <tar destfile="${env.USER}-handin.tar">
       <tarfileset dir="."
-      prefix="${env.USER}-handin/">
+                  prefix="${env.USER}-handin/">
         <include name="**/*" />
         <exclude name="*.tar" />
         <exclude name="*.tar.gz" />
@@ -156,16 +156,15 @@
       </tarfileset>
     </tar>
     <gzip destfile="${env.USER}-handin.tar.gz"
-    src="${env.USER}-handin.tar" />
+          src="${env.USER}-handin.tar" />
   </target>
 
   <!-- to clean, delete everything in the autogen, classes, and dist
   directory -->
   <target name="clean" description="Delete all generated files">
-     <delete dir="${autogen}" />
-     <delete dir="${classes}" />
-     <delete dir="${dist}" />
+    <delete dir="${autogen}" />
+    <delete dir="${classes}" />
+    <delete dir="${dist}" />
   </target>
 
 </project>
-
