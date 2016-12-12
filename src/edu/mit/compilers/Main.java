@@ -239,7 +239,8 @@ class Main {
 
            ArrayList<LlBuilder> buildersList = program.getBuilderList();
            for (LlBuilder builder : buildersList) {
-//               System.out.println(builder.toString());
+               System.out.println(builder.toString());
+               System.out.println();
                CFG cfg = new CFG(builder);
 //               System.out.println(cfg.toString());
            }

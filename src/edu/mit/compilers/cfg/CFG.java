@@ -208,6 +208,11 @@ public class CFG {
             return this.blockName.hashCode() + this.label.hashCode();
         }
 
+        @Override
+        public String toString() {
+            return "(" + this.blockName + ", " + this.label + ")";
+        }
+
     }
 
     // ================= Symbol Def =================
@@ -230,6 +235,11 @@ public class CFG {
         @Override
         public int hashCode() {
             return this.symbol.hashCode() + this.useDef.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return this.symbol.toString() + " : " + this.useDef.toString();
         }
 
     }
@@ -355,6 +365,11 @@ public class CFG {
         BasicBlock head = basicBlocks.get(0);
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
+
+//        //Print statements for useDefChains
+//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+//        }
         return this.defUseChain;
     }
 

@@ -64,15 +64,20 @@ public class RegisterAllocation {
                 }
             }
         }
+
         if (this.varRegisterAllocations.size() == 0)
             return false;
+
         //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
-            //Continue if otherVar is allocated different register
-            if (!register.equals(statementEntry.getValue()))
-                continue;
 
+            //Continue if otherVar is allocated different register
+            if (!register.equals(statementEntry.getValue())) {
+                continue;
+            }
+
+            System.out.println(otherVar.toString());
             //Check if var and otherVar conflict, for all chains with otherVar
             for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
                 CFG.SymbolDef duOtherVar = duChain.getKey();
@@ -90,13 +95,14 @@ public class RegisterAllocation {
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
                     for (int varDefUses : duVar) {
-                        if (varDefUses >= defOtherVar && varDefUses <= maxUseOtherVar)
-                            return false;
+                        if (varDefUses >= defOtherVar && varDefUses <= maxUseOtherVar) {
+                            return true;
+                        }
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     //Allocate registers according to greedy algorithm
@@ -107,6 +113,13 @@ public class RegisterAllocation {
         while (!this.varUsageCount.isEmpty()) {
             //Get key with max usage value
             LlLocation var = Collections.max(this.varUsageCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+
+            //Eliminate string variables
+            if (var.toString().length() > 4 && var.toString().substring(0, 4).equals("#str")) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
             for (String register : this.availableRegisters) {
                 //If no conflict exists, allocate to selected register
                 if (!isConflict(var, register)) {
@@ -192,6 +205,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
+        System.out.println();
         System.out.println(this.getVarRegisterAllocations());
+        System.out.println();
     }
 }
