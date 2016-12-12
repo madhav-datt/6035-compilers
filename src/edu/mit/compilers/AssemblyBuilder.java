@@ -155,7 +155,12 @@ public class AssemblyBuilder {
     }
 
     public ArrayList<String> getAllAllocatedRegs(){
-        ArrayList<String> allAllocatedRegs = new ArrayList<>(this.allocatedRegisers.values());
+        ArrayList<String> allAllocatedRegs = new ArrayList<>();
+        for(String reg : this.allocatedRegisers.values()){
+            if(!allAllocatedRegs.contains(reg)){
+                allAllocatedRegs.add(reg);
+            }
+        }
         return allAllocatedRegs;
     }
 

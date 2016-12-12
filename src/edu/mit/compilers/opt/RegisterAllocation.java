@@ -59,11 +59,13 @@ public class RegisterAllocation {
 
             if (currentDef.symbol.equals(var)) {
                 duVar.add(this.getLabelNum(currentDef.useDef.label));
-                for (CFG.Tuple varUses : duChain.getValue())
+                for (CFG.Tuple varUses : duChain.getValue()){
                     duVar.add(this.getLabelNum(varUses.label));
+                }
             }
         }
-
+        if (this.varRegisterAllocations.size() == 0)
+            return false;
         //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
@@ -81,8 +83,9 @@ public class RegisterAllocation {
                     int defOtherVar = this.getLabelNum(duOtherVar.useDef.label);
 
                     //Find last use of otherVar in selected du chain
-                    for (CFG.Tuple varUses : duChain.getValue())
+                    for (CFG.Tuple varUses : duChain.getValue()){
                         otherVarUseList.add(this.getLabelNum(varUses.label));
+                    }
                     int maxUseOtherVar = Collections.max(otherVarUseList);
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
@@ -189,6 +192,6 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
-//        System.out.println(this.getVarRegisterAllocations());
+        System.out.println(this.getVarRegisterAllocations());
     }
 }

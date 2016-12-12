@@ -23,7 +23,7 @@ public class CodeGenerator {
         // prepatch the strings and stuff
 
         // registers to use for allocation
-        String registers[] = {"%r12, %r13, %r14, %r15, %rbx"};
+        String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
         ArrayList<String> givenRegisters = new ArrayList<>();
         for (String reg : registers){
             givenRegisters.add(reg);
@@ -54,6 +54,7 @@ public class CodeGenerator {
         for(LlBuilder builder : buildersList.getBuilders()){
 
             CFG cfg = new CFG(builder);
+            System.out.println(givenRegisters);
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
