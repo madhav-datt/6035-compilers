@@ -140,7 +140,7 @@ public class RegisterAllocation {
                LlLocation storeLocation = ((LlAssignStmtRegular) statement).getStoreLocation();
                this.updateVarUsageTable(storeLocation, addUsageConstant);
 
-               LlComponent arg = ((LlAssignStmtRegular) statement).getArg();
+               LlComponent arg = ((LlAssignStmtRegular) statement).getOperand();
                this.updateVarUsageTable(arg, addUsageConstant);
             }
 
@@ -148,7 +148,7 @@ public class RegisterAllocation {
                 LlLocation storeLocation = ((LlAssignStmtUnaryOp) statement).getStoreLocation();
                 this.updateVarUsageTable(storeLocation, addUsageConstant);
 
-                LlComponent arg = ((LlAssignStmtUnaryOp) statement).getArg();
+                LlComponent arg = ((LlAssignStmtUnaryOp) statement).getOperand();
                 this.updateVarUsageTable(arg, addUsageConstant);
             }
 
@@ -156,10 +156,10 @@ public class RegisterAllocation {
                 LlLocation storeLocation = ((LlAssignStmtBinaryOp) statement).getStoreLocation();
                 this.updateVarUsageTable(storeLocation, addUsageConstant);
 
-                LlComponent arg1 = ((LlAssignStmtBinaryOp) statement).getLeftArg();
+                LlComponent arg1 = ((LlAssignStmtBinaryOp) statement).getLeftOperand();
                 this.updateVarUsageTable(arg1, addUsageConstant);
 
-                LlComponent arg2 = ((LlAssignStmtBinaryOp) statement).getRightArg();
+                LlComponent arg2 = ((LlAssignStmtBinaryOp) statement).getLeftOperand();
                 this.updateVarUsageTable(arg2, addUsageConstant);
             }
 
