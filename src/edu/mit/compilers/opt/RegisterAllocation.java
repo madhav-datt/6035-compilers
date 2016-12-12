@@ -42,9 +42,10 @@ public class RegisterAllocation {
 
     //Get label number from label string
     private int getLabelNum(String input) {
-        final Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
-        Matcher matcher = lastIntPattern.matcher(input);
-        String someNumberStr = matcher.group(1);
+
+        input = input.replaceAll("\\D+",""); // Incase of weird failure look at this
+        String someNumberStr = input;
+
         return Integer.parseInt(someNumberStr);
     }
 
@@ -110,6 +111,8 @@ public class RegisterAllocation {
                     break;
                 }
             }
+            this.varUsageCount.remove(var);
+
         }
     }
 
@@ -129,10 +132,10 @@ public class RegisterAllocation {
 
             //If label marks beginning of loop, increase depth by 1
             //If label marks end of loop, decrease depth by 1
-            if (statementLabel.substring(0, 7).equals("END_FOR") || statementLabel.substring(0, 9).equals("END_WHILE"))
+            if ((statementLabel.length() > 7 && statementLabel.substring(0, 7).equals("END_FOR")) || (statementLabel.length() > 9 && statementLabel.substring(0, 9).equals("END_WHILE")))
                 currentDepth--;
 
-            else if (statementLabel.substring(0, 3).equals("FOR") || statementLabel.substring(0, 5).equals("WHILE"))
+            else if ((statementLabel.length() > 3 && statementLabel.substring(0, 3).equals("FOR") )|| (statementLabel.length() > 5 && statementLabel.substring(0, 5).equals("WHILE")))
                 currentDepth++;
 
             int addUsageConstant = (int) Math.pow(10, currentDepth);
@@ -186,5 +189,6 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
+//        System.out.println(this.getVarRegisterAllocations());
     }
 }

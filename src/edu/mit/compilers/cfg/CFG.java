@@ -153,7 +153,7 @@ public class CFG {
 
     // ================= Tuple =================
 
-    private final Tuple noDefTuple = new Tuple("NO_DEF", "NO_DEF");
+    private final Tuple noDefTuple = new Tuple("NO_DEF_1010", "NO_DEF_1010");
 
     public Tuple getNoDefTuple() {
         return this.noDefTuple;
@@ -229,6 +229,9 @@ public class CFG {
     //Recursively (DFS) build defUseChains
     private void buildDefUseRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
         //Add def-use chains of basic block head
+        if(head == null){
+            return ;
+        }
         for (Map.Entry<String, LlStatement> statementRow : head.getLabelsToStmtsMap().entrySet()) {
             String label = statementRow.getKey();
             LlStatement statement = statementRow.getValue();
@@ -305,12 +308,12 @@ public class CFG {
         Edge left = head.getLeft();
         Edge right = head.getRight();
 
-        if (!isVisited.contains(left)) {
+        if (left != null && !isVisited.contains(left)) {
             isVisited.add(head.getLeft());
             buildDefUseRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
         }
 
-        if (!isVisited.contains(right)) {
+        if (right != null && !isVisited.contains(right)) {
             isVisited.add(head.getRight());
             buildDefUseRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
         }

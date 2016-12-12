@@ -1,5 +1,9 @@
 package edu.mit.compilers;
 
+import com.sun.xml.internal.ws.api.ha.StickyFeature;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
+
 import java.util.*;
 
 /**
@@ -15,14 +19,17 @@ public class AssemblyBuilder {
     public boolean hasReturned = false;
     public boolean isLastReturn = false;
     private String footnote;
+    private  HashMap<LlLocation, String> allocatedRegisers;
 
-
-    public AssemblyBuilder(){
+    public AssemblyBuilder( ){
         code = new HashMap<>();
         this.stringTable = new HashMap<>();
         enterLines = new HashMap<>();
         this.footnote = "";
+        this.allocatedRegisers = new HashMap<>();
     }
+
+
 
     public void append(String s){
         this.code.put(this.code.size(), s);
@@ -73,6 +80,9 @@ public class AssemblyBuilder {
         this.replaceLine(this.getEnterLine(methodName), String.format("     "+ "%1$-6s %2$1s", "subq", replaceWith));
     }
 
+    public void updateRegisterAllocationTable(HashMap<LlLocation, String> allocatedRegisers){
+        this.allocatedRegisers = allocatedRegisers;
+    }
 
     public void addLine(String s){
         this.append("     " + s);
@@ -111,5 +121,86 @@ public class AssemblyBuilder {
 
         return assembled.toString();
     }
+
+    public String optimizedStore(LlLocation var, String source, StackFrame frame){
+        if(this.allocatedRegisers.keySet().contains(var)){
+            this.addLinef("movq", source + ", " +this.allocatedRegisers.get(var));
+            return this.allocatedRegisers.get(var);
+        }
+        else{
+            String storeToLoc = frame.getNextStackLocation();
+            this.addLinef("movq",source + ", %r10");
+            this.addLinef("movq", "%r10, " + storeToLoc);
+            frame.pushToStackFrame(var);
+            return storeToLoc;
+        }
+    }
+
+    public String optimizedStore(LlLocation var, String source, String destination){
+        if(this.allocatedRegisers.keySet().contains(var)){
+            this.addLinef("movq", source + ", " +this.allocatedRegisers.get(var));
+            return this.allocatedRegisers.get(var);
+        }
+        else{
+
+            this.addLinef("movq",source + ", %r10");
+            this.addLinef("movq", "%r10, " + destination);
+
+            return destination;
+        }
+    }
+
+    public String getAllocatedReg(LlLocation var){
+        return this.allocatedRegisers.get(var);
+    }
+
+    public ArrayList<String> getAllAllocatedRegs(){
+        ArrayList<String> allAllocatedRegs = new ArrayList<>(this.allocatedRegisers.values());
+        return allAllocatedRegs;
+    }
+
+    public String optimizedLoad(LlLocation var, String loadTo, StackFrame frame){
+        if(this.allocatedRegisers.keySet().contains(var)){
+            this.addLinef("movq",  this.allocatedRegisers.get(var) + ", " + loadTo);
+            return this.allocatedRegisers.get(var);
+        }
+        else{
+            String storeToLoc = frame.getNextStackLocation();
+            this.addLinef("movq", storeToLoc + ", %r10");
+            this.addLinef("movq", "%r10, " + storeToLoc);
+            frame.pushToStackFrame(var);
+            return storeToLoc;
+        }
+    }
+
+    public String optimizedLoad(LlLocation var, String loadTo, String loadFrom){
+        if(this.allocatedRegisers.keySet().contains(var)){
+            this.addLinef("movq",  this.allocatedRegisers.get(var) + ", " + loadTo);
+            return this.allocatedRegisers.get(var);
+        }
+        else{
+
+            this.addLinef("movq", loadFrom + ", %r10");
+            this.addLinef("movq", "%r10, " + loadTo);
+
+            return loadFrom;
+        }
+    }
+
+
+    public void calleeSave(ArrayList<String> registers, int startStackVal){
+        for(int i = 0; i < registers.size(); i ++){
+            int stackLocation = startStackVal + 8*i;
+            this.addLinef("movq", registers.get(i) + ", " + Integer.toString(stackLocation)+"(%rbp)");
+        }
+    }
+
+    public void calleeRestore(ArrayList<String> registers, int startStackVal){
+        for(int i = 0; i < registers.size(); i ++){
+            int stackLocation = startStackVal + 8*i;
+            this.addLinef("movq",  Integer.toString(stackLocation)+"(%rbp)" + ", " + registers.get(i));
+        }
+    }
+
 
 }

@@ -42,18 +42,24 @@ public class LlLocationVar extends LlLocation {
         if(symbolTable.isInGlobalVarsTable(this)){
             return this.getVarName() + "(%rip)";
         }
-        String stackLocation = frame.getLlLocation(this);
-        if(stackLocation == null) {
-            String checkParamTable  = symbolTable.getFromParamTable(this);
-            if (checkParamTable == null){
-                String newVarLoc = frame.getNextStackLocation();
-                frame.pushToStackFrame(this);
-                return newVarLoc;
+        String allocatedReg = builder.getAllocatedReg(this);
+        if(allocatedReg == null){
+            String stackLocation = frame.getLlLocation(this);
+            if(stackLocation == null) {
+                String checkParamTable  = symbolTable.getFromParamTable(this);
+                if (checkParamTable == null){
+                    String newVarLoc = frame.getNextStackLocation();
+                    frame.pushToStackFrame(this);
+                    return newVarLoc;
+                }
+                else{
+                    return checkParamTable;
+                }
             }
-            else{
-                return checkParamTable;
-            }
+            return stackLocation;
         }
-        return stackLocation;
+        return allocatedReg;
+
+
     }
 }

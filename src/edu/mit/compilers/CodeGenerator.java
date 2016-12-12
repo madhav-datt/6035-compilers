@@ -3,6 +3,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
+import edu.mit.compilers.opt.RegisterAllocation;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -20,6 +21,15 @@ public class CodeGenerator {
 
         HashMap<String, ArrayList<LlLocationVar>> methodParams = program.getMethodArgs();
         // prepatch the strings and stuff
+
+        // registers to use for allocation
+        String registers[] = {"%r12, %r13, %r14, %r15, %rbx"};
+        ArrayList<String> givenRegisters = new ArrayList<>();
+        for (String reg : registers){
+            givenRegisters.add(reg);
+        }
+
+
         AssemblyBuilder assemblyBuilder = new AssemblyBuilder();
         this.appendGlobalVarsAndArrays(assemblyBuilder, buildersList);
         assemblyBuilder.addLine(".globl main");
@@ -43,6 +53,13 @@ public class CodeGenerator {
 
         for(LlBuilder builder : buildersList.getBuilders()){
 
+            CFG cfg = new CFG(builder);
+            RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
+
+            HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
+
+            assemblyBuilder.updateRegisterAllocationTable(varRegAllocs);
+
             LlSymbolTable oldSymbolTable = buildersList.getSymbolTables().get(countSymbolTables++);
             LlSymbolTable symbolTable = new LlSymbolTable(builder.getName());
 
@@ -59,19 +76,7 @@ public class CodeGenerator {
 
                 assemblyBuilder.addLabel(currentMethodName);
 
-                /*
-                .cfi_startproc
-                 pushq     %rbp
-                 .cfi_def_cfa_offset 16
-                 .cfi_offset 6, -16
-                 movq %rsp, %rbp
 
-
-                 leave
-                 .cfi_def_cfa 7, 8
-                 ret
-                 .cfi_endproc
-                             */
                 assemblyBuilder.addLinef(" .cfi_startproc", "");
                 assemblyBuilder.addLinef("pushq ", "%rbp");
                 assemblyBuilder.addLinef(".cfi_def_cfa_offset", "16");
@@ -79,6 +84,8 @@ public class CodeGenerator {
                 assemblyBuilder.addLinef("movq", "%rsp, %rbp");
                 assemblyBuilder.addLine();
                 assemblyBuilder.setEnterLine(currentMethodName);
+
+                assemblyBuilder.calleeSave(assemblyBuilder.getAllAllocatedRegs(), 16 + (methodParams.size()-7)*8);
 
                 pushParamsToSymbolTable(assemblyBuilder, currentMethodName, methodParams, symbolTable, frame);
             }
@@ -98,7 +105,7 @@ public class CodeGenerator {
             }
             assemblyBuilder.replaceEnterLine(currentMethodName, frame.getStackSize());
 
-
+            assemblyBuilder.calleeRestore(assemblyBuilder.getAllAllocatedRegs(), 16 + (methodParams.size()-7)*8);
             if(assemblyBuilder.hasReturned){
                 assemblyBuilder.hasReturned = false;
                 assemblyBuilder.isLastReturn = false;
