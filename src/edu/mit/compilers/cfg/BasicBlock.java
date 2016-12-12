@@ -25,13 +25,14 @@ public class BasicBlock {
     private Edge right = new Edge();
 
     private LinkedHashMap<String, LlStatement> labelsToStmtsMap;
-    private BasicBlock defaultBranch;
-    private HashSet<BasicBlock> predecessors;
-    private BasicBlock alternativeBranch;
+    private final HashSet<BasicBlock> predecessors;
     private final LlBuilder builder;
+    private BasicBlock defaultBranch;
+    private BasicBlock alternativeBranch;
 
     public BasicBlock(LinkedHashMap<String, LlStatement> labelsToStmtsMap, LlBuilder builder) {
         this.labelsToStmtsMap = new LinkedHashMap<>(labelsToStmtsMap);
+        this.predecessors = new HashSet<>();
         this.builder = builder;
     }
 
