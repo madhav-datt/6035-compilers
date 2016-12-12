@@ -4,7 +4,10 @@ void main ( ) {
     int j;
     j = 10;
 
-    for (j = 7; j < 9; j += 1) {
-        printf("hello world");
+    if (true) {
+        printf("hello");
+    }
+    else {
+        printf("nope");
     }
 }

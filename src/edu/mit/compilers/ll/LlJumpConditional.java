@@ -13,7 +13,7 @@ public class LlJumpConditional extends LlJump{
     }
 
     public LlComponent getCondition() {
-        return condition;
+        return this.condition;
     }
 
     @Override

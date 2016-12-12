@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 /**
  * Created by madhav on 11/26/16.
  */
@@ -155,11 +156,11 @@ public class RegisterAllocation {
             else if (statement instanceof LlAssignStmtBinaryOp) {
                 LlLocation storeLocation = ((LlAssignStmtBinaryOp) statement).getStoreLocation();
                 this.updateVarUsageTable(storeLocation, addUsageConstant);
-
                 LlComponent arg1 = ((LlAssignStmtBinaryOp) statement).getLeftOperand();
-                this.updateVarUsageTable(arg1, addUsageConstant);
 
+                this.updateVarUsageTable(arg1, addUsageConstant);
                 LlComponent arg2 = ((LlAssignStmtBinaryOp) statement).getLeftOperand();
+
                 this.updateVarUsageTable(arg2, addUsageConstant);
             }
 

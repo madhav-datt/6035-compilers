@@ -19,7 +19,7 @@ public class LlMethodCallStmt extends LlStatement {
     }
 
     public LlLocation getReturnLocation() {
-        return returnLocation;
+        return this.returnLocation;
     }
 
     public List<LlComponent> getArgsList() {
