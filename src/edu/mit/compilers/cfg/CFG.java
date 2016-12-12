@@ -131,23 +131,23 @@ public class CFG {
             BasicBlock entryBB = new BasicBlock(entryBBStmtsList, builder);
             this.leadersToBBMap.put(entryBBLabel, entryBB);
 
-            trueFirstBB.addPredecessorNode(entryBB);
             entryBB.setDefaultBranch(trueFirstBB);
+            trueFirstBB.addPredecessorNode(entryBB);
 
             // add an empty BasicBlock as the exit node and
             // connect it and the orignal last BB to each other
             String trueLastBBLabel = this.orderedLeadersList.get(this.orderedLeadersList.size() - 1);
             BasicBlock trueLastBB = this.leadersToBBMap.get(trueLastBBLabel);
 
-            String exitBBLabel = "eixt";
+            String exitBBLabel = "exit";
             this.orderedLeadersList.add(exitBBLabel);
             LinkedHashMap<String, LlStatement> exitBBStmtsList = new LinkedHashMap<>();
             exitBBStmtsList.put(exitBBLabel, new LlEmptyStmt());
             BasicBlock exitBB = new BasicBlock(exitBBStmtsList, builder);
             this.leadersToBBMap.put(exitBBLabel, exitBB);
 
-            trueLastBB.addPredecessorNode(exitBB);
-            exitBB.setDefaultBranch(trueLastBB);
+            trueLastBB.setDefaultBranch(exitBB);
+            exitBB.addPredecessorNode(trueLastBB);
 
             // 5) assign the list of basic blocks as a field of THIS object
             ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
