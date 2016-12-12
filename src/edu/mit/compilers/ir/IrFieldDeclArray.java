@@ -2,6 +2,8 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationArray;
+import edu.mit.compilers.ll.LlLocationVar;
 
 public class IrFieldDeclArray extends IrFieldDecl {
     private final int arraySize;
@@ -40,6 +42,8 @@ public class IrFieldDeclArray extends IrFieldDecl {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        symbolTable.putOnArrayTable(new LlLocationVar(this.getName()), this.arraySize);
+
         return null;
     }
 }

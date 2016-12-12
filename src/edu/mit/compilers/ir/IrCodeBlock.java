@@ -47,10 +47,16 @@ public class IrCodeBlock extends Ir {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        for (IrFieldDecl field: this.fieldsList) {
+            if(field instanceof IrFieldDeclArray){
+                field.generateLlIr(builder, symbolTable);
+            }
+        }
         for (IrStatement statement: this.stmtsList) {
             if(statement instanceof IrStmtContinue){
                 if(builder.pickPocket() != null) {
                     ((IrStatement) builder.pickPocket()).generateLlIr(builder, symbolTable);
+                    builder.emptyPocket();
                 }
             }
             statement.generateLlIr(builder, symbolTable);

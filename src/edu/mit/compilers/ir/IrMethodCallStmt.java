@@ -92,6 +92,24 @@ public class IrMethodCallStmt extends IrStatement{
             // for an extern method_decl
             else if (object instanceof IrExternDecl) {
 
+                // for externs we need to validate any args that
+                // are IrArgExpr be we can ignore all other args
+                for (IrArg unsafeArg : this.argsList) {
+                    if (unsafeArg instanceof IrArgExpr) {
+                        IrArgExpr safeArg = (IrArgExpr) unsafeArg;
+
+                        // check that the IrArgExpr is semantically correct
+                        errorMessage += safeArg.semanticCheck(scopeStack);
+                    }
+                    else if (unsafeArg instanceof IrArgString) {
+                        // cool beans but do nothing
+                    }
+                    else {
+                        errorMessage += "Invalid argument" +
+                        " line: " + this.getLineNumber() + " col: " + this.getColNumber() + "\n";
+                    }
+                }
+
                 // IMPORTANT: set the IrType of the IrMethodCallExpr
                 this.methodType = new IrTypeInt(this.methodName.getLineNumber(), this.methodName.getColNumber());
             }

@@ -41,11 +41,13 @@ public class IrSizeOfType extends IrSizeOf {
         if(type instanceof IrTypeInt){
             LlAssignStmtRegular regularAssignment;
             regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(8));
+            builder.appendStatement(regularAssignment);
         }
 
         if(type instanceof IrTypeBool){
             LlAssignStmtRegular regularAssignment;
             regularAssignment = new LlAssignStmtRegular(tempLocation, new LlLiteralInt(1));
+            builder.appendStatement(regularAssignment);
         }
         return tempLocation;
 

@@ -10,6 +10,7 @@ public class IrSizeOfLocation extends IrSizeOf {
     public IrSizeOfLocation(IrIdent fieldName, int lineNumber, int colNumber) {
         super(lineNumber, colNumber);
         this.fieldName = fieldName;
+
     }
 
     @Override
@@ -42,30 +43,6 @@ public class IrSizeOfLocation extends IrSizeOf {
 
         return errorMessage;
     }
-    public String getTypeString(){
-        if(this.irDecl instanceof IrFieldDeclArray){
-            return "array";
-        }
-        if(this.irDecl instanceof IrFieldDeclVar){
-            if(((IrFieldDeclVar) this.irDecl).getType() instanceof IrTypeInt){
-                return "int";
-            }
-            if(((IrFieldDeclVar) this.irDecl).getType() instanceof IrTypeBool){
-                return "bool";
-            }
-
-        }
-        if(this.irDecl instanceof IrParamDecl){
-            if(((IrParamDecl) this.irDecl).getParamType() instanceof IrTypeInt){
-                return "int";
-            }
-            if(((IrParamDecl) this.irDecl).getParamType() instanceof IrTypeBool){
-                return "bool";
-            }
-        }
-
-        return "void";
-    }
 
 
     @Override
@@ -78,7 +55,7 @@ public class IrSizeOfLocation extends IrSizeOf {
         return prettyString;
     }
 
-    //TODO: Implement the array param case
+
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
         LlLocationVar tempLocation = builder.generateTemp();

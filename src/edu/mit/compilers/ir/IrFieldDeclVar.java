@@ -2,6 +2,7 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 /**
  * Created by devinmorgan on 10/11/16.
@@ -28,6 +29,8 @@ public class IrFieldDeclVar extends IrFieldDecl {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        symbolTable.putOnStringTable(new LlLocationVar(this.getName()), "");
+
         return null;
     }
 }

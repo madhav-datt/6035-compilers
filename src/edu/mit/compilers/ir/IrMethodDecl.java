@@ -1,6 +1,7 @@
 package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlEmptyStmt;
 import edu.mit.compilers.ll.LlLocation;
 
 import java.util.*;
@@ -52,6 +53,9 @@ public class IrMethodDecl extends IrMemberDecl {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        String methodNameLabel = this.getName();
+        LlEmptyStmt emptyStmt = new LlEmptyStmt();
+        builder.appendStatement(methodNameLabel, emptyStmt);
         this.methodBody.generateLlIr(builder, symbolTable);
         return null;
     }

@@ -57,8 +57,8 @@ public class IrOperBinaryArith extends IrOperBinary {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
-        LlLocation rightTemp = this.rightOperand.generateLlIr(builder, symbolTable);
         LlLocation leftTemp = this.leftOperand.generateLlIr(builder, symbolTable);
+        LlLocation rightTemp = this.rightOperand.generateLlIr(builder, symbolTable);
         LlLocationVar returnTemp = builder.generateTemp();
         LlAssignStmtBinaryOp assignStmtBinaryOp = new LlAssignStmtBinaryOp(returnTemp, leftTemp, this.getOperation() ,rightTemp);
         builder.appendStatement(assignStmtBinaryOp);

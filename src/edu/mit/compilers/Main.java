@@ -4,6 +4,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
+import edu.mit.compilers.ll.LlStatement;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.tools.CLI.Action;
@@ -243,6 +244,8 @@ class Main {
                System.out.println(cfg.toString());
            }
 
+//           CodeGenerator cg = new CodeGenerator();
+//           cg.generateCode(program);
 
 
        }
@@ -250,7 +253,6 @@ class Main {
            System.out.println("There was an error:\n" + e);
        }
    }
-
 
    public static void main(String[] args) {
        // Run program based on CLI and shell scripts
@@ -269,7 +271,6 @@ class Main {
 //        String illegalTests = "./tests/semantics-hidden/illegal/";
 //        Main.runFilesInDirectory(illegalTests);
 
-       
    }
 }
 

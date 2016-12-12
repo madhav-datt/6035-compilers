@@ -2,6 +2,7 @@ package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
 import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlReturn;
 
 /**
  * Created by devinmorgan on 10/5/16.
@@ -41,6 +42,8 @@ public class IrStmtReturnVoid extends IrStmtReturn {
     //TODO: Check
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
+        LlReturn ret = new LlReturn(null);
+        builder.appendStatement(ret);
         return null;
     }
 }

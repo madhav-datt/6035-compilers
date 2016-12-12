@@ -10,4 +10,5 @@ void main ( ) {
     else {
         printf("nope");
     }
+    printf("tests");
 }

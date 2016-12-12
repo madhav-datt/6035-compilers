@@ -11,18 +11,25 @@ import java.util.Stack;
  * Created by abel on 11/18/16.
  */
 public class LlBuilder {
-
+    private final String name;
     private LinkedHashMap<String, LlStatement> statementTable;
     private int labelCounter = 0;
     private int tempCounter = 0;
+    //flags
+    public  boolean arrLeftSide = false;
 
     private Stack<String> currentBlockLabel = new Stack<>();
+    private String currentLoopCondition = "";
     private Object pocket;
 
-    public LlBuilder(){
+    public LlBuilder(String name){
         this.statementTable = new LinkedHashMap<>();
+        this.name = name;
     }
 
+    public String getName(){
+        return this.name;
+    }
 
     // Add to the end of the list
 
@@ -88,6 +95,14 @@ public class LlBuilder {
 
     public void getInBlock(String loopLabel){
         currentBlockLabel.push(loopLabel);
+    }
+    public void getInBlock(String loopLabel, String loopCondition){
+        currentBlockLabel.push(loopLabel);
+        this.currentLoopCondition = loopCondition;
+    }
+
+    public String getCurrentLoopCondition() {
+        return this.currentLoopCondition;
     }
 
     @Override

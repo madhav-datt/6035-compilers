@@ -1,6 +1,7 @@
 package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
+import edu.mit.compilers.ll.LlAssignStmtRegular;
 import edu.mit.compilers.ll.LlLocation;
 import edu.mit.compilers.ll.LlLocationArray;
 import edu.mit.compilers.ll.LlLocationVar;
@@ -84,9 +85,23 @@ public class IrLocationArray extends IrLocation {
 
     @Override
     public LlLocation generateLlIr(LlBuilder builder, LlSymbolTable symbolTable) {
-        LlLocation indexExpressionTemp = this.elementIndex.generateLlIr(builder, symbolTable);
-        LlLocationArray locationArray = new LlLocationArray(this.varName.getValue(), ((LlLocationVar)indexExpressionTemp));
-        return locationArray;
+        if(this.elementIndex instanceof IrLocationArray){
+            LlLocation indexExpressionTemp = this.elementIndex.generateLlIr(builder, symbolTable);
+            LlLocation arrayReturnTemp = builder.generateTemp();
+            LlAssignStmtRegular arrValueAssignment = new LlAssignStmtRegular(arrayReturnTemp, indexExpressionTemp);
+            builder.appendStatement(arrValueAssignment);
+            LlLocationArray locationArray = new LlLocationArray(this.varName.getValue(), (LlLocationVar) arrayReturnTemp);
+            return locationArray;
+        }
+        else{
+
+            LlLocation indexExpressionTemp = this.elementIndex.generateLlIr(builder, symbolTable);
+            LlLocationArray locationArray = new LlLocationArray(this.varName.getValue(), ((LlLocationVar)indexExpressionTemp));
+            return locationArray;
+        }
+
+
+
 
     }
 }

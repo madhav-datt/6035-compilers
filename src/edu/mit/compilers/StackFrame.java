@@ -1,8 +1,12 @@
 package edu.mit.compilers;
 
 import edu.mit.compilers.ir.Ir;
+import edu.mit.compilers.ll.LlComponent;
+import edu.mit.compilers.ll.LlLocation;
+import edu.mit.compilers.ll.LlLocationVar;
 
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
@@ -21,12 +25,14 @@ import java.util.Hashtable;
  * (String, Ir) -> StackFrame
  */
 public class StackFrame {
-    private Hashtable<String, Ir> stackFrame = new Hashtable<>();
-    private Hashtable<String, String> registerStackFrame = new Hashtable<>();
+    private Hashtable<String, LlComponent> stackFrame;
+    private Hashtable<String, String> registerStackFrame;
+
     private int stackTop = 0;
-    public void pushToStackFrame(Ir value){
+
+    public void pushToStackFrame(LlComponent value){
         // if it already exists dont add it!!
-        for(Ir val : stackFrame.values()){
+        for(LlComponent val : stackFrame.values()){
             if(val.equals(value)){
                 return ;
             }
@@ -35,13 +41,19 @@ public class StackFrame {
         stackFrame.put(Integer.toString(stackPosition) + "(%rbp)", value);
     }
 
+    public StackFrame(){
+        this.stackFrame = new Hashtable<>();
+        this.registerStackFrame = new Hashtable<>();
+
+    }
+
 
     public void pushToRegisterStackFrame(String reg){
         int stackPosition = -8*(++stackTop);
         registerStackFrame.put(Integer.toString(stackPosition) + "(%rbp)", reg);
     }
     // When you try to get or put an Ir on stack, Make sure you store its locatioName. For now, this stack frame only holds Location names and strings.
-    public String getIrLocation(Ir value){
+    public String getLlLocation(LlComponent value){
         for(String key : stackFrame.keySet()){
             if(stackFrame.get(key).equals(value)){
                 return key;
@@ -57,6 +69,11 @@ public class StackFrame {
         }
         return null;
     }
+
+    public void getFromTable(){
+
+    }
+
     public int getStackSize(){
         return this.stackTop;
     }
