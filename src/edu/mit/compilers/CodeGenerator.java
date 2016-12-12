@@ -54,7 +54,7 @@ public class CodeGenerator {
         for(LlBuilder builder : buildersList.getBuilders()){
 
             CFG cfg = new CFG(builder);
-            System.out.println(givenRegisters);
+//            System.out.println(givenRegisters);
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();

@@ -77,7 +77,7 @@ public class RegisterAllocation {
                 continue;
             }
 
-            System.out.println(otherVar.toString());
+//            System.out.println(otherVar.toString());
             //Check if var and otherVar conflict, for all chains with otherVar
             for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
                 CFG.SymbolDef duOtherVar = duChain.getKey();
@@ -91,6 +91,13 @@ public class RegisterAllocation {
                     for (CFG.Tuple varUses : duChain.getValue()){
                         otherVarUseList.add(this.getLabelNum(varUses.label));
                     }
+
+                    //Handle zero len case separately
+                    //No conflict if other var is never used
+                    if (otherVarUseList.size() == 0) {
+                        return false;
+                    }
+
                     int maxUseOtherVar = Collections.max(otherVarUseList);
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
@@ -205,8 +212,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
-        System.out.println();
-        System.out.println(this.getVarRegisterAllocations());
-        System.out.println();
+//        System.out.println();
+//        System.out.println(this.getVarRegisterAllocations());
+//        System.out.println();
     }
 }
