@@ -23,7 +23,11 @@ public class IrMethodDecl extends IrMemberDecl {
     }
 
     public List<IrParamDecl> getParamsList() {
-        return new ArrayList<>(this.paramsList);
+        return this.paramsList;
+    }
+
+    public void addToParamsList(IrParamDecl newParam) {
+        this.paramsList.add(newParam);
     }
 
     @Override

@@ -14,18 +14,18 @@ public class GlobalCSE {
         this.cfg = cfg;
     }
 
-    public static void performGlobalCommonSubexpressionEliminationOnCFG(CFG cfg) {
+    public static void performGlobalCommonSubexpressionEliminationOnCFG(CFG cfg, HashSet<LlLocation> globalVariables) {
         GlobalCSE cse = new GlobalCSE(cfg);
         ArrayList<BasicBlock> basicBlocks = cfg.getBasicBlocks();
 
         // 1) perform local common subexpression elimination
         for (BasicBlock bb : basicBlocks) {
-            LocalCSE.performLocalCSE(bb);
+            LocalCSE.performLocalCSE(bb, globalVariables);
         }
 
         // get available expression for each BasicBlock in the CFG
         HashMap<BasicBlock, HashSet<Computation>> availExprIN
-                = AvailableExpressions.getAvailableExpressionsForCFG(cfg);
+                = AvailableExpressions.getAvailableExpressionsForCFG(cfg, globalVariables);
 
         // loop through each bb and look for common subexpressions
         for (BasicBlock bb : basicBlocks) {
@@ -45,7 +45,7 @@ public class GlobalCSE {
 
                             // eliminate the common sub-expression through the CFG
                             // and reassign the var to the resulting temp VAr
-                            LlLocationVar compTemp = cse.eliminateCommonSubExpressionThroughoutCFG(bb, label, comp);
+                            LlLocationVar compTemp = cse.backPropagateToEliminateCommonExpressionFromCFG(bb, comp);
                             LlAssignStmtRegular reassignStmt =
                                     new LlAssignStmtRegular(unaryOp.getStoreLocation(), compTemp);
                             labelsToStmtsMap.put(label, reassignStmt);
@@ -59,7 +59,7 @@ public class GlobalCSE {
 
                             // eliminate the common sub-expression through the CFG
                             // and reassign the var to the resulting temp VAr
-                            LlLocationVar compTemp = cse.eliminateCommonSubExpressionThroughoutCFG(bb, label, comp);
+                            LlLocationVar compTemp = cse.backPropagateToEliminateCommonExpressionFromCFG(bb, comp);
                             LlAssignStmtRegular reassignStmt =
                                     new LlAssignStmtRegular(binaryOp.getStoreLocation(), compTemp);
                             labelsToStmtsMap.put(label, reassignStmt);
@@ -75,7 +75,6 @@ public class GlobalCSE {
                             break;
                         }
                     }
-
                 }
             }
         }
@@ -106,117 +105,131 @@ public class GlobalCSE {
         return false;
     }
 
-    private LlLocationVar eliminateCommonSubExpressionThroughoutCFG(BasicBlock startNode, String expLineLabel, Computation comp) {
-        LlLocationVar compTemp = null; // contains the tempVar that will replace the common sub-expression
+    private LlLocationVar backPropagateToEliminateCommonExpressionFromCFG(BasicBlock startNode, Computation comp) {
 
-        // 1) BFS back up the CFG to the point(s) where the original expression was found
+        // we want the same unique temp to replace the common
+        // sub-expression everywhere in the graph
+        LlLocationVar compTemp = this.cfg.getBuilder().generateTemp();
+
+        // 1) BFS back up the CFG to the point(s) where the original
+        // expression was found. Start at the predecessors of this node
         HashSet<BasicBlock> visited = new HashSet<>();
         LinkedList<BasicBlock> queue = new LinkedList<>();
-        queue.add(startNode);
+
+        // we don't want to visit the start ever!
+        visited.add(startNode);
+
+        for (BasicBlock pred : startNode.getPredecessors()) {
+            queue.add(pred);
+        }
 
         while (queue.size() > 0) {
-            // need to reconstruct the BasickBlock's stmt's list
-            ArrayList<String> backwardsLabelsList = new ArrayList<>();
-            ArrayList<LlStatement> backwardsStmtList = new ArrayList<>();
-            LinkedHashMap<String, LlStatement> newBBStmsLabelMap = new LinkedHashMap<>();
-
             // explore a new node
             BasicBlock currentNode = queue.pop();
-            visited.add(currentNode);
 
-            // check to see if this BasicBlock contains the initial expr DEF
-            LinkedHashMap<String, LlStatement> labelstoStmtsMap = currentNode.getLabelsToStmtsMap();
-            ArrayList<String> bbStmtLabels = new ArrayList<>(labelstoStmtsMap.keySet());
-            for (int i = bbStmtLabels.size(); i >= 0; i--) {
-                String stmtlabel = bbStmtLabels.get(i);
-                LlStatement stmt = labelstoStmtsMap.get(stmtlabel);
+            // only consider nodes we haven't visited yet
+            if (!visited.contains(currentNode)) {
+                visited.add(currentNode);
 
-                if (stmt instanceof LlAssignStmtUnaryOp) {
-                    LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
+                // need to reconstruct the BasickBlock's stmt's list
+                boolean subExpressionWasFound = false;
+                ArrayList<String> backwardsLabelsList = new ArrayList<>();
 
-                    // we found a match!!!!
-                    if (this.containsUnarySubExpression(unaryOp, comp)) {
+                // loop through the BasicBlock backwards to check if it contains
+                // one of the initial DEFs of the common sub-expression
+                LinkedHashMap<String, LlStatement> labelstoStmtsMap = currentNode.getLabelsToStmtsMap();
+                ArrayList<String> bbStmtLabels = new ArrayList<>(labelstoStmtsMap.keySet());
+                for (int i = bbStmtLabels.size()-1; i >= 0; i--) {
+                    String stmtlabel = bbStmtLabels.get(i);
+                    LlStatement stmt = labelstoStmtsMap.get(stmtlabel);
 
-                        // create new labels
-                        String compLabel = this.cfg.getBuilder().generateLabel();
-                        backwardsLabelsList.add(compLabel);
-                        String reassignLabel = this.cfg.getBuilder().generateLabel();
-                        backwardsLabelsList.add(reassignLabel);
+                    // only attempt to replace the subExpression if it was not already found
+                    if (!subExpressionWasFound) {
+                        if (stmt instanceof LlAssignStmtUnaryOp) {
+                            LlAssignStmtUnaryOp unaryOp = (LlAssignStmtUnaryOp) stmt;
 
-                        // create the new stmts
-                        compTemp = this.cfg.getBuilder().generateTemp();
-                        LlAssignStmtUnaryOp compStmt =
-                                new LlAssignStmtUnaryOp(
-                                        compTemp,
-                                        unaryOp.getOperand(),
-                                        unaryOp.getOperator()
-                                );
-                        backwardsStmtList.add(compStmt);
-                        LlAssignStmtRegular reAssignStmt =
-                                new LlAssignStmtRegular(
-                                        unaryOp.getStoreLocation(),
-                                        compTemp
-                                );
-                        backwardsStmtList.add(reAssignStmt);
+                            if (this.containsUnarySubExpression(unaryOp, comp)) { // we found a match!!!!
 
-                        continue; // we don't want to add the stmt/label below as well
+                                // create the computation stmt and let its label be the existing stmtLabel
+                                LlAssignStmtUnaryOp compStmt =
+                                        new LlAssignStmtUnaryOp(
+                                                compTemp,
+                                                unaryOp.getOperand(),
+                                                unaryOp.getOperator()
+                                        );
+                                labelstoStmtsMap.put(stmtlabel, compStmt);
+
+                                // create the re-assignment stmt and make a new label for for it
+                                String reassignLabel = this.cfg.getBuilder().generateLabel();
+                                LlAssignStmtRegular reAssignStmt =
+                                        new LlAssignStmtRegular(
+                                                unaryOp.getStoreLocation(),
+                                                compTemp
+                                        );
+                                backwardsLabelsList.add(reassignLabel);
+                                labelstoStmtsMap.put(reassignLabel, reAssignStmt);
+
+                                // once we find the subExpression in the BB, stop looking!
+                                subExpressionWasFound = true;
+                            }
+                        }
+                        else if (stmt instanceof LlAssignStmtBinaryOp) {
+                            LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
+
+                            if (this.containsBinarySubExpression(binaryOp, comp)) { // we found a match!!!
+
+                                // create the computation stmt and let its label be the existing stmtLabel
+                                LlAssignStmtBinaryOp compStmt =
+                                        new LlAssignStmtBinaryOp(
+                                                compTemp,
+                                                binaryOp.getLeftOperand(),
+                                                binaryOp.getOperation(),
+                                                binaryOp.getRightOperand()
+                                        );
+                                labelstoStmtsMap.put(stmtlabel, compStmt);
+
+                                // create the re-assignment stmt and make a new label for for it
+                                String reassignLabel = this.cfg.getBuilder().generateLabel();
+                                LlAssignStmtRegular reAssignStmt =
+                                        new LlAssignStmtRegular(
+                                                binaryOp.getStoreLocation(),
+                                                compTemp
+                                        );
+                                backwardsLabelsList.add(reassignLabel);
+                                labelstoStmtsMap.put(reassignLabel, reAssignStmt);
+
+                                // once we find the subExpression in the BB, stop looking!
+                                subExpressionWasFound = true;
+                            }
+                        }
                     }
+
+                    // always add the stmtLabels to correctly re-assemble the BasicBlock
+                    backwardsLabelsList.add(stmtlabel);
                 }
-                else if (stmt instanceof LlAssignStmtBinaryOp) {
-                    LlAssignStmtBinaryOp binaryOp = (LlAssignStmtBinaryOp) stmt;
 
-                    // we found a match!!!
-                    if (this.containsBinarySubExpression(binaryOp, comp)) {
+                // create the new label => stmts map by inserting the labels/stmts
+                // from the backwards lists in the reverse order
+                LinkedHashMap<String, LlStatement> newBBStmsLabelMap = new LinkedHashMap<>();
+                for (int i = backwardsLabelsList.size() - 1; i >= 0 ; i--) {
+                    String label = backwardsLabelsList.get(i); // in perfect reverse order
+                    LlStatement stmt = labelstoStmtsMap.get(label); // out of order but still a hashmap :P
 
-                        // create new labels
-                        String compLabel = this.cfg.getBuilder().generateLabel();
-                        backwardsLabelsList.add(compLabel);
-                        String reassignLabel = this.cfg.getBuilder().generateLabel();
-                        backwardsLabelsList.add(reassignLabel);
+                    newBBStmsLabelMap.put(label, stmt);
+                }
+                currentNode.setLabelsToStmtsMap(newBBStmsLabelMap);
 
-                        // create the new stmts
-                        compTemp = this.cfg.getBuilder().generateTemp();
-                        LlAssignStmtBinaryOp compStmt =
-                                new LlAssignStmtBinaryOp(
-                                        compTemp,
-                                        binaryOp.getLeftOperand(),
-                                        binaryOp.getOperation(),
-                                        binaryOp.getRightOperand()
-                                );
-                        backwardsStmtList.add(compStmt);
-                        LlAssignStmtRegular reAssignStmt =
-                                new LlAssignStmtRegular(
-                                        binaryOp.getStoreLocation(),
-                                        compTemp
-                                );
-                        backwardsStmtList.add(reAssignStmt);
-
-                        continue; // we don't want to add the stmt/label below as well
+                // only add predecessor nodes if the subExpression was not found.
+                if (!subExpressionWasFound) {
+                    for (BasicBlock pred : currentNode.getPredecessors()) {
+                        if (!visited.contains(pred)) {
+                            queue.add(pred);
+                        }
                     }
-                }
-
-                // keep track of the order of the BasicBlock's stmt's list
-                backwardsLabelsList.add(stmtlabel);
-                backwardsStmtList.add(stmt);
-            }
-
-            // re-assign the BasicBlock's label=>stmt map to the
-            // updated label=>stmt map
-            for (int i = 0; i < backwardsLabelsList.size(); i++) {
-                String label = backwardsLabelsList.get(0);
-                LlStatement stmt = backwardsStmtList.get(0);
-                newBBStmsLabelMap.put(label, stmt);
-            }
-            startNode.setLabelsToStmtsMap(newBBStmsLabelMap);
-
-
-            // add unvisited nodes to the queue
-            for (BasicBlock pred : currentNode.getPredecessors()) {
-                if (!visited.contains(pred)) {
-                    queue.add(pred);
                 }
             }
         }
+
         return compTemp; // should never be null
     }
 }

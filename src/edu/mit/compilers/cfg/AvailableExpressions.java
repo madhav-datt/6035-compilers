@@ -12,7 +12,7 @@ public class AvailableExpressions {
     private final HashMap<BasicBlock, HashSet<Computation>> availExprIN = new HashMap<>();
     private final HashMap<BasicBlock, HashSet<Computation>> availExprOUT = new HashMap<>();
 
-    private AvailableExpressions(CFG cfg) {
+    private AvailableExpressions(CFG cfg, HashSet<LlLocation> globalVariables) {
         ArrayList<BasicBlock> bbList = cfg.getBasicBlocks();
 
         // 1) initial allExpressions with the union of all EVAL(bb)'s
@@ -72,7 +72,7 @@ public class AvailableExpressions {
             this.availExprOUT.put(node, EVALplusINminusKILL);
 
             // if OUT[n] changed, add its successors to activeNodes
-            if (!this.availExprOUT.equals(oldOUT)) {
+            if (!this.availExprOUT.get(node).equals(oldOUT)) {
                 if (node.getDefaultBranch() != null) {
                     activeNodes.add(node.getDefaultBranch());
                 }
@@ -83,8 +83,21 @@ public class AvailableExpressions {
         }
     }
 
-    public static HashMap<BasicBlock, HashSet<Computation>> getAvailableExpressionsForCFG(CFG cfg) {
-        AvailableExpressions ae = new AvailableExpressions(cfg);
+    public static HashMap<BasicBlock, HashSet<Computation>> getAvailableExpressionsForCFG(CFG cfg, HashSet<LlLocation> globalVariables) {
+        AvailableExpressions ae = new AvailableExpressions(cfg, globalVariables);
+
+        // get rid of all the computations that involve global variables
+        for (BasicBlock bb : ae.availExprIN.keySet()) {
+            for (Computation comp : new HashSet<>(ae.availExprIN.get(bb))) {
+                for (LlLocation globalVar : globalVariables) {
+                    if (comp.contains(globalVar)) {
+                        ae.availExprIN.remove(comp);
+                    }
+                }
+            }
+        }
+
+        // return the purified HashMap of computations
         return ae.availExprIN;
     }
 

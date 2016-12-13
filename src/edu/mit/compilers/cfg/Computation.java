@@ -37,9 +37,22 @@ public abstract class Computation {
         public boolean equals(Object obj) {
             if (obj instanceof BinaryComputation) {
                 BinaryComputation that = (BinaryComputation) obj;
-                return this.op1.equals(that.op1)
-                        && this.op2.equals(that.op2)
-                        && this.operation.equals(that.operation);
+
+                // straight up equal
+                if (this.operation.equals(that.operation)
+                        && this.op1.equals(that.op1)
+                        && this.op2.equals(that.op2)) {
+                    return true;
+                }
+
+                // associativity of + and *
+                if (this.operation.equals("+") || this.operation.equals("*")) {
+                    if (this.operation.equals(that.operation)) {
+                        if (this.op1.equals(that.op2) && this.op2.equals(that.op1)) {
+                            return true;
+                        }
+                    }
+                }
             }
             return false;
         }
@@ -72,6 +85,11 @@ public abstract class Computation {
                         && this.operation.equals(that.operation);
             }
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.op.hashCode() * this.operation.hashCode();
         }
     }
 

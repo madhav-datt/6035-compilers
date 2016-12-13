@@ -9,6 +9,15 @@ import edu.mit.compilers.StackFrame;
  */
 public abstract class IrCtrlFlow extends IrStatement {
     final IrExpr condExpr;
+
+    public IrExpr getCondExpr() {
+        return condExpr;
+    }
+
+    public IrCodeBlock getStmtBody() {
+        return stmtBody;
+    }
+
     final IrCodeBlock stmtBody;
 
     public IrCtrlFlow(IrExpr condExpr, IrCodeBlock stmtBody) {

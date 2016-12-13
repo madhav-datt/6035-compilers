@@ -21,6 +21,9 @@ public class LlReturn extends LlStatement {
 
     @Override
     public String toString() {
+        if (this.returnValue == null) {
+            return "return ";
+        }
         return "return " + this.returnValue.toString();
     }
 

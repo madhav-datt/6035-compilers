@@ -10,6 +10,10 @@ import edu.mit.compilers.ll.LlLocationVar;
  * Created by devinmorgan on 10/5/16.
  */
 public class IrAssignStmtMinusEqual extends IrAssignStmt {
+    public IrExpr getDecrementBy() {
+        return decrementBy;
+    }
+
     private final IrExpr decrementBy;
 
     public IrAssignStmtMinusEqual(IrLocation storeLocation, IrExpr decrementBy) {

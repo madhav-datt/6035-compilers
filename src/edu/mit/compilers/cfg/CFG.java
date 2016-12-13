@@ -17,6 +17,11 @@ public class CFG {
     private final ArrayList<String> orderedLeadersList;
     private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
+
+    public ArrayList<LlLocationVar> getParamsList() {
+        return paramsList;
+    }
+
     private final ArrayList<LlLocationVar> paramsList;
 
     public CFG(LlBuilder builder) {
@@ -135,23 +140,23 @@ public class CFG {
             BasicBlock entryBB = new BasicBlock(entryBBStmtsList, builder);
             this.leadersToBBMap.put(entryBBLabel, entryBB);
 
-            trueFirstBB.addPredecessorNode(entryBB);
             entryBB.setDefaultBranch(trueFirstBB);
+            trueFirstBB.addPredecessorNode(entryBB);
 
             // add an empty BasicBlock as the exit node and
             // connect it and the orignal last BB to each other
             String trueLastBBLabel = this.orderedLeadersList.get(this.orderedLeadersList.size() - 1);
             BasicBlock trueLastBB = this.leadersToBBMap.get(trueLastBBLabel);
 
-            String exitBBLabel = "eixt";
+            String exitBBLabel = "exit";
             this.orderedLeadersList.add(exitBBLabel);
             LinkedHashMap<String, LlStatement> exitBBStmtsList = new LinkedHashMap<>();
             exitBBStmtsList.put(exitBBLabel, new LlEmptyStmt());
             BasicBlock exitBB = new BasicBlock(exitBBStmtsList, builder);
             this.leadersToBBMap.put(exitBBLabel, exitBB);
 
-            trueLastBB.addPredecessorNode(exitBB);
-            exitBB.setDefaultBranch(trueLastBB);
+            trueLastBB.setDefaultBranch(exitBB);
+            exitBB.addPredecessorNode(trueLastBB);
 
             // 5) assign the list of basic blocks as a field of THIS object
             ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
@@ -390,14 +395,16 @@ public class CFG {
         //All uses and defs in statement happen at this location
         Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
 
-        for (LlLocationVar paramArg : this.paramsList) {
-            this.addUseArg(recentDef, paramArg, firstUseDefLocation);
-        }
+//        for (LlLocationVar paramArg : this.paramsList) {
+//            SymbolDef currentSymbolDef = new SymbolDef(paramArg, firstUseDefLocation);
+//            recentDef.put(paramArg, firstUseDefLocation);
+//            this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+//        }
 
 //        //Print statements for useDefChains
-//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-//        }
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+        }
         return this.defUseChain;
     }
 

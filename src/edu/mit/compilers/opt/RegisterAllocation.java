@@ -72,7 +72,6 @@ public class RegisterAllocation {
         //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
-//            System.out.println(var.toString() + ":" + register + " ----- " + otherVar.toString() + ":" + statementEntry.getValue());
 
             //Continue if otherVar is allocated different register
             if (!register.equals(statementEntry.getValue())) {
@@ -95,11 +94,16 @@ public class RegisterAllocation {
                     }
                     otherVarUseList.add(defOtherVar);
 
+                    System.out.println(var.toString() + " : " + duOtherVar.toString());
+                    System.out.println(otherVarUseList.toString());
+                    System.out.println(duVar.toString());
+                    System.out.println();
+
                     //Handle zero len case separately
                     //No conflict if other var is never used
-//                    if (otherVarUseList.size() == 0) {
-//                        break;
-//                    }
+                    if (otherVarUseList.size() == 0) {
+                        break;
+                    }
 
                     int maxUseOtherVar = Collections.max(otherVarUseList);
                     int minUseOtherVar = Collections.min(otherVarUseList);
@@ -107,6 +111,21 @@ public class RegisterAllocation {
                     //Check if any use/def of var lies on a def-use chain of otherVar
                     for (int varDefUses : duVar) {
                         if (varDefUses >= minUseOtherVar && varDefUses <= maxUseOtherVar) {
+                            return true;
+                        }
+                    }
+
+                    //Handle zero len case separately
+                    //No conflict if other var is never used
+                    if (duVar.size() == 0) {
+                        break;
+                    }
+
+                    int maxUseVar = Collections.max(duVar);
+                    int minUseVar = Collections.min(duVar);
+
+                    for (int otherVarDefUses : otherVarUseList) {
+                        if (otherVarDefUses >= minUseVar && otherVarDefUses <= maxUseVar) {
                             return true;
                         }
                     }
@@ -125,6 +144,12 @@ public class RegisterAllocation {
             //Get key with max usage value
             LlLocation var = Collections.max(this.varUsageCount.entrySet(), Map.Entry.comparingByValue()).getKey();
 
+            if (var == null) {
+                //Really?
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
             //Eliminate string variables
             if (var.toString().length() > 4 && var.toString().substring(0, 4).equals("#str")) {
                 this.varUsageCount.remove(var);
@@ -133,6 +158,12 @@ public class RegisterAllocation {
 
             //Eliminate array location variables
             if (var instanceof LlLocationArray) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
+            //Eliminate register allocation for parameters
+            if (methodCFG.getParamsList().contains(var)) {
                 this.varUsageCount.remove(var);
                 continue;
             }
