@@ -125,20 +125,40 @@ public class LlMethodCallStmt extends LlStatement {
         builder.addLinef("call", this.methodName);
 
         // check if the return location is already stored in the stack
-        String retLocation;
-        if(frame.getLlLocation(this.returnLocation) == null){
-            // generate new return location
-            retLocation = frame.getNextStackLocation();
-            frame.pushToStackFrame(this.returnLocation);
-            builder.addLinef("movq", "%rax, " +retLocation);
-        }
-        else{
-            retLocation = frame.getLlLocation(this.returnLocation);
-            frame.pushToStackFrame(this.returnLocation);
-            builder.addLinef("movq", "%rax, " +retLocation);
-        }
-        builder.addLine();
-        return retLocation;
+
+//        if(builder.getAllocatedReg(returnLocation) != null){
+//            String retLocation;
+//            if(frame.getLlLocation(this.returnLocation) == null){
+//                // generate new return location
+//                retLocation = frame.getNextStackLocation();
+//                frame.pushToStackFrame(this.returnLocation);
+//                builder.addLinef("movq", "%rax, " +retLocation);
+//            }
+//            else{
+//                retLocation = frame.getLlLocation(this.returnLocation);
+//                frame.pushToStackFrame(this.returnLocation);
+//                builder.addLinef("movq", "%rax, " +retLocation);
+//            }
+//            builder.addLine();
+//            return retLocation;
+//        }
+//        else{
+//            String retLocation;
+//            if(frame.getLlLocation(this.returnLocation) == null){
+//                // generate new return location
+//                retLocation = frame.getNextStackLocation();
+//                frame.pushToStackFrame(this.returnLocation);
+//                builder.addLinef("movq", "%rax, " +retLocation);
+//            }
+//            else{
+//                retLocation = frame.getLlLocation(this.returnLocation);
+//                frame.pushToStackFrame(this.returnLocation);
+//                builder.addLinef("movq", "%rax, " +retLocation);
+//            }
+//            builder.addLine();
+//            return retLocation;
+//        }
+        return  builder.optimizedStore(this.returnLocation, "%rax", frame);
 
     }
 }

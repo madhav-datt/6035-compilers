@@ -86,7 +86,7 @@ public class CodeGenerator {
                 assemblyBuilder.addLine();
                 assemblyBuilder.setEnterLine(currentMethodName);
 
-                assemblyBuilder.calleeSave(assemblyBuilder.getAllAllocatedRegs(), 16 + (methodParams.size()-7)*8);
+                assemblyBuilder.calleeSave(assemblyBuilder.getAllAllocatedRegs(), frame);
 
                 pushParamsToSymbolTable(assemblyBuilder, currentMethodName, methodParams, symbolTable, frame);
             }
@@ -104,14 +104,15 @@ public class CodeGenerator {
                 builder.getStatementTable().get(label).generateCode(assemblyBuilder, frame, symbolTable);
                 statementCounter++;
             }
+
             assemblyBuilder.replaceEnterLine(currentMethodName, frame.getStackSize());
 
-            assemblyBuilder.calleeRestore(assemblyBuilder.getAllAllocatedRegs(), 16 + (methodParams.size()-7)*8);
             if(assemblyBuilder.hasReturned){
                 assemblyBuilder.hasReturned = false;
                 assemblyBuilder.isLastReturn = false;
             }
             else{
+                assemblyBuilder.calleeRestore(assemblyBuilder.getAllAllocatedRegs(), frame);
                 assemblyBuilder.addLinef("leave","");
                 assemblyBuilder.addLinef(".cfi_def_cfa","7, 8");
                 assemblyBuilder.addLinef("ret", "");
@@ -135,22 +136,41 @@ public class CodeGenerator {
         ArrayList<LlLocationVar> locations = paramsTable.get(methodName);
         for(int i = 0; i < locations.size(); i++){
           // put it in the stack
-            String storageLoc;
-            String stackLoc = frame.getNextStackLocation();
+            if(builder.getAllocatedReg(locations.get(i))!=null){
+                if(i<6){
 
-            if(i<6){
-                storageLoc = paramRegs[i];
-                builder.addLinef("movq", storageLoc + ", " + stackLoc);
-                symbolTable.putOnParamTable(locations.get(i), stackLoc);
+                    String storageLoc = paramRegs[i];
+                    builder.addLinef("movq", storageLoc + ", " + builder.getAllocatedReg(locations.get(i)));
 
+
+                }
+                else{
+                    String storageLoc =  Integer.toString(16 + (i-6)*8);
+                    builder.addLinef("movq", storageLoc + "(%rbp)" + ", " + builder.getAllocatedReg(locations.get(i)));
+
+
+                }
             }
             else{
-                storageLoc =  Integer.toString(16 + (i-6)*8);
-                builder.addLinef("movq", storageLoc + "(%rbp)" + ", %r10");
-                builder.addLinef("movq", "%r10, " + stackLoc);
-                symbolTable.putOnParamTable(locations.get(i), stackLoc);
+                String storageLoc;
+                String stackLoc = frame.getNextStackLocation();
+
+                if(i<6){
+
+                    storageLoc = paramRegs[i];
+                    builder.addLinef("movq", storageLoc + ", " + stackLoc);
+                    symbolTable.putOnParamTable(locations.get(i), stackLoc);
+
+                }
+                else{
+                    storageLoc =  Integer.toString(16 + (i-6)*8);
+                    builder.addLinef("movq", storageLoc + "(%rbp)" + ", %r10");
+                    builder.addLinef("movq", "%r10, " + stackLoc);
+                    symbolTable.putOnParamTable(locations.get(i), stackLoc);
+                }
+                frame.pushToRegisterStackFrame("%r10");
             }
-            frame.pushToRegisterStackFrame("%r10");
+
         }
     }
     // add the array names to the symbol table

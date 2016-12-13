@@ -84,6 +84,7 @@ public class AssemblyBuilder {
         this.allocatedRegisers = allocatedRegisers;
     }
 
+
     public void addLine(String s){
         this.append("     " + s);
     }
@@ -193,17 +194,18 @@ public class AssemblyBuilder {
     }
 
 
-    public void calleeSave(ArrayList<String> registers, int startStackVal){
+    public void calleeSave(ArrayList<String> registers, StackFrame frame){
         for(int i = 0; i < registers.size(); i ++){
-            int stackLocation = startStackVal + 8*i;
-            this.addLinef("movq", registers.get(i) + ", " + Integer.toString(stackLocation)+"(%rbp)");
+            String nextLocation = frame.getNextStackLocation();
+            this.addLinef("movq", registers.get(i) + ", " + nextLocation );
+            frame.pushToRegisterStackFrame(registers.get(i));
         }
     }
 
-    public void calleeRestore(ArrayList<String> registers, int startStackVal){
+    public void calleeRestore(ArrayList<String> registers, StackFrame frame){
         for(int i = 0; i < registers.size(); i ++){
-            int stackLocation = startStackVal + 8*i;
-            this.addLinef("movq",  Integer.toString(stackLocation)+"(%rbp)" + ", " + registers.get(i));
+            String registerLocation = frame.getRegisterLocation(registers.get(i));
+            this.addLinef("movq",  registerLocation + ", " + registers.get(i));
         }
     }
 
