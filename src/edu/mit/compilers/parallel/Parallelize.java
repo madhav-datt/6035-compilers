@@ -152,11 +152,29 @@ public class Parallelize {
                 ArrayList<Integer> first = this.getElementOrder(elementIndices.get(i), loopVarList);
                 ArrayList<Integer> second = this.getElementOrder(elementIndices.get(j), loopVarList);
 
+                if (first == null || second == null)
+                    return false;
+
                 Analyze.AccessPattern result = Analyze.getAccessPattern(first.toArray(new Integer[first.size()]),
                         second.toArray(new Integer[second.size()]));
 
-                if (!result.distanceExists)
+                if (result == null || !result.distanceExists)
+                    return false;
 
+                boolean allZeros = true;
+                boolean onePositive = false;
+                //If this breaks, check with result.step - documentation is unclear
+                for (int distanceValue : result.distance) {
+                    if (distanceValue != 0)
+                        allZeros = false;
+
+                    if (distanceValue > 0)
+                        onePositive = true;
+                }
+
+                if (!allZeros && !onePositive) {
+                    return false;
+                }
             }
         }
 
@@ -166,7 +184,6 @@ public class Parallelize {
                     new IrLocationVar(loopParallelVar, this.lineColNumber, this.lineColNumber));
             arrayLocation.setElementIndex(parallelIndex);
         }
-
 
         return true;
     }
