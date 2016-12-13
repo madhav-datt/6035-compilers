@@ -12,19 +12,18 @@ import java.util.LinkedHashMap;
  */
 public class GlobalCP {
     private final HashMap<LlLocation, LlComponent> copyTable;
-    private final LlBuilder builder;
 
-    public GlobalCP(LlBuilder builder, HashMap<LlLocation, LlComponent> copyTable) {
-        this.copyTable = copyTable;
-        this.builder = builder;
+    public GlobalCP(HashMap<LlLocation, LlComponent> copyTable) {
+        this.copyTable = new HashMap<>(copyTable);
     }
 
     // mutates the BasicBlock by performing copy
     // propagation using the passed HashMap. If
     // the HashMap is empty, then it performs local
     // copy propagation.
-    private static void performLocalCP(BasicBlock bb, GlobalCP cp) {
-        LinkedHashMap<String, LlStatement> optimizedMap = new LinkedHashMap<>();
+    private static boolean performLocalCP(BasicBlock bb, GlobalCP cp) {
+        LinkedHashMap<String, LlStatement> stmtsToLabelsMap = bb.getLabelsToStmtsMap();
+        LinkedHashMap<String, LlStatement> oldCopy = new LinkedHashMap<>(stmtsToLabelsMap);
 
         // 2) loop through the current linked hashmap
         for (String label : bb.getLabelsToStmtsMap().keySet()) {
@@ -35,8 +34,7 @@ public class GlobalCP {
 
                 // swap out operand in statement if its a copy
                 LlAssignStmtUnaryOp optStmt = cp.swapOperandsForUnaryStmt(unaryOp);
-                String optLabel = cp.builder.generateLabel();
-                optimizedMap.put(optLabel, optStmt);
+                stmtsToLabelsMap.put(label, optStmt);
                 
                 // remove this var from the copyTable
                 cp.copyTable.remove(unaryOp.getStoreLocation());
@@ -46,8 +44,7 @@ public class GlobalCP {
 
                 // swap out left and/or right operand if its a copy
                 LlAssignStmtBinaryOp optStmt = cp.swapOperandForBinaryStmt(binaryOp);
-                String optLabel = cp.builder.generateLabel();
-                optimizedMap.put(optLabel, optStmt);
+                stmtsToLabelsMap.put(label, optStmt);
 
                 // remove this var from the copyTable
                 cp.copyTable.remove(binaryOp.getStoreLocation());
@@ -57,24 +54,28 @@ public class GlobalCP {
 
                 // swap out operand in statement if its a copy
                 LlJumpConditional optStmt = cp.swapVariableForConditionalJump(condJmp);
-                String optLabel = cp.builder.generateLabel();
-                optimizedMap.put(optLabel, optStmt);
+                stmtsToLabelsMap.put(label, optStmt);
+            }
+            else if (stmt instanceof LlMethodCallStmt) {
+                LlMethodCallStmt method = (LlMethodCallStmt) stmt;
+
+                // swap out any of the parameters in the method call if they are a copy
+                LlMethodCallStmt optStmt = cp.swapVariableForMethod(method);
+                stmtsToLabelsMap.put(label, optStmt);
             }
             else if (stmt instanceof LlReturn) {
                 LlReturn rtnStmt = (LlReturn) stmt;
 
                 // swap out operand in statement if its a copy
                 LlReturn optStmt = cp.swapVariableForReturnStmt(rtnStmt);
-                String optLabel = cp.builder.generateLabel();
-                optimizedMap.put(optLabel, optStmt);
+                stmtsToLabelsMap.put(label, optStmt);
             }
             else if (stmt instanceof LlAssignStmtRegular) {
                 LlAssignStmtRegular stmtRegular = (LlAssignStmtRegular) stmt;
 
                 // swap out operand in statement if its a copy
                 LlAssignStmtRegular optStmt = cp.swapOperandsForRegularStmt(stmtRegular);
-                String optLabel = cp.builder.generateLabel();
-                optimizedMap.put(optLabel, optStmt);
+                stmtsToLabelsMap.put(label, optStmt);
 
                 // add LHS definitions to the copyTable
                 // TODO: Figure out how to make this work for a[i] (i.e. arrays)
@@ -85,7 +86,8 @@ public class GlobalCP {
             }
         }
 
-        bb.setLabelsToStmtsMap(optimizedMap);
+        // check to see if the BB got updated by copyProp
+        return stmtsToLabelsMap.equals(oldCopy);
     }
 
     public static void performGlobalCP(CFG cfg) {
@@ -95,25 +97,87 @@ public class GlobalCP {
         HashMap<BasicBlock, HashMap<LlLocation, LlComponent>> copyAssignmentsIN
                 = CopyAssignments.getCopyAssignmentsForCFG(cfg);
 
-        // perform copy propagation inside the block with the
-        // set of copyAssignments available at the start of the BB
-        for (BasicBlock bb : basicBlocks) {
-            GlobalCP cp = new GlobalCP(bb.getBuilder(), copyAssignmentsIN.get(bb));
-            GlobalCP.performLocalCP(bb, cp);
+        boolean changed = true;
+        while (changed) {
+            // assume nothing changes at first
+            changed = false;
+
+            // perform copy propagation inside the block with the
+            // set of copyAssignments available at the start of the BB
+            for (BasicBlock bb : basicBlocks) {
+                GlobalCP cp = new GlobalCP(copyAssignmentsIN.get(bb));
+
+                // if localCP does change one of the BasicBlocks, then has not reached convergence
+                if (!GlobalCP.performLocalCP(bb, cp)) {
+                    changed = true;
+                }
+            }
         }
     }
 
-    private LlReturn swapVariableForReturnStmt(LlReturn rtnStmt) {
-        // check if the operand is a variable in the copyTable
-        if (rtnStmt.getReturnValue() instanceof LlLocationVar) {
-            LlLocationVar var = (LlLocationVar) rtnStmt.getReturnValue();
+    private LlLocationArray getCopyPropagatedLlLocationArray(LlLocationArray array) {
+        LlLocationArray optimizedArray = array;
 
-            // return a new statement with the var from copyTable if it exists
-            if (this.copyTable.containsKey(var)) {
-                return new LlReturn(var);
+        if (array.getElementIndex() instanceof LlLocationVar) {
+            LlLocationVar indexVar = (LlLocationVar) array.getElementIndex();
+
+            if (this.copyTable.containsKey(indexVar)) {
+                optimizedArray = new LlLocationArray(array.getVarName(), this.copyTable.get(indexVar));
             }
         }
-        return rtnStmt;
+
+        return optimizedArray;
+    }
+
+    private LlComponent getCopyPropagatedLlLocationVar(LlLocationVar var) {
+        LlComponent optimizedVar = var;
+
+        if (this.copyTable.containsKey(var)) {
+            optimizedVar = this.copyTable.get(var);
+        }
+
+        return optimizedVar;
+    }
+
+    private LlReturn swapVariableForReturnStmt(LlReturn rtnStmt) {
+        LlComponent optimizedReturnVal = rtnStmt.getReturnValue();
+
+        // check if the return value is a variable in the copyTable
+        if (rtnStmt.getReturnValue() instanceof LlLocationVar) {
+            optimizedReturnVal
+                    = getCopyPropagatedLlLocationVar((LlLocationVar) rtnStmt.getReturnValue());
+        }
+
+        // check if the return value is an array whose index is in the copyTable
+        else if (rtnStmt.getReturnValue() instanceof LlLocationArray) {
+            optimizedReturnVal
+                    = getCopyPropagatedLlLocationArray((LlLocationArray) rtnStmt.getReturnValue());
+        }
+        return new LlReturn(optimizedReturnVal);
+    }
+
+    private LlMethodCallStmt swapVariableForMethod(LlMethodCallStmt methodStmt) {
+        ArrayList<LlComponent> optimizedArgsList = new ArrayList<>();
+
+        for (LlComponent arg : methodStmt.getArgsList()) {
+            LlComponent optimizedArg = arg;
+
+            // if the arg is a variable, check to see if we can copyPropogate
+            if (arg instanceof LlLocationVar) {
+                LlLocationVar argVar = (LlLocationVar) arg;
+                optimizedArg = getCopyPropagatedLlLocationVar(argVar);
+            }
+
+            // if the arg is an array access, check to see if we can copyPropogate the index
+            else if (arg instanceof LlLocationArray) {
+                LlLocationArray argArray = (LlLocationArray) arg;
+                optimizedArg = getCopyPropagatedLlLocationArray(argArray);
+            }
+
+            // add to new list of optimized args
+            optimizedArgsList.add(optimizedArg);
+        }
+        return new LlMethodCallStmt(methodStmt.getMethodName(), optimizedArgsList, methodStmt.getReturnLocation());
     }
 
     private LlJumpConditional swapVariableForConditionalJump(LlJumpConditional condJmp) {
@@ -123,62 +187,90 @@ public class GlobalCP {
 
             // return a new statement with the var from copyTable if it exists
             if (this.copyTable.containsKey(var)) {
-                return new LlJumpConditional(condJmp.getJumpToLabel(), var);
+                return new LlJumpConditional(condJmp.getJumpToLabel(), this.copyTable.get(var));
             }
         }
         return condJmp;
     }
 
     private LlAssignStmtRegular swapOperandsForRegularStmt(LlAssignStmtRegular regular) {
-        // check if the operand is a variable in the copyTable
-        if (regular.getOperand() instanceof LlLocationVar) {
-            LlLocationVar var = (LlLocationVar) regular.getOperand();
+        LlLocation optimizedStoreLoc = regular.getStoreLocation();
+        LlComponent optimizedOperand = regular.getOperand();
 
-            // return a new statement with the var from copyTable if it exists
-            if (this.copyTable.containsKey(var)) {
-                return new LlAssignStmtRegular(regular.getStoreLocation(), this.copyTable.get(var));
-            }
+        // 1) check to see if the storeLocation is an LlLocationArray whose index can be copy-propagated
+        if (regular.getStoreLocation() instanceof LlLocationArray) {
+            optimizedStoreLoc = getCopyPropagatedLlLocationArray((LlLocationArray) regular.getStoreLocation());
         }
-        return regular;
+
+        // 2) check to see if the the operand is an LlLocationArray whose index can be copy-propagated
+        if (regular.getOperand() instanceof LlLocationArray) {
+            optimizedOperand = getCopyPropagatedLlLocationArray((LlLocationArray) regular.getOperand());
+        }
+
+        // 3) otherwise check to see if the operand is just a straight up var that can be copy-propagated
+        else if (regular.getOperand() instanceof LlLocationVar) {
+            optimizedOperand = getCopyPropagatedLlLocationVar((LlLocationVar) regular.getOperand());
+        }
+
+        // 4) return the optimized stmt
+        return new LlAssignStmtRegular(optimizedStoreLoc, optimizedOperand);
     }
 
     private LlAssignStmtUnaryOp swapOperandsForUnaryStmt(LlAssignStmtUnaryOp unaryOp) {
-        // check if the operand is a variable in the copyTable
-        if (unaryOp.getOperand() instanceof LlLocationVar) {
-            LlLocationVar var = (LlLocationVar) unaryOp.getOperand();
+        LlLocation optimizedStoreLoc = unaryOp.getStoreLocation();
+        LlComponent optimizedOperand = unaryOp.getOperand();
 
-            // return a new statement with the var from copyTable if it exists
-            if (this.copyTable.containsKey(var)) {
-                return new LlAssignStmtUnaryOp(unaryOp.getStoreLocation(), this.copyTable.get(var), unaryOp.getOperator());
-            }
+        // 1) check to see if the storeLocation is an LlLocationArray whose index can be copy-propagated
+        if (unaryOp.getStoreLocation() instanceof LlLocationArray) {
+            optimizedStoreLoc = getCopyPropagatedLlLocationArray((LlLocationArray) unaryOp.getStoreLocation());
         }
-        return unaryOp;
+
+        // 2) check to see if the the operand is an LlLocationArray whose index can be copy-propagated
+        if (unaryOp.getOperand() instanceof LlLocationArray) {
+            optimizedOperand = getCopyPropagatedLlLocationArray((LlLocationArray) unaryOp.getOperand());
+        }
+
+        // 3) otherwise check to see if the operand is just a straight up var that can be copy-propagated
+        else if (unaryOp.getOperand() instanceof LlLocationVar) {
+            optimizedOperand = getCopyPropagatedLlLocationVar((LlLocationVar) unaryOp.getOperand());
+        }
+
+        // 4) return the optimized stmt
+        return new LlAssignStmtUnaryOp(optimizedStoreLoc, optimizedOperand, unaryOp.getOperator());
     }
 
     private LlAssignStmtBinaryOp swapOperandForBinaryStmt(LlAssignStmtBinaryOp binaryOp) {
-        LlComponent newLeftOperand = binaryOp.getLeftOperand();
-        LlComponent newRightOperand = binaryOp.getRightOperand();
+        LlLocation optimizedStoreLoc = binaryOp.getStoreLocation();
+        LlComponent optimizedLeftOp = binaryOp.getLeftOperand();
+        LlComponent optimizedRightOp = binaryOp.getRightOperand();
 
-        // check the left operand
-        if (binaryOp.getLeftOperand() instanceof LlLocationVar) {
-            LlLocationVar var = (LlLocationVar) binaryOp.getLeftOperand();
-
-            // swap the variable if necessary
-            if (this.copyTable.containsKey(var)) {
-                newLeftOperand = this.copyTable.get(var);
-            }
+        // 1) check to see if the storeLocation is an LlLocationArray whose index can be copy-propagated
+        if (binaryOp.getStoreLocation() instanceof LlLocationArray) {
+            optimizedStoreLoc = getCopyPropagatedLlLocationArray((LlLocationArray) binaryOp.getStoreLocation());
         }
-        // check the right operand
-        if (binaryOp.getRightOperand() instanceof LlLocationVar) {
-            LlLocationVar var = (LlLocationVar) binaryOp.getRightOperand();
 
-            // swap the variable if necessary
-            if (this.copyTable.containsKey(var)) {
-                newRightOperand = this.copyTable.get(var);
-            }
+        // 2) check to see if the the leftOperand is an LlLocationArray whose index can be copy-propagated
+        if (binaryOp.getLeftOperand() instanceof LlLocationArray) {
+            optimizedLeftOp = getCopyPropagatedLlLocationArray((LlLocationArray) binaryOp.getLeftOperand());
         }
-        return new LlAssignStmtBinaryOp(binaryOp.getStoreLocation(),
-                newLeftOperand, binaryOp.getOperation(), newRightOperand);
+
+        // 3) otherwise check to see if the leftOperand is just a straight up var that can be copy-propagated
+        else if (binaryOp.getLeftOperand() instanceof LlLocationVar) {
+            optimizedLeftOp = getCopyPropagatedLlLocationVar((LlLocationVar) binaryOp.getLeftOperand());
+        }
+
+        // 5) check to see if the the leftOperand is an LlLocationArray whose index can be copy-propagated
+        if (binaryOp.getRightOperand() instanceof LlLocationArray) {
+            optimizedRightOp = getCopyPropagatedLlLocationArray((LlLocationArray) binaryOp.getRightOperand());
+        }
+
+        // 6) otherwise check to see if the leftOperand is just a straight up var that can be copy-propagated
+        else if (binaryOp.getRightOperand() instanceof LlLocationVar) {
+            optimizedRightOp = getCopyPropagatedLlLocationVar((LlLocationVar) binaryOp.getRightOperand());
+        }
+
+        // 7) return the optimized stmt
+        return new LlAssignStmtBinaryOp(optimizedStoreLoc, optimizedLeftOp, binaryOp.getOperation(), optimizedRightOp);
     }
 
 }
