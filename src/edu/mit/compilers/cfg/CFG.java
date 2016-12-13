@@ -15,6 +15,11 @@ public class CFG {
     private final ArrayList<String> orderedLeadersList;
     private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
+
+    public ArrayList<LlLocationVar> getParamsList() {
+        return paramsList;
+    }
+
     private final ArrayList<LlLocationVar> paramsList;
 
     public CFG(LlBuilder builder) {
@@ -388,14 +393,16 @@ public class CFG {
         //All uses and defs in statement happen at this location
         Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
 
-        for (LlLocationVar paramArg : this.paramsList) {
-            this.addUseArg(recentDef, paramArg, firstUseDefLocation);
-        }
+//        for (LlLocationVar paramArg : this.paramsList) {
+//            SymbolDef currentSymbolDef = new SymbolDef(paramArg, firstUseDefLocation);
+//            recentDef.put(paramArg, firstUseDefLocation);
+//            this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+//        }
 
 //        //Print statements for useDefChains
-//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-//        }
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+        }
         return this.defUseChain;
     }
 
