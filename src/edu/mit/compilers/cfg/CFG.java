@@ -4,6 +4,8 @@ import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by devinmorgan on 11/20/16.
@@ -16,9 +18,16 @@ public class CFG {
     private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
 
+    public ArrayList<LlLocationVar> getParamsList() {
+        return paramsList;
+    }
+
+    private final ArrayList<LlLocationVar> paramsList;
+
     public CFG(LlBuilder builder) {
         this.builder = builder;
 
+        this.paramsList = builder.params;
         // cache the Labels => Stmts map and extract the labels list
         LinkedHashMap<String, LlStatement> labelStmtsMap = new LinkedHashMap<>(builder.getStatementTable());
         ArrayList<String> labelsList = new ArrayList<>(labelStmtsMap.keySet());
@@ -183,7 +192,7 @@ public class CFG {
 
     // ================= Tuple =================
 
-    private final Tuple noDefTuple = new Tuple("NO_DEF", "NO_DEF");
+    private final Tuple noDefTuple = new Tuple("NO_DEF_1010", "NO_DEF_1010");
 
     public Tuple getNoDefTuple() {
         return this.noDefTuple;
@@ -207,6 +216,11 @@ public class CFG {
         @Override
         public int hashCode() {
             return this.blockName.hashCode() + this.label.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "(" + this.blockName + ", " + this.label + ")";
         }
 
     }
@@ -233,6 +247,11 @@ public class CFG {
             return this.symbol.hashCode() + this.useDef.hashCode();
         }
 
+        @Override
+        public String toString() {
+            return this.symbol.toString() + " : " + this.useDef.toString();
+        }
+
     }
 
     // ================= USE-DEF Chain =================
@@ -255,11 +274,19 @@ public class CFG {
             ArrayList<Tuple> useList = this.defUseChain.get(new SymbolDef((LlLocation) arg, latestDef));
             useList.add(currentUseDefLocation);
         }
+
+        if (arg instanceof LlLocationArray) {
+            LlLocationVar indexArg = ((LlLocationArray) arg).getElementIndex();
+            this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+        }
     }
 
     //Recursively (DFS) build defUseChains
     private void buildDefUseRecursive(BasicBlock head, HashMap<LlLocation, Tuple> recentDef) {
         //Add def-use chains of basic block head
+        if(head == null){
+            return ;
+        }
         for (Map.Entry<String, LlStatement> statementRow : head.getLabelsToStmtsMap().entrySet()) {
             String label = statementRow.getKey();
             LlStatement statement = statementRow.getValue();
@@ -277,6 +304,12 @@ public class CFG {
 
                     recentDef.put(returnLocation, currentUseDefLocation);
                     this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+
+                    //Get index from array def call
+                    if (returnLocation instanceof LlLocationArray) {
+                        LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
+                        this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                    }
                 }
 
                 //Mark use for argsList values
@@ -310,6 +343,12 @@ public class CFG {
                 recentDef.put(returnLocation, currentUseDefLocation);
                 this.defUseChain.put(currentSymbolDef, new ArrayList<>());
 
+                //Get index from array def call
+                if (returnLocation instanceof LlLocationArray) {
+                    LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
+                    this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                }
+
                 if (statement instanceof LlAssignStmtRegular) {
                     //Mark use of arg location
                     LlComponent arg = ((LlAssignStmtRegular) statement).getOperand();
@@ -336,12 +375,12 @@ public class CFG {
         Edge left = head.getLeft();
         Edge right = head.getRight();
 
-        if (!isVisited.contains(left)) {
+        if (left != null && !isVisited.contains(left)) {
             isVisited.add(head.getLeft());
             buildDefUseRecursive(head.getDefaultBranch(), new HashMap<>(recentDef));
         }
 
-        if (!isVisited.contains(right)) {
+        if (right != null && !isVisited.contains(right)) {
             isVisited.add(head.getRight());
             buildDefUseRecursive(head.getAlternativeBranch(), new HashMap<>(recentDef));
         }
@@ -353,6 +392,20 @@ public class CFG {
         BasicBlock head = basicBlocks.get(0);
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
+
+        //All uses and defs in statement happen at this location
+        Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
+
+//        for (LlLocationVar paramArg : this.paramsList) {
+//            SymbolDef currentSymbolDef = new SymbolDef(paramArg, firstUseDefLocation);
+//            recentDef.put(paramArg, firstUseDefLocation);
+//            this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+//        }
+
+//        //Print statements for useDefChains
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+        }
         return this.defUseChain;
     }
 
@@ -394,6 +447,35 @@ public class CFG {
         for(Map.Entry<String, BasicBlock> entry : map.entrySet())
             rev.put(entry.getValue(), entry.getKey());
         return rev;
+    }
+
+    public LlBuilder reorderLables(){
+        int counter = 0;
+        Hashtable<String, String> oldToNew = new Hashtable<>();
+        LlBuilder newBuilder = new LlBuilder(this.builder.getName());
+        for(String lable : this.builder.getStatementTable().keySet()){
+            String newLabel = lable;
+            Pattern p = Pattern.compile("[\\d]+");
+
+            // get a matcher object
+            Matcher m = p.matcher(lable);
+            newLabel = m.replaceAll(Integer.toString(counter++));
+            oldToNew.put(lable, newLabel);
+            newBuilder.appendStatement(newLabel, this.builder.getStatementTable().get(lable));
+        }
+        for(String newLabel : newBuilder.getStatementTable().keySet()){
+            LlStatement currentStatement = newBuilder.getStatementTable().get(newLabel);
+            if(currentStatement instanceof  LlJumpUnconditional){
+                String newl = oldToNew.get(((LlJumpUnconditional) currentStatement).getJumpToLabel());
+                newBuilder.getStatementTable().replace(newLabel, new LlJumpUnconditional(newl));
+
+            }
+            if(newBuilder.getStatementTable().get(newLabel) instanceof  LlJumpConditional){
+                String newl = oldToNew.get(((LlJumpConditional) currentStatement).getJumpToLabel());
+                newBuilder.getStatementTable().replace(newLabel, new LlJumpConditional(newl, ((LlJumpConditional) currentStatement).getCondition()));
+            }
+        }
+        return newBuilder;
     }
 
 }

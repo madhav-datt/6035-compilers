@@ -10,7 +10,15 @@ import edu.mit.compilers.ll.LlLocationVar;
  * Created by devinmorgan on 10/5/16.
  */
 public class IrAssignStmtPlusEqual extends IrAssignStmt{
-    private final IrExpr incrementBy;
+    public IrExpr getIncrementBy() {
+        return incrementBy;
+    }
+
+    private IrExpr incrementBy;
+
+    public void setIncrementBy(IrExpr newIncrement) {
+        incrementBy = newIncrement;
+    }
 
     public IrAssignStmtPlusEqual(IrLocation storeLocation, IrExpr incrementBy) {
         super(storeLocation);

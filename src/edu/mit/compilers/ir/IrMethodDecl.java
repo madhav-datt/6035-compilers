@@ -8,6 +8,11 @@ import java.util.*;
 
 public class IrMethodDecl extends IrMemberDecl {
     private final List<IrParamDecl> paramsList;
+
+    public IrCodeBlock getMethodBody() {
+        return methodBody;
+    }
+
     private final IrCodeBlock methodBody;
 
     public IrMethodDecl(IrType returnType, List<IrParamDecl> paramsList,
@@ -18,7 +23,11 @@ public class IrMethodDecl extends IrMemberDecl {
     }
 
     public List<IrParamDecl> getParamsList() {
-        return new ArrayList<>(this.paramsList);
+        return this.paramsList;
+    }
+
+    public void addToParamsList(IrParamDecl newParam) {
+        this.paramsList.add(newParam);
     }
 
     @Override

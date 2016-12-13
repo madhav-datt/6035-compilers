@@ -10,7 +10,15 @@ import edu.mit.compilers.ll.LlLocationVar;
  * Created by devinmorgan on 10/5/16.
  */
 public class IrLocationArray extends IrLocation {
-    private final IrExpr elementIndex;
+    public IrExpr getElementIndex() {
+        return elementIndex;
+    }
+
+    public void setElementIndex(IrExpr elementIndex) {
+        this.elementIndex = elementIndex;
+    }
+
+    private IrExpr elementIndex;
 
     public IrLocationArray(IrExpr elementIndex, IrIdent varName, int lineNumber, int colNumber) {
         super(varName, lineNumber, colNumber);

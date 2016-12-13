@@ -76,21 +76,32 @@ public class LlAssignStmtRegular extends LlAssignStmt {
         else {
 
 
+//                String checkFrame = frame.getLlLocation(this.storeLocation);
+//                if (checkFrame == null) {
+//                    storeToLoc = frame.getNextStackLocation();
+//                    frame.pushToStackFrame(this.storeLocation);
+//                } else {
+//                    storeToLoc = checkFrame;
+//                }
+//                if(symbolTable.isInGlobalVarsTable((LlLocationVar) this.storeLocation)){
+//                    builder.addLinef("movq", exprResultLocation + ", %r10");
+//                    builder.addLinef("movq", "%r10, " + this.storeLocation.getVarName() + "(%rip)");
+//                }
+//                else{
+//                    builder.addLinef("movq", exprResultLocation + ", %r10");
+//                    builder.addLinef("movq", "%r10, " + storeToLoc);
+//                }
                 String checkFrame = frame.getLlLocation(this.storeLocation);
                 if (checkFrame == null) {
-                    storeToLoc = frame.getNextStackLocation();
-                    frame.pushToStackFrame(this.storeLocation);
+                    storeToLoc =  builder.optimizedStore(this.storeLocation, exprResultLocation, frame);
                 } else {
-                    storeToLoc = checkFrame;
+                    storeToLoc = builder.optimizedStore(this.storeLocation, exprResultLocation, checkFrame);
                 }
                 if(symbolTable.isInGlobalVarsTable((LlLocationVar) this.storeLocation)){
                     builder.addLinef("movq", exprResultLocation + ", %r10");
                     builder.addLinef("movq", "%r10, " + this.storeLocation.getVarName() + "(%rip)");
                 }
-                else{
-                    builder.addLinef("movq", exprResultLocation + ", %r10");
-                    builder.addLinef("movq", "%r10, " + storeToLoc);
-                }
+
 
 
         }

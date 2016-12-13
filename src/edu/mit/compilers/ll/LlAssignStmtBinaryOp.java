@@ -149,13 +149,14 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
             builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
         }
 
-        String resultTemp = frame.getNextStackLocation();
-        frame.pushToStackFrame(this.storeLocation);
-        builder.addLinef("movq", "%r11, " + resultTemp);
+//        String resultTemp = frame.getNextStackLocation();
+//        frame.pushToStackFrame(this.storeLocation);
+//        builder.addLinef("movq", "%r11, " + resultTemp);
+         String storedIn =  builder.optimizedStore(this.storeLocation, "%r11", frame);
 
         builder.addLine();
 
-        return resultTemp;
+        return storedIn;
 
     }
 }
