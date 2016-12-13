@@ -13,6 +13,19 @@ public class IrProgram extends Ir{
 
     private ArrayList<IrFieldDecl> fieldDecls;
     private ArrayList<IrMethodDecl> methodDecls;
+
+    public ArrayList<IrFieldDecl> getFieldDecls() {
+        return fieldDecls;
+    }
+
+    public ArrayList<IrMethodDecl> getMethodDecls() {
+        return methodDecls;
+    }
+
+    public ArrayList<IrExternDecl> getExternDecls() {
+        return externDecls;
+    }
+
     private ArrayList<IrExternDecl> externDecls;
     private String errorMessage;
     private ArrayList<LlBuilder> builderList;
