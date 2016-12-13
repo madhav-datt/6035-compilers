@@ -15,10 +15,12 @@ public class CFG {
     private final ArrayList<String> orderedLeadersList;
     private final LinkedHashMap<String, BasicBlock> leadersToBBMap;
     private final LinkedHashMap<BasicBlock, String> blockLabels;
+    private final ArrayList<LlLocationVar> paramsList;
 
     public CFG(LlBuilder builder) {
         this.builder = builder;
 
+        this.paramsList = builder.params;
         // cache the Labels => Stmts map and extract the labels list
         LinkedHashMap<String, LlStatement> labelStmtsMap = new LinkedHashMap<>(builder.getStatementTable());
         ArrayList<String> labelsList = new ArrayList<>(labelStmtsMap.keySet());
@@ -294,6 +296,12 @@ public class CFG {
 
                     recentDef.put(returnLocation, currentUseDefLocation);
                     this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+
+                    //Get index from array def call
+                    if (returnLocation instanceof LlLocationArray) {
+                        LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
+                        this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                    }
                 }
 
                 //Mark use for argsList values
@@ -326,6 +334,12 @@ public class CFG {
 
                 recentDef.put(returnLocation, currentUseDefLocation);
                 this.defUseChain.put(currentSymbolDef, new ArrayList<>());
+
+                //Get index from array def call
+                if (returnLocation instanceof LlLocationArray) {
+                    LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
+                    this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                }
 
                 if (statement instanceof LlAssignStmtRegular) {
                     //Mark use of arg location
@@ -371,10 +385,17 @@ public class CFG {
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
 
-//        //Print statements for useDefChains
-        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+        //All uses and defs in statement happen at this location
+        Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
+
+        for (LlLocationVar paramArg : this.paramsList) {
+            this.addUseArg(recentDef, paramArg, firstUseDefLocation);
         }
+
+//        //Print statements for useDefChains
+//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+//        }
         return this.defUseChain;
     }
 

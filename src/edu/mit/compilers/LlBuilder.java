@@ -15,6 +15,8 @@ public class LlBuilder {
     private LinkedHashMap<String, LlStatement> statementTable;
     private int labelCounter = 0;
     private int tempCounter = 0;
+    public ArrayList<LlLocationVar> params;
+
     //flags
     public  boolean arrLeftSide = false;
 

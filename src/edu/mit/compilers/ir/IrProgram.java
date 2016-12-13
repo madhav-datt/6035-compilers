@@ -156,6 +156,13 @@ public class IrProgram extends Ir{
 
         for (IrMethodDecl methodDecl: this.methodDecls) {
             LlBuilder llBuilder = new LlBuilder(methodDecl.getName());
+            llBuilder.params = new ArrayList<>();
+
+            for (IrParamDecl paramDecl : methodDecl.getParamsList()) {
+                LlLocationVar paramVar = new LlLocationVar(paramDecl.getParamName().getValue());
+                llBuilder.params.add(paramVar);
+            }
+
             LlSymbolTable llSymbolTable = new LlSymbolTable(methodDecl.getName());
             methodDecl.generateLlIr(llBuilder, llSymbolTable);
             buildersList.addBuilder(llBuilder);
