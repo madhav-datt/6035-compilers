@@ -34,7 +34,7 @@ public class LlAssignStmtRegular extends LlAssignStmt {
             return false;
         }
         return ((LlAssignStmtRegular)obj).operand.equals(this.operand)
-                &&((LlAssignStmtBinaryOp)obj).storeLocation.equals(this.storeLocation);
+                &&((LlAssignStmtRegular)obj).storeLocation.equals(this.storeLocation);
     }
 
     @Override
