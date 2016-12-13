@@ -42,9 +42,10 @@ public class RegisterAllocation {
 
     //Get label number from label string
     private int getLabelNum(String input) {
-        final Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
-        Matcher matcher = lastIntPattern.matcher(input);
-        String someNumberStr = matcher.group(1);
+
+        input = input.replaceAll("\\D+",""); // Incase of weird failure look at this
+        String someNumberStr = input;
+
         return Integer.parseInt(someNumberStr);
     }
 
@@ -58,17 +59,25 @@ public class RegisterAllocation {
 
             if (currentDef.symbol.equals(var)) {
                 duVar.add(this.getLabelNum(currentDef.useDef.label));
-                for (CFG.Tuple varUses : duChain.getValue())
+                for (CFG.Tuple varUses : duChain.getValue()){
                     duVar.add(this.getLabelNum(varUses.label));
+                }
             }
+        }
+
+        if (this.varRegisterAllocations.size() == 0) {
+            return false;
         }
 
         //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
+
             //Continue if otherVar is allocated different register
-            if (!register.equals(statementEntry.getValue()))
+            if (!register.equals(statementEntry.getValue())) {
                 continue;
+            }
+
 
             //Check if var and otherVar conflict, for all chains with otherVar
             for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
@@ -80,19 +89,50 @@ public class RegisterAllocation {
                     int defOtherVar = this.getLabelNum(duOtherVar.useDef.label);
 
                     //Find last use of otherVar in selected du chain
-                    for (CFG.Tuple varUses : duChain.getValue())
+                    for (CFG.Tuple varUses : duChain.getValue()){
                         otherVarUseList.add(this.getLabelNum(varUses.label));
+                    }
+                    otherVarUseList.add(defOtherVar);
+
+                    System.out.println(var.toString() + " : " + duOtherVar.toString());
+                    System.out.println(otherVarUseList.toString());
+                    System.out.println(duVar.toString());
+                    System.out.println();
+
+                    //Handle zero len case separately
+                    //No conflict if other var is never used
+                    if (otherVarUseList.size() == 0) {
+                        break;
+                    }
+
                     int maxUseOtherVar = Collections.max(otherVarUseList);
+                    int minUseOtherVar = Collections.min(otherVarUseList);
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
                     for (int varDefUses : duVar) {
-                        if (varDefUses >= defOtherVar && varDefUses <= maxUseOtherVar)
-                            return false;
+                        if (varDefUses >= minUseOtherVar && varDefUses <= maxUseOtherVar) {
+                            return true;
+                        }
+                    }
+
+                    //Handle zero len case separately
+                    //No conflict if other var is never used
+                    if (duVar.size() == 0) {
+                        break;
+                    }
+
+                    int maxUseVar = Collections.max(duVar);
+                    int minUseVar = Collections.min(duVar);
+
+                    for (int otherVarDefUses : otherVarUseList) {
+                        if (otherVarDefUses >= minUseVar && otherVarDefUses <= maxUseVar) {
+                            return true;
+                        }
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     //Allocate registers according to greedy algorithm
@@ -103,6 +143,31 @@ public class RegisterAllocation {
         while (!this.varUsageCount.isEmpty()) {
             //Get key with max usage value
             LlLocation var = Collections.max(this.varUsageCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+
+            if (var == null) {
+                //Really?
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
+            //Eliminate string variables
+            if (var.toString().length() > 4 && var.toString().substring(0, 4).equals("#str")) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
+            //Eliminate array location variables
+            if (var instanceof LlLocationArray) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
+            //Eliminate register allocation for parameters
+            if (methodCFG.getParamsList().contains(var)) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
             for (String register : this.availableRegisters) {
                 //If no conflict exists, allocate to selected register
                 if (!isConflict(var, register)) {
@@ -110,6 +175,8 @@ public class RegisterAllocation {
                     break;
                 }
             }
+            this.varUsageCount.remove(var);
+
         }
     }
 
@@ -129,10 +196,10 @@ public class RegisterAllocation {
 
             //If label marks beginning of loop, increase depth by 1
             //If label marks end of loop, decrease depth by 1
-            if (statementLabel.substring(0, 7).equals("END_FOR") || statementLabel.substring(0, 9).equals("END_WHILE"))
+            if ((statementLabel.length() > 7 && statementLabel.substring(0, 7).equals("END_FOR")) || (statementLabel.length() > 9 && statementLabel.substring(0, 9).equals("END_WHILE")))
                 currentDepth--;
 
-            else if (statementLabel.substring(0, 3).equals("FOR") || statementLabel.substring(0, 5).equals("WHILE"))
+            else if ((statementLabel.length() > 3 && statementLabel.substring(0, 3).equals("FOR") )|| (statementLabel.length() > 5 && statementLabel.substring(0, 5).equals("WHILE")))
                 currentDepth++;
 
             int addUsageConstant = (int) Math.pow(10, currentDepth);
@@ -186,5 +253,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
+//        System.out.println();
+//        System.out.println(this.getVarRegisterAllocations());
+//        System.out.println();
     }
 }

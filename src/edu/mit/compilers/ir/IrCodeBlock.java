@@ -7,6 +7,15 @@ import java.util.ArrayList;
 
 public class IrCodeBlock extends Ir {
     private final ArrayList<IrFieldDecl> fieldsList;
+
+    public ArrayList<IrFieldDecl> getFieldsList() {
+        return fieldsList;
+    }
+
+    public ArrayList<IrStatement> getStmtsList() {
+        return stmtsList;
+    }
+
     private final ArrayList<IrStatement> stmtsList;
 
     public IrCodeBlock(ArrayList<IrFieldDecl> fieldsList, ArrayList<IrStatement> stmtsList,

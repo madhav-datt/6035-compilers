@@ -55,24 +55,28 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         // compute the value of the expression and figure out where it is stored
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.operand.generateCode(builder, frame, symbolTable);
-        String returnLocation = frame.getNextStackLocation();
 
-        if(this.operand.equals("!")){
+        String returnLocation;
+        if(this.operator.equals("!")){
             builder.addLinef("movq", exprResultLocation + ", %r10");
             builder.addLinef("xorq", "$1, %r10");
 
-            builder.addLinef("movq", "%r10, " + returnLocation);
+            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
+            builder.addLine();
+            return returnLocation;
         }
-        else if(this.operand.equals("-")){
+        else if(this.operator.equals("-")){
             builder.addLinef("movq", exprResultLocation + ", %r10");
             builder.addLinef("neg",  "%r10");
-            builder.addLinef("movq", "%r10, " + returnLocation);
+            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
+            builder.addLine();
+            return returnLocation;
         }
 
-        frame.pushToStackFrame(this.storeLocation);
-        builder.addLine();
-        return returnLocation;
 
+
+
+        return  null;
 
     }
 }
