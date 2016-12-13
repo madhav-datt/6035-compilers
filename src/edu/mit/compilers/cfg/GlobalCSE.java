@@ -14,7 +14,7 @@ public class GlobalCSE {
         this.cfg = cfg;
     }
 
-    public static void performGlobalCommonSubexpressionEliminationOnCFG(CFG cfg, HashSet<LlLocationVar> globalVariables) {
+    public static void performGlobalCommonSubexpressionEliminationOnCFG(CFG cfg, HashSet<LlLocation> globalVariables) {
         GlobalCSE cse = new GlobalCSE(cfg);
         ArrayList<BasicBlock> basicBlocks = cfg.getBasicBlocks();
 

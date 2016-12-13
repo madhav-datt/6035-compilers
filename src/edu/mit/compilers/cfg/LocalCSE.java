@@ -4,10 +4,7 @@ import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 
 import java.beans.Expression;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * Created by devinmorgan on 11/26/16.
@@ -21,11 +18,11 @@ public class LocalCSE {
         this.tempsForExpressions = new HashMap<>();
     }
 
-    public static void performLocalCSE(BasicBlock bb, HashSet<LlLocationVar> globalVariables) {
+    public static void performLocalCSE(BasicBlock bb, HashSet<LlLocation> globalVariables) {
         LocalCSE cse = new LocalCSE(bb.getBuilder());
         LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
 
-        // 2) loop through the current linked hashmap
+        // 2) loop through the current linked HashMap
         for (String label : labelsToStmtsMap.keySet()) {
             LlStatement stmt = labelsToStmtsMap.get(label);
 
@@ -50,7 +47,7 @@ public class LocalCSE {
                         labelsToStmtsMap.put(label, optimalStmt);
                     }
                     // if the computation has not been made before, store it for later
-                    else {
+                    else if (!uniExpr.containsAnyOfTheseVariables(globalVariables)) {
                         cse.tempsForExpressions.put(uniExpr, (LlLocationVar) unaryOp.getStoreLocation());
                     }
 
@@ -84,7 +81,7 @@ public class LocalCSE {
                         labelsToStmtsMap.put(label, optimalStmt);
                     }
                     // if the computation has not been made before, store it for later
-                    else {
+                    else if (!binaryExpr.containsAnyOfTheseVariables(globalVariables)) {
                         cse.tempsForExpressions.put(binaryExpr, (LlLocationVar) binaryOp.getStoreLocation());
                     }
 
@@ -198,7 +195,16 @@ public class LocalCSE {
             this.rightOperand = rightOperand;
         }
 
-        public abstract boolean containsVariable(LlComponent comp);
+        public abstract boolean containsVariable(LlLocation comp);
+
+        public boolean containsAnyOfTheseVariables(Collection<LlLocation> variables) {
+            for (LlLocation var : variables) {
+                if (this.containsVariable(var)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private class UnaryExprObject extends ExprObject {
@@ -207,7 +213,7 @@ public class LocalCSE {
         }
 
         @Override
-        public boolean containsVariable(LlComponent comp) {
+        public boolean containsVariable(LlLocation comp) {
             return this.rightOperand.equals(comp);
         }
 
@@ -235,7 +241,7 @@ public class LocalCSE {
         }
 
         @Override
-        public boolean containsVariable(LlComponent comp) {
+        public boolean containsVariable(LlLocation comp) {
             return this.leftOperand.equals(comp) || this.rightOperand.equals(comp);
         }
 

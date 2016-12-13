@@ -1,13 +1,11 @@
 package edu.mit.compilers.ir;
 
 import edu.mit.compilers.*;
-import edu.mit.compilers.ll.LlLiteralInt;
-import edu.mit.compilers.ll.LlLocation;
-import edu.mit.compilers.ll.LlLocationArray;
-import edu.mit.compilers.ll.LlLocationVar;
+import edu.mit.compilers.ll.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class IrProgram extends Ir{
 
@@ -32,6 +30,21 @@ public class IrProgram extends Ir{
         this.methodDecls = methodDecls;
         this.externDecls = externDecls;
         this.errorMessage = errorMessage;
+    }
+
+    public HashSet<LlLocation> getGlobalVariables() {
+        HashSet<LlLocation> globalVariables = new HashSet<>();
+
+        for (IrFieldDecl globalVar : this.fieldDecls) {
+            if (globalVar instanceof IrFieldDeclVar) {
+                globalVariables.add( new LlLocationVar(globalVar.getName()) );
+            }
+            else if (globalVar instanceof IrFieldDeclArray) {
+                globalVariables.add( new LlLocationArray(globalVar.getName(), new LlLocationVar("NotAValidName")));
+            }
+        }
+
+        return globalVariables;
     }
 
     @Override
