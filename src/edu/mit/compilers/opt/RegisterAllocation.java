@@ -65,19 +65,21 @@ public class RegisterAllocation {
             }
         }
 
-        if (this.varRegisterAllocations.size() == 0)
+        if (this.varRegisterAllocations.size() == 0) {
             return false;
+        }
 
         //Check for all variables (refered to as otherVar) that have been allocated to said register
         for (Map.Entry<LlLocation, String> statementEntry : this.varRegisterAllocations.entrySet()) {
             LlLocation otherVar = statementEntry.getKey();
+//            System.out.println(var.toString() + ":" + register + " ----- " + otherVar.toString() + ":" + statementEntry.getValue());
 
             //Continue if otherVar is allocated different register
             if (!register.equals(statementEntry.getValue())) {
                 continue;
             }
 
-//            System.out.println(otherVar.toString());
+
             //Check if var and otherVar conflict, for all chains with otherVar
             for (Map.Entry<CFG.SymbolDef, ArrayList<CFG.Tuple>> duChain : this.defUseChain.entrySet()) {
                 CFG.SymbolDef duOtherVar = duChain.getKey();
@@ -95,7 +97,7 @@ public class RegisterAllocation {
                     //Handle zero len case separately
                     //No conflict if other var is never used
                     if (otherVarUseList.size() == 0) {
-                        return false;
+                        break;
                     }
 
                     int maxUseOtherVar = Collections.max(otherVarUseList);
@@ -212,8 +214,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
-//        System.out.println();
-//        System.out.println(this.getVarRegisterAllocations());
-//        System.out.println();
+        System.out.println();
+        System.out.println(this.getVarRegisterAllocations());
+        System.out.println();
     }
 }
