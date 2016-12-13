@@ -12,7 +12,7 @@ public class AvailableExpressions {
     private final HashMap<BasicBlock, HashSet<Computation>> availExprIN = new HashMap<>();
     private final HashMap<BasicBlock, HashSet<Computation>> availExprOUT = new HashMap<>();
 
-    private AvailableExpressions(CFG cfg) {
+    private AvailableExpressions(CFG cfg, HashSet<LlLocationVar> globalVariables) {
         ArrayList<BasicBlock> bbList = cfg.getBasicBlocks();
 
         // 1) initial allExpressions with the union of all EVAL(bb)'s
@@ -72,7 +72,7 @@ public class AvailableExpressions {
             this.availExprOUT.put(node, EVALplusINminusKILL);
 
             // if OUT[n] changed, add its successors to activeNodes
-            if (!this.availExprOUT.equals(oldOUT)) {
+            if (!this.availExprOUT.get(node).equals(oldOUT)) {
                 if (node.getDefaultBranch() != null) {
                     activeNodes.add(node.getDefaultBranch());
                 }
@@ -83,8 +83,8 @@ public class AvailableExpressions {
         }
     }
 
-    public static HashMap<BasicBlock, HashSet<Computation>> getAvailableExpressionsForCFG(CFG cfg) {
-        AvailableExpressions ae = new AvailableExpressions(cfg);
+    public static HashMap<BasicBlock, HashSet<Computation>> getAvailableExpressionsForCFG(CFG cfg, HashSet<LlLocationVar> globalVariables) {
+        AvailableExpressions ae = new AvailableExpressions(cfg, globalVariables);
         return ae.availExprIN;
     }
 

@@ -21,7 +21,7 @@ public class LocalCSE {
         this.tempsForExpressions = new HashMap<>();
     }
 
-    public static void performLocalCSE(BasicBlock bb) {
+    public static void performLocalCSE(BasicBlock bb, HashSet<LlLocationVar> globalVariables) {
         LocalCSE cse = new LocalCSE(bb.getBuilder());
         LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
 
