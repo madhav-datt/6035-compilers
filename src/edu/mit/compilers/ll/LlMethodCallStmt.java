@@ -23,6 +23,10 @@ public class LlMethodCallStmt extends LlStatement {
         this.returnLocation = returnLocation;
     }
 
+    public String getMethodName() {
+        return this.methodName;
+    }
+
     public LlLocation getReturnLocation() {
         return this.returnLocation;
     }
