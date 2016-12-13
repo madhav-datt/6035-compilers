@@ -450,6 +450,7 @@ public class CFG {
 
     public LlBuilder reorderLables(){
         int counter = 0;
+        Hashtable<String, String> oldToNew = new Hashtable<>();
         LlBuilder newBuilder = new LlBuilder(this.builder.getName());
         for(String lable : this.builder.getStatementTable().keySet()){
             String newLabel = lable;
@@ -458,7 +459,20 @@ public class CFG {
             // get a matcher object
             Matcher m = p.matcher(lable);
             newLabel = m.replaceAll(Integer.toString(counter++));
+            oldToNew.put(lable, newLabel);
             newBuilder.appendStatement(newLabel, this.builder.getStatementTable().get(lable));
+        }
+        for(String newLabel : newBuilder.getStatementTable().keySet()){
+            LlStatement currentStatement = newBuilder.getStatementTable().get(newLabel);
+            if(currentStatement instanceof  LlJumpUnconditional){
+                String newl = oldToNew.get(((LlJumpUnconditional) currentStatement).getJumpToLabel());
+                newBuilder.getStatementTable().replace(newLabel, new LlJumpUnconditional(newl));
+
+            }
+            if(newBuilder.getStatementTable().get(newLabel) instanceof  LlJumpConditional){
+                String newl = oldToNew.get(((LlJumpConditional) currentStatement).getJumpToLabel());
+                newBuilder.getStatementTable().replace(newLabel, new LlJumpConditional(newl, ((LlJumpConditional) currentStatement).getCondition()));
+            }
         }
         return newBuilder;
     }
