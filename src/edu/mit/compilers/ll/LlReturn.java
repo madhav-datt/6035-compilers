@@ -25,9 +25,10 @@ public class LlReturn extends LlStatement {
     }
 
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
-        if(this.returnValue == null){
 
+        if(this.returnValue == null){
             if(builder.isLastReturn){
+                builder.calleeRestore(builder.getAllAllocatedRegs(), frame);
                 builder.addLinef("leave","");
                 builder.addLinef(".cfi_def_cfa","7, 8");
                 builder.addLinef("ret", "");
@@ -37,6 +38,7 @@ public class LlReturn extends LlStatement {
                 builder.hasReturned = true;
                 return "%rax";
             }
+            builder.calleeRestore(builder.getAllAllocatedRegs(), frame);
             builder.addLinef("leave","");
             builder.addLinef("ret", "");
             builder.addLine();
@@ -45,6 +47,7 @@ public class LlReturn extends LlStatement {
         else{
             String returnAdd = returnValue.generateCode(builder, frame, symbolTable);
             builder.addLinef("movq", returnAdd + ", %rax");
+            builder.calleeRestore(builder.getAllAllocatedRegs(), frame);
             if(builder.isLastReturn){
                 builder.addLinef("leave","");
                 builder.addLinef(".cfi_def_cfa","7, 8");
@@ -55,6 +58,7 @@ public class LlReturn extends LlStatement {
                 builder.hasReturned = true;
                 return "%rax";
             }
+            builder.calleeRestore(builder.getAllAllocatedRegs(), frame);
             builder.addLinef("leave","");
             builder.addLinef("ret", "");
             builder.addLine();

@@ -62,8 +62,8 @@ public class StackFrame {
         return null;
     }
     public String getRegisterLocation(String reg){
-        for(String key : stackFrame.keySet()){
-            if(stackFrame.get(key).toString().equals(reg.toString())){
+        for(String key : registerStackFrame.keySet()){
+            if(registerStackFrame.get(key).toString().equals(reg.toString())){
                 return key;
             }
         }
