@@ -24,6 +24,7 @@ public class CodeGenerator {
 
         // registers to use for allocation
         String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
+//        String registers[] = {};
         ArrayList<String> givenRegisters = new ArrayList<>();
         for (String reg : registers){
             givenRegisters.add(reg);
