@@ -2,13 +2,16 @@ package edu.mit.compilers;
 
 
 import edu.mit.compilers.cfg.CFG;
+import edu.mit.compilers.cfg.GlobalCSE;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
+import edu.mit.compilers.ll.LlLocation;
 import edu.mit.compilers.ll.LlStatement;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.tools.CLI.Action;
 import org.antlr.v4.gui.SystemFontMetrics;
+import org.antlr.v4.gui.Trees;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -17,6 +20,7 @@ import java.io.*;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 class Main {
@@ -232,13 +236,24 @@ class Main {
             ParseTreeWalker walker = new ParseTreeWalker();
             DecafListener listener = new DecafListener();
             walker.walk(listener, tree);
+            Trees.inspect(tree, parser);
+
+//            IrProgram program = listener.getGeneratedProgram();
+//            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
+//            ArrayList<LlBuilder> buildersList = program.getBuilderList();
+//            for (LlBuilder builder : buildersList) {
+//                CFG cfg = new CFG(builder);
+//                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
+////                GlobalCP.performGlobalCP(cfg);
+////                System.out.println(cfg.toString());
+//            }
 
             IrProgram program = listener.getGeneratedProgram();
-
             ArrayList<LlBuilder> buildersList = program.getBuilderList();
             for (LlBuilder builder : buildersList) {
-               System.out.println(builder.toString());
-               System.out.println();
+//               System.out.println(builder.toString());
+//               System.out.println();
                 CFG cfg = new CFG(builder);
 //               System.out.println(cfg.toString());
             }

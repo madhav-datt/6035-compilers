@@ -9,6 +9,10 @@ import edu.mit.compilers.ll.*;
 */
 public class IrAssignStmtEqual extends IrAssignStmt {
 
+    public IrExpr getNewValue() {
+        return newValue;
+    }
+
     private final IrExpr newValue;
 
     public IrAssignStmtEqual(IrLocation storeLocation, IrExpr newValue) {

@@ -9,6 +9,19 @@ import edu.mit.compilers.ll.*;
 public class IrCtrlFlowFor extends IrCtrlFlow {
     private final IrLocationVar counter;
     private final IrAssignStmt compoundAssignStmt;
+
+    public IrLocationVar getCounter() {
+        return counter;
+    }
+
+    public IrAssignStmt getCompoundAssignStmt() {
+        return compoundAssignStmt;
+    }
+
+    public IrExpr getIntialIndexExpr() {
+        return intialIndexExpr;
+    }
+
     private final IrExpr intialIndexExpr;
 
     public IrCtrlFlowFor(IrLocationVar counter, IrExpr intialIndexerExpr, IrAssignStmt updateCounterStmt,
