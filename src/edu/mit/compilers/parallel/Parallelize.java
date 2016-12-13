@@ -109,8 +109,38 @@ public class Parallelize {
     }
 
     //TODO
-    private ArrayList<Integer> getElementOrder(IrExpr arrayIndex, ArrayList<IrLocationVar> varList) {
-
+    private ArrayList<IrExpr> getElementOrder(IrExpr arrayIndex) {
+        if(!((arrayIndex instanceof IrOperBinaryArith) || (arrayIndex instanceof IrLiteralInt) || (arrayIndex instanceof IrLocationVar))){
+            return null;
+        }
+        if(arrayIndex instanceof IrLiteralInt){
+            ArrayList<IrExpr> retExpr = new ArrayList<>();
+            retExpr.add(arrayIndex);
+            return retExpr;
+        }
+        if((arrayIndex instanceof IrOperBinaryArith) && (((IrOperBinaryArith) arrayIndex).operation) == "*"){
+            ArrayList<IrExpr> retExpr = new ArrayList<>();
+            retExpr.add(arrayIndex);
+            return retExpr;
+        }
+        if(arrayIndex instanceof IrLocationVar){
+            ArrayList<IrExpr> retExpr = new ArrayList<>();
+            IrOperBinaryArith r = new IrOperBinaryArith("*", new IrLiteralInt(1, 0, 0), arrayIndex);
+            retExpr.add(arrayIndex);
+            return retExpr;
+        }
+        if((arrayIndex instanceof IrOperBinaryArith) && (((IrOperBinaryArith) arrayIndex).operation) == "+"){
+            ArrayList<IrExpr> retExpr = new ArrayList<>();
+            IrExpr leftExpr = ((IrOperBinaryArith)arrayIndex).leftOperand;
+            ArrayList<IrExpr> leftElementOrder = getElementOrder(leftExpr);
+            IrExpr rightExpr = ((IrOperBinaryArith)arrayIndex).rightOperand;
+            ArrayList<IrExpr> rightElementOrder = getElementOrder(rightExpr);
+            if((leftElementOrder == null)||(rightElementOrder == null)) return null;
+            retExpr.addAll(rightElementOrder);
+            retExpr.addAll(leftElementOrder);
+            return retExpr;
+        }
+        return null;
     }
 
     //Check dependencies between passed loop statements to check for conflicts in dependencies
@@ -155,7 +185,7 @@ public class Parallelize {
                 Analyze.AccessPattern result = Analyze.getAccessPattern(first.toArray(new Integer[first.size()]),
                         second.toArray(new Integer[second.size()]));
 
-                if (!result.distanceExists)
+                if (!result.distanceExists);
 
             }
         }
