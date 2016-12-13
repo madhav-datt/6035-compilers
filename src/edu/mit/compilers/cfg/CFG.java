@@ -4,6 +4,8 @@ import edu.mit.compilers.LlBuilder;
 import edu.mit.compilers.ll.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by devinmorgan on 11/20/16.
@@ -437,6 +439,21 @@ public class CFG {
         for(Map.Entry<String, BasicBlock> entry : map.entrySet())
             rev.put(entry.getValue(), entry.getKey());
         return rev;
+    }
+
+    public LlBuilder reorderLables(){
+        int counter = 0;
+        LlBuilder newBuilder = new LlBuilder(this.builder.getName());
+        for(String lable : this.builder.getStatementTable().keySet()){
+            String newLabel = lable;
+            Pattern p = Pattern.compile("[\\d]+");
+
+            // get a matcher object
+            Matcher m = p.matcher(lable);
+            newLabel = m.replaceAll(Integer.toString(counter++));
+            newBuilder.appendStatement(newLabel, this.builder.getStatementTable().get(lable));
+        }
+        return newBuilder;
     }
 
 }

@@ -55,7 +55,8 @@ public class CodeGenerator {
         for(LlBuilder builder : buildersList.getBuilders()){
 
             CFG cfg = new CFG(builder);
-//            System.out.println(givenRegisters);
+//
+            LlBuilder reordered = cfg.reorderLables();
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
@@ -67,6 +68,7 @@ public class CodeGenerator {
 
             this.addGlobalContextToLocalTables(buildersList, symbolTable);
             this.pushArraysToSymbolTable(oldSymbolTable, symbolTable);
+
             String currentMethodName = "";
             assemblyBuilder.addLine("");
             StackFrame frame = new StackFrame();;
@@ -92,17 +94,17 @@ public class CodeGenerator {
                 pushParamsToSymbolTable(assemblyBuilder, currentMethodName, methodParams, symbolTable, frame);
             }
             int statementCounter = 0;
-            for(String label  : builder.getStatementTable().keySet())
+            for(String label  : reordered.getStatementTable().keySet())
             {
 
-                if(builder.getStatementTable().get(label) instanceof  LlEmptyStmt && !label.equals(currentMethodName)){
+                if(reordered.getStatementTable().get(label) instanceof  LlEmptyStmt && !label.equals(currentMethodName)){
 
                     assemblyBuilder.addLabel(symbolTable.getMethodName()+"_"+label);
                 }
-                if(statementCounter == builder.getStatementTable().size()-1){
+                if(statementCounter == reordered.getStatementTable().size()-1){
                     assemblyBuilder.isLastReturn = true;
                 }
-                builder.getStatementTable().get(label).generateCode(assemblyBuilder, frame, symbolTable);
+                reordered.getStatementTable().get(label).generateCode(assemblyBuilder, frame, symbolTable);
                 statementCounter++;
             }
 
