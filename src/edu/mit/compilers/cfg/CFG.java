@@ -366,10 +366,10 @@ public class CFG {
         HashMap<LlLocation, Tuple> recentDef = new HashMap<>();
         buildDefUseRecursive(head, recentDef);
 
-        //Print statements for useDefChains
-        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-        }
+//        //Print statements for useDefChains
+//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+//        }
         return this.defUseChain;
     }
 

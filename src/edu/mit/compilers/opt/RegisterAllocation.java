@@ -214,8 +214,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
-        System.out.println();
-        System.out.println(this.getVarRegisterAllocations());
-        System.out.println();
+//        System.out.println();
+//        System.out.println(this.getVarRegisterAllocations());
+//        System.out.println();
     }
 }
