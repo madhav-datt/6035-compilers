@@ -1,6 +1,6 @@
 package edu.mit.compilers.parallel;
 
-import edu.mit.compilers.LlBuilder;
+import decaf.Parallel.Analyze;
 import edu.mit.compilers.ir.*;
 import edu.mit.compilers.ll.LlStatement;
 
@@ -88,6 +88,88 @@ public class Parallelize {
                 this.lineColNumber, this.lineColNumber);
     }
 
+    //Recursively descend down the Expr tree to get all array access uses
+    private void getArrayAccess(IrExpr expression, ArrayList<IrExpr> indexList, ArrayList<IrLocationArray> locations) {
+        if (expression == null)
+            return;
+
+        if (expression instanceof IrLocationArray) {
+            indexList.add(((IrLocationArray) expression).getElementIndex());
+            locations.add((IrLocationArray) expression);
+        }
+
+        else if (expression instanceof IrOperBinary) {
+            this.getArrayAccess(((IrOperBinary) expression).getLeftOperand(), indexList, locations);
+            this.getArrayAccess(((IrOperBinary) expression).getRightOperand(), indexList, locations);
+        }
+
+        else if (expression instanceof IrOperUnary) {
+            this.getArrayAccess(((IrOperUnary) expression).operand, indexList, locations);
+        }
+    }
+
+    //TODO
+    private ArrayList<Integer> getElementOrder(IrExpr arrayIndex, ArrayList<IrLocationVar> varList) {
+
+    }
+
+    //Check dependencies between passed loop statements to check for conflicts in dependencies
+    private boolean checkDependencyConflicts(ArrayList<IrStatement> statements, ArrayList<IrLocationVar> loopVarList,
+                                             IrIdent loopParallelVar) {
+
+        //Temporarily ignore all loops with more than one statements - potential dependencies too high
+        if (statements.size() > 1)
+            return false;
+
+        IrStatement statement = statements.get(0);
+        ArrayList<IrExpr> elementIndices = new ArrayList<>();
+        ArrayList<IrLocationArray> arrayLocations = new ArrayList<>();
+
+        IrLocation storeLocation = ((IrAssignStmt) statement).getStoreLocation();
+        if (storeLocation instanceof IrLocationArray) {
+            elementIndices.add(((IrLocationArray) storeLocation).getElementIndex());
+        }
+
+        //Get RHS expression for assignment statements
+        IrExpr rightExpr = null;
+        if (statement instanceof IrAssignStmtEqual) {
+            rightExpr = ((IrAssignStmtEqual) statement).getNewValue();
+        }
+
+        else if (statement instanceof IrAssignStmtMinusEqual) {
+            rightExpr = ((IrAssignStmtMinusEqual) statement).getDecrementBy();
+        }
+
+        else if (statement instanceof IrAssignStmtPlusEqual) {
+            rightExpr = ((IrAssignStmtPlusEqual) statement).getIncrementBy();
+        }
+
+        //Extract array access expressions from rightExpr
+        getArrayAccess(rightExpr, elementIndices, arrayLocations);
+
+        for (int i = 0; i < elementIndices.size(); i++) {
+            for (int j = i + 1; j < elementIndices.size(); j++) {
+                ArrayList<Integer> first = this.getElementOrder(elementIndices.get(i), loopVarList);
+                ArrayList<Integer> second = this.getElementOrder(elementIndices.get(j), loopVarList);
+
+                Analyze.AccessPattern result = Analyze.getAccessPattern(first.toArray(new Integer[first.size()]),
+                        second.toArray(new Integer[second.size()]));
+
+                if (!result.distanceExists)
+
+            }
+        }
+
+        //Add loop parallel var to element expr of each array access/use
+        for (IrLocationArray arrayLocation : arrayLocations) {
+            IrExpr parallelIndex = new IrOperBinaryArith("+", arrayLocation.getElementIndex(),
+                    new IrLocationVar(loopParallelVar, this.lineColNumber, this.lineColNumber));
+            arrayLocation.setElementIndex(parallelIndex);
+        }
+
+
+        return true;
+    }
 
     //Only works for perfectly nested loops - all other cases ignored
     //Check if loop variable for innermost loop is only used inside the loop
@@ -96,6 +178,7 @@ public class Parallelize {
     private boolean parallelizeLoop(IrCtrlFlowFor forLoop, IrIdent loopParallelVar, ArrayList<IrLocationVar> loopVarList) {
         ArrayList<IrStatement> loopStatements = forLoop.getStmtBody().getStmtsList();
         loopVarList.add(forLoop.getCounter());
+        boolean innerMostParallel = false;
 
         //If more than one statements, none should be loops
         if (loopStatements.size() > 1) {
@@ -103,36 +186,53 @@ public class Parallelize {
             //Not parallelizable if any statement inside innermost loop is a control flow/jump
             for (IrStatement statement : loopStatements) {
                 if (statement instanceof IrCtrlFlow || statement instanceof IrStmtBreak ||
-                        statement instanceof IrStmtContinue || statement instanceof IrStmtReturn)
+                        statement instanceof IrStmtContinue || statement instanceof IrStmtReturn ||
+                        statement instanceof IrMethodCallStmt)
                     return false;
             }
 
-            //Check for parallelizability for each statement - build dependencies
+            //Check for parallel-izability for each statement - build dependencies
+            if (!this.checkDependencyConflicts(loopStatements, loopVarList, loopParallelVar))
+                innerMostParallel = true;
         }
 
-        //Loop contains a single statement
-        IrStatement statement = loopStatements.get(0);
-        if (statement instanceof IrCtrlFlowFor) {
-            return this.parallelizeLoop((IrCtrlFlowFor) statement, loopParallelVar, loopVarList);
-        }
         else {
-            if (statement instanceof IrCtrlFlow || statement instanceof IrStmtBreak ||
-                    statement instanceof IrStmtContinue || statement instanceof IrStmtReturn)
-                return false;
+            //Loop contains a single statement
+            IrStatement statement = loopStatements.get(0);
+            if (statement instanceof IrCtrlFlowFor) {
+                return this.parallelizeLoop((IrCtrlFlowFor) statement, loopParallelVar, loopVarList);
+            }
+            else {
+                if (statement instanceof IrCtrlFlow || statement instanceof IrStmtBreak ||
+                        statement instanceof IrStmtContinue || statement instanceof IrStmtReturn ||
+                        statement instanceof IrMethodCallStmt)
+                    return false;
 
-            //Check for parallelizability for each statement - build dependencies
-
+                //Check for parallel-izability for each statement - build dependencies
+                if (!this.checkDependencyConflicts(loopStatements, loopVarList, loopParallelVar))
+                    innerMostParallel = true;
+            }
         }
 
-        return true;
-    }
+        //Make modifications to loop call if innermost loop is parallelizable
+        if (innerMostParallel) {
+            IrAssignStmt loopIncrement = forLoop.getCompoundAssignStmt();
+            if (loopIncrement instanceof IrAssignStmtPlusEqual){
+                IrExpr incrementExpr = ((IrAssignStmtPlusEqual) loopIncrement).getIncrementBy();
+                incrementExpr = new IrOperBinaryArith("*", incrementExpr,
+                        new IrLiteralInt(this.numThreads, this.lineColNumber, this.lineColNumber));
+                ((IrAssignStmtPlusEqual) loopIncrement).setIncrementBy(incrementExpr);
+            }
 
+            else if (loopIncrement instanceof IrAssignStmtMinusEqual){
+                IrExpr incrementExpr = ((IrAssignStmtMinusEqual) loopIncrement).getDecrementBy();
+                incrementExpr = new IrOperBinaryArith("*", incrementExpr,
+                        new IrLiteralInt(this.numThreads, this.lineColNumber, this.lineColNumber));
+                ((IrAssignStmtMinusEqual) loopIncrement).setDecrementBy(incrementExpr);
+            }
+            return true;
+        }
 
-    //Check if statement poses a parallelization conflict
-    //Check if statement contains any array access uses/defs
-    //Return true if yes - function can no longer be parallelized
-    private boolean checkStatementConflict(LlStatement statement) {
-        //TODO
         return false;
     }
 
@@ -153,9 +253,6 @@ public class Parallelize {
         IrIdent parallelVar = this.generateParallelizationVariable();
 
         //Get loop distance vectors, check if innermost loop is parallelizable
-
-
-
         for (IrStatement statement : methodDecl.getMethodBody().getStmtsList()) {
             if (statement instanceof IrCtrlFlowFor) {
                 if (this.parallelizeLoop((IrCtrlFlowFor) statement, parallelVar, new ArrayList<>()))

@@ -66,7 +66,7 @@ shift_left:
      # generating code for i = #_t0
      movq   %r12, %r14
 
-shift_left_FOR_COND_L2:
+shift_left_FOR_COND_L3:
      # generating code for #_t1 = i < rows
      movq   rows(%rip), %r10
      movq   %r14, %r11
@@ -76,16 +76,16 @@ shift_left_FOR_COND_L2:
      cmovl  %r10, %r11
      movq   %r11, %r12
 
-     # generating code for if #_t1 goto FOR_L3
+     # generating code for if #_t1 goto FOR_L7
      movq   %r12, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    shift_left_FOR_L3
+     jne    shift_left_FOR_L7
 
-     # generating code for goto END_FOR_L3
-     jmp    shift_left_END_FOR_L3
+     # generating code for goto END_FOR_L35
+     jmp    shift_left_END_FOR_L35
 
-shift_left_FOR_L3:
+shift_left_FOR_L7:
      # generating code for #_t2 = 0
      # generating code for 0
 
@@ -94,7 +94,7 @@ shift_left_FOR_L3:
      # generating code for j = #_t2
      movq   %r13, %r12
 
-shift_left_FOR_COND_L9:
+shift_left_FOR_COND_L10:
      # generating code for #_t3 = 30
      # generating code for 30
 
@@ -115,16 +115,16 @@ shift_left_FOR_COND_L9:
      cmovl  %r10, %r11
      movq   %r11, %r13
 
-     # generating code for if #_t5 goto FOR_L10
+     # generating code for if #_t5 goto FOR_L16
      movq   %r13, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    shift_left_FOR_L10
+     jne    shift_left_FOR_L16
 
-     # generating code for goto END_FOR_L10
-     jmp    shift_left_END_FOR_L10
+     # generating code for goto END_FOR_L30
+     jmp    shift_left_END_FOR_L30
 
-shift_left_FOR_L10:
+shift_left_FOR_L16:
      # generating code for #_t6 = 303
      # generating code for 303
 
@@ -195,10 +195,10 @@ shift_left_FOR_L10:
      # generating code for j = #_t15
      movq   %r13, %r12
 
-     # generating code for goto FOR_COND_L9
-     jmp    shift_left_FOR_COND_L9
+     # generating code for goto FOR_COND_L10
+     jmp    shift_left_FOR_COND_L10
 
-shift_left_END_FOR_L10:
+shift_left_END_FOR_L30:
      # generating code for #_t16 = 1
      # generating code for 1
 
@@ -213,10 +213,10 @@ shift_left_END_FOR_L10:
      # generating code for i = #_t17
      movq   %r12, %r14
 
-     # generating code for goto FOR_COND_L2
-     jmp    shift_left_FOR_COND_L2
+     # generating code for goto FOR_COND_L3
+     jmp    shift_left_FOR_COND_L3
 
-shift_left_END_FOR_L3:
+shift_left_END_FOR_L35:
      # generating code for #_t18 = 0
      # generating code for 0
 
@@ -225,7 +225,7 @@ shift_left_END_FOR_L3:
      # generating code for i = #_t18
      movq   %r12, %r14
 
-shift_left_FOR_COND_L35:
+shift_left_FOR_COND_L38:
      # generating code for #_t19 = i < rows
      movq   rows(%rip), %r10
      movq   %r14, %r11
@@ -235,16 +235,16 @@ shift_left_FOR_COND_L35:
      cmovl  %r10, %r11
      movq   %r11, %r12
 
-     # generating code for if #_t19 goto FOR_L36
+     # generating code for if #_t19 goto FOR_L42
      movq   %r12, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    shift_left_FOR_L36
+     jne    shift_left_FOR_L42
 
-     # generating code for goto END_FOR_L36
-     jmp    shift_left_END_FOR_L36
+     # generating code for goto END_FOR_L65
+     jmp    shift_left_END_FOR_L65
 
-shift_left_FOR_L36:
+shift_left_FOR_L42:
      # generating code for #_t20 = 30
      # generating code for 30
 
@@ -259,7 +259,7 @@ shift_left_FOR_L36:
      # generating code for j = #_t21
      movq   %r13, %r12
 
-shift_left_FOR_COND_L43:
+shift_left_FOR_COND_L46:
      # generating code for #_t22 = j < cols
      movq   cols(%rip), %r10
      movq   %r12, %r11
@@ -269,16 +269,16 @@ shift_left_FOR_COND_L43:
      cmovl  %r10, %r11
      movq   %r11, %r13
 
-     # generating code for if #_t22 goto FOR_L44
+     # generating code for if #_t22 goto FOR_L50
      movq   %r13, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    shift_left_FOR_L44
+     jne    shift_left_FOR_L50
 
-     # generating code for goto END_FOR_L44
-     jmp    shift_left_END_FOR_L44
+     # generating code for goto END_FOR_L60
+     jmp    shift_left_END_FOR_L60
 
-shift_left_FOR_L44:
+shift_left_FOR_L50:
      # generating code for #_t23 = 0
      # generating code for 0
 
@@ -322,10 +322,10 @@ shift_left_FOR_L44:
      # generating code for j = #_t28
      movq   %r13, %r12
 
-     # generating code for goto FOR_COND_L43
-     jmp    shift_left_FOR_COND_L43
+     # generating code for goto FOR_COND_L46
+     jmp    shift_left_FOR_COND_L46
 
-shift_left_END_FOR_L44:
+shift_left_END_FOR_L60:
      # generating code for #_t29 = 1
      # generating code for 1
 
@@ -340,10 +340,10 @@ shift_left_END_FOR_L44:
      # generating code for i = #_t30
      movq   %r12, %r14
 
-     # generating code for goto FOR_COND_L35
-     jmp    shift_left_FOR_COND_L35
+     # generating code for goto FOR_COND_L38
+     jmp    shift_left_FOR_COND_L38
 
-shift_left_END_FOR_L36:
+shift_left_END_FOR_L65:
      movq   -8(%rbp), %rbx
      movq   -16(%rbp), %r13
      movq   -24(%rbp), %r15
@@ -394,7 +394,7 @@ write:
      # generating code for i = #_t3
      movq   %r12, %r14
 
-write_FOR_COND_L5:
+write_FOR_COND_L6:
      # generating code for #_t4 = i < rows
      movq   rows(%rip), %r10
      movq   %r14, %r11
@@ -404,16 +404,16 @@ write_FOR_COND_L5:
      cmovl  %r10, %r11
      movq   %r11, %r12
 
-     # generating code for if #_t4 goto FOR_L6
+     # generating code for if #_t4 goto FOR_L10
      movq   %r12, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    write_FOR_L6
+     jne    write_FOR_L10
 
-     # generating code for goto END_FOR_L6
-     jmp    write_END_FOR_L6
+     # generating code for goto END_FOR_L31
+     jmp    write_END_FOR_L31
 
-write_FOR_L6:
+write_FOR_L10:
      # generating code for #_t5 = 0
      # generating code for 0
 
@@ -422,7 +422,7 @@ write_FOR_L6:
      # generating code for j = #_t5
      movq   %r13, %r12
 
-write_FOR_COND_L12:
+write_FOR_COND_L13:
      # generating code for #_t6 = j < cols
      movq   cols(%rip), %r10
      movq   %r12, %r11
@@ -432,16 +432,16 @@ write_FOR_COND_L12:
      cmovl  %r10, %r11
      movq   %r11, %r13
 
-     # generating code for if #_t6 goto FOR_L13
+     # generating code for if #_t6 goto FOR_L17
      movq   %r13, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    write_FOR_L13
+     jne    write_FOR_L17
 
-     # generating code for goto END_FOR_L13
-     jmp    write_END_FOR_L13
+     # generating code for goto END_FOR_L26
+     jmp    write_END_FOR_L26
 
-write_FOR_L13:
+write_FOR_L17:
      # generating code for #_t7 = 303
      # generating code for 303
 
@@ -483,10 +483,10 @@ write_FOR_L13:
      # generating code for j = #_t12
      movq   %r13, %r12
 
-     # generating code for goto FOR_COND_L12
-     jmp    write_FOR_COND_L12
+     # generating code for goto FOR_COND_L13
+     jmp    write_FOR_COND_L13
 
-write_END_FOR_L13:
+write_END_FOR_L26:
      # generating code for #_t13 = 1
      # generating code for 1
 
@@ -501,10 +501,10 @@ write_END_FOR_L13:
      # generating code for i = #_t14
      movq   %r12, %r14
 
-     # generating code for goto FOR_COND_L5
-     jmp    write_FOR_COND_L5
+     # generating code for goto FOR_COND_L6
+     jmp    write_FOR_COND_L6
 
-write_END_FOR_L6:
+write_END_FOR_L31:
      # generating code for #_t15 = pgm_close()
      movq   $0, %rax
      call   pgm_close
@@ -575,7 +575,7 @@ read:
      # generating code for i = #_t5
      movq   %r12, %r14
 
-read_FOR_COND_L9:
+read_FOR_COND_L10:
      # generating code for #_t6 = i < rows
      movq   rows(%rip), %r10
      movq   %r14, %r11
@@ -585,16 +585,16 @@ read_FOR_COND_L9:
      cmovl  %r10, %r11
      movq   %r11, %r12
 
-     # generating code for if #_t6 goto FOR_L10
+     # generating code for if #_t6 goto FOR_L14
      movq   %r12, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    read_FOR_L10
+     jne    read_FOR_L14
 
-     # generating code for goto END_FOR_L10
-     jmp    read_END_FOR_L10
+     # generating code for goto END_FOR_L36
+     jmp    read_END_FOR_L36
 
-read_FOR_L10:
+read_FOR_L14:
      # generating code for #_t7 = 0
      # generating code for 0
 
@@ -603,7 +603,7 @@ read_FOR_L10:
      # generating code for j = #_t7
      movq   %r13, %r12
 
-read_FOR_COND_L16:
+read_FOR_COND_L17:
      # generating code for #_t8 = j < cols
      movq   cols(%rip), %r10
      movq   %r12, %r11
@@ -613,16 +613,16 @@ read_FOR_COND_L16:
      cmovl  %r10, %r11
      movq   %r11, %r13
 
-     # generating code for if #_t8 goto FOR_L17
+     # generating code for if #_t8 goto FOR_L21
      movq   %r13, %r10
      movq   $0, %r11
      cmp    %r10, %r11
-     jne    read_FOR_L17
+     jne    read_FOR_L21
 
-     # generating code for goto END_FOR_L17
-     jmp    read_END_FOR_L17
+     # generating code for goto END_FOR_L31
+     jmp    read_END_FOR_L31
 
-read_FOR_L17:
+read_FOR_L21:
      # generating code for #_t9 = pgm_get_next_pixel()
      movq   $0, %rax
      call   pgm_get_next_pixel
@@ -665,10 +665,10 @@ read_FOR_L17:
      # generating code for j = #_t14
      movq   %r13, %r12
 
-     # generating code for goto FOR_COND_L16
-     jmp    read_FOR_COND_L16
+     # generating code for goto FOR_COND_L17
+     jmp    read_FOR_COND_L17
 
-read_END_FOR_L17:
+read_END_FOR_L31:
      # generating code for #_t15 = 1
      # generating code for 1
 
@@ -683,10 +683,10 @@ read_END_FOR_L17:
      # generating code for i = #_t16
      movq   %r12, %r14
 
-     # generating code for goto FOR_COND_L9
-     jmp    read_FOR_COND_L9
+     # generating code for goto FOR_COND_L10
+     jmp    read_FOR_COND_L10
 
-read_END_FOR_L10:
+read_END_FOR_L36:
      # generating code for #_t17 = pgm_close()
      movq   $0, %rax
      call   pgm_close

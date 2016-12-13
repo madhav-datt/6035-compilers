@@ -14,7 +14,11 @@ public class IrAssignStmtMinusEqual extends IrAssignStmt {
         return decrementBy;
     }
 
-    private final IrExpr decrementBy;
+    public void setDecrementBy(IrExpr decrementBy) {
+        this.decrementBy = decrementBy;
+    }
+
+    private IrExpr decrementBy;
 
     public IrAssignStmtMinusEqual(IrLocation storeLocation, IrExpr decrementBy) {
         super(storeLocation);

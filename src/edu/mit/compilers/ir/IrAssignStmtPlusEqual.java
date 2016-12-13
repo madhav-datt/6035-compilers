@@ -14,7 +14,11 @@ public class IrAssignStmtPlusEqual extends IrAssignStmt{
         return incrementBy;
     }
 
-    private final IrExpr incrementBy;
+    private IrExpr incrementBy;
+
+    public void setIncrementBy(IrExpr newIncrement) {
+        incrementBy = newIncrement;
+    }
 
     public IrAssignStmtPlusEqual(IrLocation storeLocation, IrExpr incrementBy) {
         super(storeLocation);
