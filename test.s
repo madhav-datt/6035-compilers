@@ -14,12 +14,12 @@ main:
      .cfi_offset 6, -16
      movq   %rsp, %rbp
 
-     subq   $(8*10), %rsp
-     movq   %r13, -32(%rbp)
-     movq   %r14, -24(%rbp)
-     movq   %r12, -16(%rbp)
-     movq   %r15, -8(%rbp)
-     movq   %rbx, 0(%rbp)
+     subq   $(8*14), %rsp
+     movq   %r13, -8(%rbp)
+     movq   %r14, -16(%rbp)
+     movq   %r12, -24(%rbp)
+     movq   %r15, -32(%rbp)
+     movq   %rbx, -40(%rbp)
      # generating code for #_t0 = 0
      # generating code for 0
 
@@ -56,7 +56,7 @@ main_FOR_L3:
      # generating code for x[j]  = j
      # array generating code for x[j]
      movq   %r12, %r10
-     # adding something to -8(%rbp)
+     # adding something to -48(%rbp)
      movq   %r12, %r11
      movq   %r11, x(, %r10, 8)
 
@@ -68,7 +68,7 @@ main_FOR_L3:
      # generating code for y[j]  = #_t3
      # array generating code for y[j]
      movq   %r12, %r10
-     # adding something to -16(%rbp)
+     # adding something to -56(%rbp)
      movq   %r13, %r11
      movq   %r11, y(, %r10, 8)
 
@@ -146,21 +146,21 @@ main_FOR_L18:
      movq   %r14, %r10
      movq   %r13, %r11
      addq   %r10, %r11
-     movq   %r11, %r15
+     movq   %r11, %rbx
 
      # generating code for a = x[#_t12]
      # array generating code for x[#_t12]
-     movq   %r15, %rax
+     movq   %rbx, %rax
      movq   x( ,%rax, 8), %rax
-     movq   %rax, -24(%rbp)
-     movq   -24(%rbp), %r15
+     movq   %rax, -64(%rbp)
+     movq   -64(%rbp), %r15
 
      # generating code for b = x[i]
      # array generating code for x[i]
      movq   %r13, %rax
      movq   x( ,%rax, 8), %rax
-     movq   %rax, -32(%rbp)
-     movq   -32(%rbp), %r14
+     movq   %rax, -72(%rbp)
+     movq   -72(%rbp), %r14
 
      # generating code for #_t13 = 1
      # generating code for 1
@@ -177,8 +177,9 @@ main_FOR_L18:
      # array generating code for x[#_t14]
      movq   %rbx, %rax
      movq   x( ,%rax, 8), %rax
-     movq   %rax, -40(%rbp)
-     movq   -40(%rbp), %rbx
+     movq   %rax, -80(%rbp)
+     movq   -80(%rbp), %r10
+     movq   %r10, -88(%rbp)
 
      # generating code for #_t15 = 2
      # generating code for 2
@@ -204,7 +205,7 @@ main_FOR_L18:
      movq   %r14, %r13
 
      # generating code for #_t18 = d + c
-     movq   %rbx, %r10
+     movq   -88(%rbp), %r10
      movq   %r13, %r11
      addq   %r10, %r11
      movq   %r11, %r14
@@ -215,7 +216,7 @@ main_FOR_L18:
      # generating code for y[i]  = d
      # array generating code for y[i]
      movq   %r13, %r10
-     # adding something to -48(%rbp)
+     # adding something to -96(%rbp)
      movq   %r13, %r11
      movq   %r11, y(, %r10, 8)
 
@@ -275,13 +276,12 @@ main_FOR_L48:
      # array generating code for y[j]
      movq   %r12, %rax
      movq   y( ,%rax, 8), %rax
-     movq   %rax, -56(%rbp)
-     movq   -56(%rbp), %r10
+     movq   %rax, -104(%rbp)
+     movq   -104(%rbp), %r10
      movq   %r10, %rsi
      movq   $0, %rax
      call   printf
-     movq   %rax, -64(%rbp)
-
+     movq   %rax, %r13
      # generating code for #_t26 = 1
      # generating code for 1
 
@@ -304,13 +304,12 @@ main_END_FOR_L48:
      movq   $.STR_0, %rdi
      movq   $0, %rax
      call   printf
-     movq   %rax, -72(%rbp)
-
-     movq   -32(%rbp), %r13
-     movq   -24(%rbp), %r14
-     movq   -16(%rbp), %r12
-     movq   -8(%rbp), %r15
-     movq   0(%rbp), %rbx
+     movq   %rax, %r12
+     movq   -8(%rbp), %r13
+     movq   -16(%rbp), %r14
+     movq   -24(%rbp), %r12
+     movq   -32(%rbp), %r15
+     movq   -40(%rbp), %rbx
      leave
      .cfi_def_cfa 7, 8
      ret

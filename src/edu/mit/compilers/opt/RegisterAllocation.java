@@ -93,18 +93,20 @@ public class RegisterAllocation {
                     for (CFG.Tuple varUses : duChain.getValue()){
                         otherVarUseList.add(this.getLabelNum(varUses.label));
                     }
+                    otherVarUseList.add(defOtherVar);
 
                     //Handle zero len case separately
                     //No conflict if other var is never used
-                    if (otherVarUseList.size() == 0) {
-                        break;
-                    }
+//                    if (otherVarUseList.size() == 0) {
+//                        break;
+//                    }
 
                     int maxUseOtherVar = Collections.max(otherVarUseList);
+                    int minUseOtherVar = Collections.min(otherVarUseList);
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
                     for (int varDefUses : duVar) {
-                        if (varDefUses >= defOtherVar && varDefUses <= maxUseOtherVar) {
+                        if (varDefUses >= minUseOtherVar && varDefUses <= maxUseOtherVar) {
                             return true;
                         }
                     }
@@ -125,6 +127,12 @@ public class RegisterAllocation {
 
             //Eliminate string variables
             if (var.toString().length() > 4 && var.toString().substring(0, 4).equals("#str")) {
+                this.varUsageCount.remove(var);
+                continue;
+            }
+
+            //Eliminate array location variables
+            if (var instanceof LlLocationArray) {
                 this.varUsageCount.remove(var);
                 continue;
             }
@@ -215,7 +223,7 @@ public class RegisterAllocation {
 
         this.allocateRegisters();
 //        System.out.println();
-        System.out.println(this.getVarRegisterAllocations());
+//        System.out.println(this.getVarRegisterAllocations());
 //        System.out.println();
     }
 }

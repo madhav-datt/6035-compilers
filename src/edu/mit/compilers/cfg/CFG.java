@@ -264,6 +264,11 @@ public class CFG {
             ArrayList<Tuple> useList = this.defUseChain.get(new SymbolDef((LlLocation) arg, latestDef));
             useList.add(currentUseDefLocation);
         }
+
+        if (arg instanceof LlLocationArray) {
+            LlLocationVar indexArg = ((LlLocationArray) arg).getElementIndex();
+            this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+        }
     }
 
     //Recursively (DFS) build defUseChains
@@ -367,9 +372,9 @@ public class CFG {
         buildDefUseRecursive(head, recentDef);
 
 //        //Print statements for useDefChains
-//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-//        }
+        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
+            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
+        }
         return this.defUseChain;
     }
 
