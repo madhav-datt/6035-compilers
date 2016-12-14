@@ -51,24 +51,40 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
         return this.operator.hashCode() * this.operand.hashCode() * this.storeLocation.hashCode();
     }
 
+    private boolean isRegister(String loc){
+        String r = "%r12 %r13 %r14 %r15 %rbx";
+        return r.contains(loc);
+
+    }
+
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         // compute the value of the expression and figure out where it is stored
+        String copyFrom = "";
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.operand.generateCode(builder, frame, symbolTable);
 
+        if(isRegister(exprResultLocation)){
+            copyFrom = exprResultLocation;
+
+        }
+        else{
+            copyFrom = "%r10";
+            builder.addLinef("movq", exprResultLocation + ", %r10");
+        }
+
         String returnLocation;
         if(this.operator.equals("!")){
-            builder.addLinef("movq", exprResultLocation + ", %r10");
-            builder.addLinef("xorq", "$1, %r10");
 
-            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
+            builder.addLinef("xorq", "$1, "+copyFrom);
+
+            returnLocation = builder.optimizedStore(this.storeLocation, copyFrom, frame);
             builder.addLine();
             return returnLocation;
         }
         else if(this.operator.equals("-")){
-            builder.addLinef("movq", exprResultLocation + ", %r10");
+            builder.addLinef("movq", exprResultLocation + ", "+copyFrom);
             builder.addLinef("neg",  "%r10");
-            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
+            returnLocation = builder.optimizedStore(this.storeLocation, copyFrom, frame);
             builder.addLine();
             return returnLocation;
         }
