@@ -13,7 +13,7 @@ public class GlobalDCE {
 
     // mutates the CFG by performing Global Dead Code Elimination
     public static void performGlobalDeadCodeElimination(CFG cfg) {
-        HashMap<BasicBlock, HashSet<Tuple>> deadCodeMap = LivenessAnalysis.getLivenessAnalysisForCFG(cfg);
+        HashMap<BasicBlock, HashSet<BlockLabelPair>> deadCodeMap = LivenessAnalysis.getLivenessAnalysisForCFG(cfg);
 
         // TODO: Make sure that you do not remove assignment stmts for variables from other scopes
         // for example, i = 5 might look like dead code but it's not if i was declared in the scope
@@ -22,10 +22,10 @@ public class GlobalDCE {
         // iterate through each basic block where there is dead code
         for (BasicBlock bb : deadCodeMap.keySet()) {
             LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
-            HashSet<Tuple> deadCode = deadCodeMap.get(bb);
+            HashSet<BlockLabelPair> deadCode = deadCodeMap.get(bb);
 
             // loop through each line of dead code and erase it
-            for (Tuple tuple : deadCode) {
+            for (BlockLabelPair tuple : deadCode) {
                 String label = tuple.getLabel();
                 LlStatement stmt = labelsToStmtsMap.get(label);
 

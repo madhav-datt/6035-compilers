@@ -4,6 +4,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
+import edu.mit.compilers.cfg.GlobalDCE;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.ll.LlLocation;
@@ -245,8 +246,9 @@ class Main {
             for (LlBuilder builder : buildersList) {
                 CFG cfg = new CFG(builder);
                 GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
                 GlobalCP.performGlobalCP(cfg);
+                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
+                GlobalDCE.performGlobalDeadCodeElimination(cfg);
                 System.out.println(cfg.toString());
             }
 

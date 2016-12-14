@@ -7,19 +7,23 @@ int get_int ( int x ) {
 bool get_bool ( bool x ) {
   return x;
 }
-int foo ( ) {
-  int a, b, c, i, d;
-  bool x;
-  d = a+b;
-  for (i = 1; i < 20; i += 1) {
-    a = 3;
-    c = c+i*i* ( a+b );
-  }
-  c = c + 10* ( a+b );
-  return c+d;
-}
 void main ( ) {
-  int c;
-  c = foo ( );
+  int a, b, c, d, e;
+  bool x;
+  a = get_int ( 7 );
+  b = get_int ( 4 );
+  x = get_bool ( true );
+  c = 0;
+  d = 0;
+  e = 0;
+  c = a % b;
+  if ( x ) {
+    d = a % b;
+  }
+  else {
+    e = a % b;
+  }
   printf ( "%d\n", c );
+  printf ( "%d\n", d );
+  printf ( "%d\n", e );
 }

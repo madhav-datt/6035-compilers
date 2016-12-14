@@ -1,6 +1,8 @@
 package edu.mit.compilers;
 
 import edu.mit.compilers.cfg.CFG;
+import edu.mit.compilers.cfg.GlobalCP;
+import edu.mit.compilers.cfg.GlobalCSE;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
 import edu.mit.compilers.opt.RegisterAllocation;
@@ -8,6 +10,7 @@ import edu.mit.compilers.opt.RegisterAllocation;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by abel on 10/22/16.
@@ -55,8 +58,15 @@ public class CodeGenerator {
         for(LlBuilder builder : buildersList.getBuilders()){
 
             CFG cfg = new CFG(builder);
-//
+            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
+            GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//            cfg.buildDefUseChains();
+            GlobalCP.performGlobalCP(cfg);
+            System.out.println(cfg.toString());
+//            cfg.buildDefUseChains();
+
             LlBuilder reordered = cfg.reorderLables();
+            System.out.println(reordered.toString());
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
@@ -128,7 +138,7 @@ public class CodeGenerator {
 
         }
         assembled += assemblyBuilder.assemble();
-        System.out.println(assemblyBuilder.assemble());
+//        System.out.println(assemblyBuilder.assemble());
         return assembled;
     }
 

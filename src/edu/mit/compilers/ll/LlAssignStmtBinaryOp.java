@@ -5,6 +5,8 @@ import edu.mit.compilers.AssemblyBuilder;
 import edu.mit.compilers.LlSymbolTable;
 import edu.mit.compilers.StackFrame;
 
+import java.util.ArrayList;
+
 /**
  * Created by devinmorgan on 11/18/16.
  */
@@ -112,47 +114,64 @@ public class LlAssignStmtBinaryOp extends LlAssignStmt{
         return opers.contains(operation);
     }
 
-    public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
+    private boolean isRegister(String loc){
+        String r = "%r12 %r13 %r14 %r15 %rbx";
+        return r.contains(loc);
 
+    }
+
+    public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
+        String outPutReg = "";
+        String copyFrom = "";
         // compute the value of the expression and figure out where it is stored
         String leftExprResultStorageLoc = this.leftOperand.generateCode(builder, frame, symbolTable);
         String rightExprResultStorageLoc = this.rightOperand.generateCode(builder, frame, symbolTable);
 
         builder.addComment("generating code for " + this.toString());
 
-        builder.addLinef("movq",rightExprResultStorageLoc + ", %r10");
+
+        if(isRegister(rightExprResultStorageLoc)){
+            copyFrom = rightExprResultStorageLoc;
+        }
+        else{
+            builder.addLinef("movq",rightExprResultStorageLoc + ", %r10");
+            copyFrom = "%r10";
+        }
+
         builder.addLinef("movq",leftExprResultStorageLoc + ", %r11");
 
         if(!isComparison(this.operation)) {
             if(this.operation.equals("/")){
                 builder.addLinef("movq", "%r11, %rax");
                 builder.addLinef("cqo", "");
-                builder.addLinef("idivq", "%r10");
-                builder.addLinef("movq", "%rax, %r11");
+                builder.addLinef("idivq", copyFrom);
+                outPutReg = "%rax";
             }
             else if(this.operation.equals("%")){
                 builder.addLinef("movq", "%r11, %rax");
                 builder.addLinef("cqo", "");
-                builder.addLinef("idivq", "%r10");
-                builder.addLinef("movq", "%rdx, %r11");
+                builder.addLinef("idivq", copyFrom);
+                outPutReg = "%rdx";
             }
             else{
-                builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
+                builder.addLinef(this.getCommand(this.operation), copyFrom+", %r11");
+                outPutReg = "%r11";
             }
 
         }
         else{
 
-            builder.addLinef("cmp", "%r10, %r11");
+            builder.addLinef("cmp", copyFrom +", %r11");
             builder.addLinef("movq", "$0, %r11");
             builder.addLinef("movq", "$1, %r10");
             builder.addLinef(this.getCommand(this.operation), "%r10, %r11");
+            outPutReg = "%r11";
         }
 
 //        String resultTemp = frame.getNextStackLocation();
 //        frame.pushToStackFrame(this.storeLocation);
 //        builder.addLinef("movq", "%r11, " + resultTemp);
-         String storedIn =  builder.optimizedStore(this.storeLocation, "%r11", frame);
+         String storedIn =  builder.optimizedStore(this.storeLocation, outPutReg, frame);
 
         builder.addLine();
 

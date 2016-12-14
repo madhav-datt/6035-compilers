@@ -168,16 +168,31 @@ public class CFG {
         }
     }
 
+    public LlBuilder getBuilder() {
+
+        // in case any optimizations have occurred, make sure to update
+        // the LlBuilder's statementsTable in case some optimizations have occurred
+        LinkedHashMap<String, LlStatement> updatedMap = new LinkedHashMap<>();
+
+        // loop through the BasicBlocks in their linear order, and for
+        // each LlStatement, add it to the updatedMap
+        for (BasicBlock bb : this.basicBlocks) {
+            for (String label : bb.getLabelsToStmtsMap().keySet()) {
+                LlStatement stmt = bb.getLabelsToStmtsMap().get(label);
+                updatedMap.put(label, stmt);
+            }
+        }
+        this.builder.setStatementTable(updatedMap);
+
+        return this.builder;
+    }
+
     public BasicBlock getRootBasicBlock() {
         return this.basicBlocks.get(0);
     }
 
     public ArrayList<BasicBlock> getBasicBlocks() {
         return this.basicBlocks;
-    }
-
-    public LlBuilder getBuilder() {
-        return builder;
     }
 
     @Override
@@ -406,8 +421,8 @@ public class CFG {
         buildDefUseRecursive(head, recentDef);
 
         //All uses and defs in statement happen at this location
-        Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
-
+//        Tuple firstUseDefLocation = new Tuple(blockLabels.get(head), "L0");
+//
 //        for (LlLocationVar paramArg : this.paramsList) {
 //            SymbolDef currentSymbolDef = new SymbolDef(paramArg, firstUseDefLocation);
 //            recentDef.put(paramArg, firstUseDefLocation);
@@ -418,7 +433,7 @@ public class CFG {
         for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
             System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
         }
-        return this.defUseChain;
+        return new HashMap<SymbolDef, ArrayList<Tuple>>(this.defUseChain);
     }
 
     //Build use-def chains for each symbol from updated/changed LlBuilder
@@ -464,8 +479,9 @@ public class CFG {
     public LlBuilder reorderLables(){
         int counter = 0;
         Hashtable<String, String> oldToNew = new Hashtable<>();
-        LlBuilder newBuilder = new LlBuilder(this.builder.getName());
-        for(String lable : this.builder.getStatementTable().keySet()){
+        LlBuilder currentBuilder = this.getBuilder();
+        LlBuilder newBuilder = new LlBuilder(currentBuilder.getName());
+        for(String lable : currentBuilder.getStatementTable().keySet()){
             String newLabel = lable;
             Pattern p = Pattern.compile("[\\d]+");
 
@@ -473,7 +489,7 @@ public class CFG {
             Matcher m = p.matcher(lable);
             newLabel = m.replaceAll(Integer.toString(counter++));
             oldToNew.put(lable, newLabel);
-            newBuilder.appendStatement(newLabel, this.builder.getStatementTable().get(lable));
+            newBuilder.appendStatement(newLabel, currentBuilder.getStatementTable().get(lable));
         }
         for(String newLabel : newBuilder.getStatementTable().keySet()){
             LlStatement currentStatement = newBuilder.getStatementTable().get(newLabel);
