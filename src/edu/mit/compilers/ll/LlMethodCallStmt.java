@@ -95,27 +95,38 @@ public class LlMethodCallStmt extends LlStatement {
                 }
 
             }
-            else{
-                if(((LlLocationVar) argsList.get(i)).isStringLoc()){
+            else {
+                if (argsList.get(i) instanceof LlLocationVar) {
+                    if(((LlLocationVar) argsList.get(i)).isStringLoc()) {
 
-                    String storedStringLabel = builder.getFromStringTable(symbolTable.getMethodName()+"_"+((LlLocationVar) argsList.get(i)).getVarName());
-                    if(i < 6) {
-                        builder.addLinef("movq", "$"+storedStringLabel + ", " + paramRegs[i]);
+                        String storedStringLabel = builder.getFromStringTable(symbolTable.getMethodName()+"_"+((LlLocationVar) argsList.get(i)).getVarName());
+                        if(i < 6) {
+                            builder.addLinef("movq", "$"+storedStringLabel + ", " + paramRegs[i]);
+                        }
+                        else{
+                            argPushStack.push(storedStringLabel);
+                        }
+                        while(argPushStack.size() > 0){
+                            builder.addLinef("push",  argPushStack.pop());
+                        }
                     }
-                    else{
-                        argPushStack.push(storedStringLabel);
-                    }
-                    while(argPushStack.size() > 0){
-                        builder.addLinef("push",  argPushStack.pop());
+                    else {
+
+                        String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
+                        if(i < 6) {
+                            builder.addLinef("movq", storageLoc + ", " + paramRegs[i]);
+                        }
+                        else{
+                            argPushStack.push(storageLoc);
+                        }
                     }
                 }
-                else{
-
+                else {
                     String storageLoc = argsList.get(i).generateCode(builder, frame, symbolTable);
                     if(i < 6) {
                         builder.addLinef("movq", storageLoc + ", " + paramRegs[i]);
                     }
-                    else{
+                    else {
                         argPushStack.push(storageLoc);
                     }
                 }

@@ -33,6 +33,10 @@ public class LlBuilder {
         return this.name;
     }
 
+    public void setStatementTable(LinkedHashMap<String, LlStatement> statementTable) {
+        this.statementTable = statementTable;
+    }
+
     // Add to the end of the list
 
     public void appendStatement(LlStatement statement){
