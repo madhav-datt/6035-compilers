@@ -74,6 +74,10 @@ public class LlReturn extends LlStatement {
     public boolean equals(Object obj) {
         if (obj instanceof LlReturn) {
             LlReturn that = (LlReturn) obj;
+
+            if (this.returnValue == null || that.returnValue == null) {
+                return this.returnValue == null && that.returnValue == null;
+            }
             return this.returnValue.equals(that.returnValue);
         }
         return false;
