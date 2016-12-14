@@ -8,14 +8,14 @@ import edu.mit.compilers.StackFrame;
  * Created by devinmorgan on 11/18/16.
  */
 public class LlLocationArray extends LlLocation {
-    private final LlLocationVar elementIndex;
+    private final LlComponent elementIndex;
 
-    public LlLocationArray(String varName, LlLocationVar elementIndex) {
+    public LlLocationArray(String varName, LlComponent elementIndex) {
         super(varName);
         this.elementIndex = elementIndex;
     }
 
-    public LlLocationVar getElementIndex() {
+    public LlComponent getElementIndex() {
         return this.elementIndex;
     }
 

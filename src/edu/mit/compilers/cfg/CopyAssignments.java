@@ -25,11 +25,12 @@ public class CopyAssignments {
 
         // 2) perform the worklist algorithm
 
-        // IN[n] = E for all nodes
+        // IN[n] = E for all nodes,  OUT[n] = empty for all nodes
         for (BasicBlock bb: bbList) {
             this.availCopyIN.put(
                     bb, new HashSet<>(this.universalSet) // prevent mutability issues
             );
+            this.availCopyOUT.put(bb, new HashSet<>());
         }
 
         ArrayList<BasicBlock> activeNodes = new ArrayList<>(bbList);
@@ -52,7 +53,7 @@ public class CopyAssignments {
             HashSet<Quadruple> oldOUT = this.availCopyOUT.get(node);
 
             // IN[n] = IN[n] intersect OUT[p] for all p in predecessors
-            HashSet<Quadruple> IN = new HashSet<>(this.universalSet); // IN[n] = E
+            HashSet<Quadruple> IN = this.availCopyIN.get(node); // IN[n] = E
             for (BasicBlock pred : node.getPredecessors()) {
                 IN.retainAll(this.availCopyOUT.get(pred));
             }
@@ -75,7 +76,7 @@ public class CopyAssignments {
             this.availCopyOUT.put(node, COPYplusINminusKILL);
 
             // if OUT[n] changed, add its successors to activeNodes
-            if (!this.availCopyOUT.equals(oldOUT)) {
+            if (!this.availCopyOUT.get(node).equals(oldOUT)) {
                 if (node.getDefaultBranch() != null) {
                     activeNodes.add(node.getDefaultBranch());
                 }
@@ -97,7 +98,7 @@ public class CopyAssignments {
             // populate the copyTable for the BasicBlock
             for (Quadruple quad : ae.availCopyIN.get(bb)) {
                 LlLocationVar u = quad.getU();
-                LlLocationVar v = quad.getV();
+                LlComponent v = quad.getV();
                 copyTable.put(u, v);
             }
             bbToCopyTableMap.put(bb, copyTable);
@@ -111,100 +112,54 @@ public class CopyAssignments {
     // neither u nor v is assigned to later in the block
     private HashSet<Quadruple> COPY(BasicBlock bb) {
         LinkedHashMap<String, LlStatement> labelsToStmtsMap = bb.getLabelsToStmtsMap();
-        HashSet<LlLocationVar> candidates = new HashSet<>();
-        HashMap<String, Quadruple> labelToQuadMap = new HashMap<>();
-        ArrayList<String> reverseOrderStmts = new ArrayList<>(labelsToStmtsMap.keySet());
+        HashSet<Quadruple> copyAssignCandidates = new HashSet<>();
 
-        // TODO: Figure out how to handle a[i] = b[i]...That is, figure out arrays!!
-
-        // 1) loop through all the stmts backwards
-        for (int i = reverseOrderStmts.size()-1; i >=0; i--) {
-            String label = reverseOrderStmts.get(i);
-            LlStatement instr = labelsToStmtsMap.get(label);
-
-            // 2) add all LlLocationVars in the RHS of the assignment
-            //      stmts to the candidates set of LlLocationVars
-            if (instr instanceof LlAssignStmtRegular) {
-                LlAssignStmtRegular regular = (LlAssignStmtRegular) instr;
-                if (regular.getOperand() instanceof LlLocationVar) {
-                    LlLocationVar var = (LlLocationVar) regular.getOperand();
-                    candidates.add(var);
-                }
-            } else if (instr instanceof LlAssignStmtUnaryOp) {
-                LlAssignStmtUnaryOp unary = (LlAssignStmtUnaryOp) instr;
-                if (unary.getOperand() instanceof LlLocationVar) {
-                    LlLocationVar var = (LlLocationVar) unary.getOperand();
-                    candidates.add(var);
-                }
-            } else if (instr instanceof LlAssignStmtBinaryOp) {
-                LlAssignStmtBinaryOp binary = (LlAssignStmtBinaryOp) instr;
-
-                if (binary.getLeftOperand() instanceof LlLocationVar) {
-                    LlLocationVar var = (LlLocationVar) binary.getLeftOperand();
-                    candidates.add(var);
-                }
-
-                if (binary.getRightOperand() instanceof LlLocationVar) {
-                    LlLocationVar var = (LlLocationVar) binary.getRightOperand();
-                    candidates.add(var);
-                }
-            }
-
-            // 3) if you see an LlAssignmentStmtRegular (i.e. u <-- v)
-            //      and u is in the candidate set, add (u,v, block, label)
-            //      to the set of qualified candidate sets
-            if (instr instanceof LlAssignStmtRegular) {
-                LlAssignStmtRegular regular = (LlAssignStmtRegular) instr;
-                if (regular.getStoreLocation() instanceof LlLocationVar) {
-                    LlLocationVar u = (LlLocationVar) regular.getStoreLocation();
-
-                    if (candidates.contains(u)) {
-                        LlLocationVar v = (LlLocationVar) regular.getOperand();
-                        Quadruple quad = new Quadruple(u, v, bb, label);
-                        labelToQuadMap.put(label, quad);
-                    }
-                }
-            }
-        }
-
-        // 4) loop through all the stmts forwards now to remove invalid candidates
-        HashSet<Quadruple> mightNeedToRemoveSet = new HashSet<>();
+        // check each stmt to see if it is a copy Assignment
         for (String label : labelsToStmtsMap.keySet()) {
             LlStatement stmt = labelsToStmtsMap.get(label);
 
-            // 5) add a quad (u,v,block,label) to mightNeedToRemoveSet
-            //      once you have passed the stmt whose label is label
-            if (labelToQuadMap.containsKey(label)) {
-                Quadruple quad = labelToQuadMap.get(label);
-                mightNeedToRemoveSet.add(quad);
-            }
-
-            // 6) remove all qualified candidates where the u or v
-            //      is a storeLoc for any LlAssignmentStmt if the
-            //      if we've passed the stmt u <-- v already
+            // we only care about assignment statements
             if (stmt instanceof LlAssignStmt) {
                 LlAssignStmt assignStmt = (LlAssignStmt) stmt;
-                if (assignStmt.getStoreLocation() instanceof LlLocationVar) {
-                    LlLocationVar var = (LlLocationVar) assignStmt.getStoreLocation();
 
-                    // remove the quad if var is either u or v
-                    for (String l : labelToQuadMap.keySet()) {
-                        Quadruple quad = labelToQuadMap.get(l);
-                        if (quad.containsVar(var)) {
-                            labelToQuadMap.remove(l);
+                // first check to see if any existing Quadruples become invalid
+                // as a result of the current assignment (or re-assignment)
+                if (assignStmt.getStoreLocation() instanceof LlLocationVar) {
+                    LlLocationVar storeLoc = (LlLocationVar) assignStmt.getStoreLocation();
+
+                    // the u or v just got reassigned in this stmt, remove the corresponding Quadruple
+                    for (Quadruple quad : new HashSet<>(copyAssignCandidates)) {
+                        if (quad.containsVar(storeLoc)) {
+                            copyAssignCandidates.remove(quad);
                         }
                     }
                 }
+
+                // check each LlAssignStmtRegular in case it is a copyAssignment
+                if (stmt instanceof LlAssignStmtRegular) {
+                    LlAssignStmtRegular stmtRegular = (LlAssignStmtRegular) stmt;
+
+                    // if the AssignStmt is qualified to be a copyAssignment,
+                    // make a quad and add it to the candidates list
+                    if (!(stmtRegular.getStoreLocation() instanceof LlLocationArray)
+                            && !(stmtRegular.getOperand() instanceof LlLocationArray)) {
+
+                        LlLocationVar u = (LlLocationVar) stmtRegular.getStoreLocation();
+                        LlComponent v = stmtRegular.getOperand();
+                        Quadruple quad = new Quadruple(u, v, bb, label);
+                        copyAssignCandidates.add(quad);
+                    }
+                }
             }
+
         }
 
-        // 7) return the set of remaining qualified candidates
-        HashSet<Quadruple> validCopyAssignments = new HashSet<>();
-        for (String label : labelToQuadMap.keySet()) {
-            Quadruple quad = labelToQuadMap.get(label);
-            validCopyAssignments.add(quad);
-        }
-        return validCopyAssignments;
+        return copyAssignCandidates;
+        // 1) loop through each stmt and look for IrAssignStmtRegular's.
+        // 2) Create a quadruple for each u <-- v and add it to the candidates set
+        // 3) any time you see an IrAssignStmt, check each Quadruple in the candidates set to see if the
+        // storeLocation is the u or v in (u, v, i, pos). if it is, remove that Quadruple from the candidates set
+        // 4) all candidates that did not get reassigned, constitue the COPY(i) set
     }
 
     // returns the set of Quadruples (u, v, block, pos) of copy
@@ -221,17 +176,15 @@ public class CopyAssignments {
             // for some Quadruple (u ,v, ..., ...)
             if (stmt instanceof LlAssignStmt) {
                 LlAssignStmt assignStmt = (LlAssignStmt) stmt;
+
                 if (assignStmt.getStoreLocation() instanceof LlLocationVar) {
                     LlLocationVar var = (LlLocationVar) assignStmt.getStoreLocation();
+
+                    // add to the killedSet all quads that did not originate in this BasicBlock
+                    // and whose u or v get reassigned by the current assignStmt
                     for (Quadruple quad : superSet) {
-
-                        // don't consider Quads if block == bb
-                        if (!quad.getBlock().equals(bb)) {
-
-                            // if either u or v gets reassigned, add quad to the killed set
-                            if (quad.containsVar(var)) {
-                                killedSet.add(quad);
-                            }
+                        if (quad.getBlock() != bb && quad.containsVar(var)) {
+                            killedSet.add(quad);
                         }
                     }
                 }
@@ -244,11 +197,11 @@ public class CopyAssignments {
         // the quadruple is of the form
         // (u, v, i, pos) which represents u <-- v; @ instruction pos in block i
         private final LlLocationVar u;
-        private final LlLocationVar v;
+        private final LlComponent v;
         private final BasicBlock block;
         private final String stmtLabel;
 
-        public Quadruple(LlLocationVar u, LlLocationVar v, BasicBlock block, String stmtLabel) {
+        public Quadruple(LlLocationVar u, LlComponent v, BasicBlock block, String stmtLabel) {
             this.u = u;
             this.v = v;
             this.block = block;
@@ -259,7 +212,7 @@ public class CopyAssignments {
             return this.u;
         }
 
-        public LlLocationVar getV() {
+        public LlComponent getV() {
             return this.v;
         }
 
@@ -269,6 +222,27 @@ public class CopyAssignments {
 
         public BasicBlock getBlock() {
             return block;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + this.u.toString() + ", " + this.v.toString() + ")";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Quadruple) {
+                Quadruple that = (Quadruple) obj;
+
+                // two quadruples will be equal if they have equivalent u and v's
+                return this.u.equals(that.u);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.u.hashCode();
         }
     }
 }

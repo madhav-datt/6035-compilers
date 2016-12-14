@@ -69,4 +69,18 @@ public class LlReturn extends LlStatement {
 
         return "%rax";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LlReturn) {
+            LlReturn that = (LlReturn) obj;
+            return this.returnValue.equals(that.returnValue);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.returnValue.hashCode();
+    }
 }
