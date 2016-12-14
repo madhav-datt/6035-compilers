@@ -4,6 +4,7 @@ import edu.mit.compilers.cfg.*;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
 import edu.mit.compilers.opt.RegisterAllocation;
+import edu.mit.compilers.parallel.Parallelize;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,25 +17,16 @@ import java.util.HashSet;
 public class CodeGenerator {
 
     // get the High Level Ir Program
-    public String generateCode(IrProgram program, String options){
+    public String generateCode(IrProgram program, ArrayList<String> options){
         String assembled = "";
         LlBuildersList buildersList = program.getLlBuilders();
 
         ArrayList<String> givenRegisters = new ArrayList<>();
         HashMap<String, ArrayList<LlLocationVar>> methodParams = program.getMethodArgs();
-        if(options.contains("reg")){
-            System.out.println("in reg");
-            String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
-            for (String reg : registers){
-                givenRegisters.add(reg);
-            }
-        }
-        else{
-            String registers[] = {};
-            for (String reg : registers){
-                givenRegisters.add(reg);
-            }
-        }
+
+        String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
+        String empty[] = {};
+
 
 
 
@@ -65,38 +57,55 @@ public class CodeGenerator {
 
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
 
+            if(options.contains("reg")){
+
+                for (String reg : registers){
+                    givenRegisters.add(reg);
+                }
+
+            }
+            else{
+                for (String reg : empty){
+                    givenRegisters.add(reg);
+                }
+            }
             if(options.contains("cse")){
-                System.out.println("in cse");
+
                 GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
             }
 
             if(options.contains("cp")){
-                System.out.println("in cp");
-                GlobalCP.performGlobalCP(cfg);
+
+                GlobalCP.performGlobalCP(cfg, globalVArs);
             }
 
             if(options.contains("dce")){
-                System.out.println("in dce");
-                GlobalDCE.performGlobalDCE(cfg);
+
+                GlobalDCE.performGlobalDeadCodeElimination(cfg);
             }
 
             if(options.contains("ure")){
-                System.out.println("in cp");
+
                 GlobalURE.performGlobalURE(cfg);
             }
 
             if(options.contains("as")){
-                System.out.println("in as");
+
                 AlgebraicSimplifications.performAlgebraicSimplifications(cfg);
+            }
+            if(options.contains("par")){
+                (new Parallelize(program)).getProgram();
             }
 
             if(options.contains("all")){
-
+                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+                GlobalCP.performGlobalCP(cfg, globalVArs);
+                GlobalURE.performGlobalURE(cfg);
             }
 
             LlBuilder reordered = cfg.reorderLables();
-            RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
+            RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
 
             assemblyBuilder.updateRegisterAllocationTable(varRegAllocs);

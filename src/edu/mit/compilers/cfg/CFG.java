@@ -430,15 +430,7 @@ public class CFG {
 //        }
 
 //        //Print statements for useDefChains
-<<<<<<< HEAD
-        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-        }
-=======
-//        for (Map.Entry<SymbolDef, ArrayList<Tuple>> chain : this.defUseChain.entrySet()) {
-//            System.out.println(chain.getKey().toString() + " -> " + chain.getValue().toString());
-//        }
->>>>>>> c21b428f8a907961d76ef332b5779aebcf62f004
+
         return new HashMap<SymbolDef, ArrayList<Tuple>>(this.defUseChain);
     }
 

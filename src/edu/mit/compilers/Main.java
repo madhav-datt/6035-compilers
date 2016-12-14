@@ -26,8 +26,9 @@ class Main {
 
     public static void testParserCode(String[] args) {
         try {
-            String[] opts = {"reg", "cp", "cse", "as"};
-            CLI.parse(args, opts);
+            String[] flags = {"reg", "cp", "cse", "as", "ure", "par"};
+            CLI.parse(args, flags);
+            System.out.println();
             InputStream inputStream = args.length == 0 ?
                     System.in : new java.io.FileInputStream(CLI.infile);
             PrintStream outputStream = CLI.outfile == null ? System.out : new java.io.PrintStream(new java.io.FileOutputStream(CLI.outfile));
@@ -115,18 +116,11 @@ class Main {
                 DecafListener listener = new DecafListener();
 
                 walker.walk(listener, tree);
-                String options = "";
-
-                for(int i =0; i<CLI.opts.length; i++){
-                    if(CLI.opts[i])
-                        options+= opts[i];
-                }
-
 
                 // get the program fro the listener
                 IrProgram program = listener.getGeneratedProgram();
                 CodeGenerator cg = new CodeGenerator();
-                String generatedCode = cg.generateCode(program, options);
+                String generatedCode = cg.generateCode(program, CLI.options);
 
 
                 if (CLI.outfile != null){
@@ -157,7 +151,7 @@ class Main {
                 }
 
                 if (CLI.debug) {
-                    // System.out.println(listener.prettyPrintProgram());
+                     System.out.println(listener.prettyPrintProgram());
                 }
 
 //            Trees.inspect(tree, parser); // Makes pretty graph
@@ -260,6 +254,7 @@ class Main {
 
     public static void main(String[] args) {
         // Run program based on CLI and shell scripts
+
         Main.testParserCode(args);
 
 //        // Code generation tests
