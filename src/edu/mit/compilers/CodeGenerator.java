@@ -60,7 +60,7 @@ public class CodeGenerator {
             CFG cfg = new CFG(builder);
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
             GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-//            cfg.buildDefUseChains();
+            cfg.buildDefUseChains();
             GlobalCP.performGlobalCP(cfg);
 //            System.out.println(cfg.toString());
 //            cfg.buildDefUseChains();
