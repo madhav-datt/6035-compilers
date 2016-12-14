@@ -60,13 +60,12 @@ public class CodeGenerator {
             CFG cfg = new CFG(builder);
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
             GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-//            cfg.buildDefUseChains();
             GlobalCP.performGlobalCP(cfg, globalVArs);
-            System.out.println(cfg.toString());
+//            System.out.println(cfg.toString());
 //            cfg.buildDefUseChains();
 
             LlBuilder reordered = cfg.reorderLables();
-            System.out.println(reordered.toString());
+//            System.out.println(reordered.toString());
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();

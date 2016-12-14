@@ -4,7 +4,6 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
-import edu.mit.compilers.cfg.GlobalDCE;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.ll.LlLocation;
@@ -238,19 +237,49 @@ class Main {
             ParseTreeWalker walker = new ParseTreeWalker();
             DecafListener listener = new DecafListener();
             walker.walk(listener, tree);
+//            Trees.inspect(tree, parser);
 
+//            IrProgram program = listener.getGeneratedProgram();
+//            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
+//            ArrayList<LlBuilder> buildersList = program.getBuilderList();
+//            for (LlBuilder builder : buildersList) {
+//                CFG cfg = new CFG(builder);
+//                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
+//                GlobalCP.performGlobalCP(cfg);
+//                System.out.println(cfg.toString());
+//            }
 
             IrProgram program = listener.getGeneratedProgram();
-            HashSet<LlLocation> globalVars = program.getGlobalVariables();
             ArrayList<LlBuilder> buildersList = program.getBuilderList();
+            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
             for (LlBuilder builder : buildersList) {
+//               System.out.println(builder.toString());
+//               System.out.println();
                 CFG cfg = new CFG(builder);
-                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVars);
-                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
-                GlobalCP.performGlobalCP(cfg, globalVars);
-//                GlobalDCE.performGlobalDeadCodeElimination(cfg);
-                System.out.println(cfg.toString());
+//                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//                System.out.println("==========cse================\n" + cfg.toString() + "\n===========cp===============\n");
+//                GlobalCP.performGlobalCP(cfg);
+//                System.out.println(cfg.toString());
+
+//               System.out.println(cfg.toString());
             }
+
+            CodeGenerator cg = new CodeGenerator();
+            String prog = cg.generateCode(program);
+
+
+            File file = new File("test.s");
+
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(prog);
+            bw.close();
 
         }
         catch (IOException e) {
