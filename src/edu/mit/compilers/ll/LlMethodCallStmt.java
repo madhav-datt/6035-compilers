@@ -125,7 +125,9 @@ public class LlMethodCallStmt extends LlStatement {
             builder.addLinef("push",  argPushStack.pop());
         }
         // take care of caller saving here
-        builder.addLinef("movq", "$0, %rax");
+        if(this.methodName.contains("printf") || this.methodName.contains("scanf"))
+            builder.addLinef("movq", "$0, %rax");
+
         builder.addLinef("call", this.methodName);
 
         // check if the return location is already stored in the stack
