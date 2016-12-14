@@ -5,6 +5,7 @@ import edu.mit.compilers.ll.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -21,7 +22,7 @@ public class GlobalCP {
     // propagation using the passed HashMap. If
     // the HashMap is empty, then it performs local
     // copy propagation.
-    private static boolean performLocalCP(BasicBlock bb, GlobalCP cp) {
+    private static boolean performLocalCP(BasicBlock bb, GlobalCP cp, HashSet<LlLocation> globalVars) {
         LinkedHashMap<String, LlStatement> stmtsToLabelsMap = bb.getLabelsToStmtsMap();
         LinkedHashMap<String, LlStatement> oldCopy = new LinkedHashMap<>(stmtsToLabelsMap);
 
@@ -80,7 +81,8 @@ public class GlobalCP {
                 // add LHS definitions to the copyTable
                 // TODO: Figure out how to make this work for a[i] (i.e. arrays)
                 if (stmtRegular.getStoreLocation() instanceof LlLocationVar
-                        && !(stmtRegular.getOperand() instanceof LlLocationArray)) { // <-- this means it works for constants of vars
+                        && !(stmtRegular.getOperand() instanceof LlLocationArray)
+                        && !globalVars.contains(stmtRegular.getStoreLocation())) { // <-- this means it works for constants of vars
                     cp.copyTable.put(stmtRegular.getStoreLocation(), stmtRegular.getOperand());
                 }
             }
@@ -90,13 +92,28 @@ public class GlobalCP {
         return stmtsToLabelsMap.equals(oldCopy);
     }
 
-    public static void performGlobalCP(CFG cfg) {
+    public static void performGlobalCP(CFG cfg, HashSet<LlLocation> globalVars) {
         ArrayList<BasicBlock> basicBlocks = cfg.getBasicBlocks();
 
         // get the HashMap of BasicBlock => (u <-- v)
         HashMap<BasicBlock, HashMap<LlLocation, LlComponent>> copyAssignmentsIN
                 = CopyAssignments.getCopyAssignmentsForCFG(cfg);
 
+        // purify copyAssignmentsIN from any globalVariables
+        for (BasicBlock bb : copyAssignmentsIN.keySet()) {
+            HashMap<LlLocation, LlComponent> bbCopyAssignments = copyAssignmentsIN.get(bb);
+
+            // look over each global var
+            for (LlLocation globalVar : globalVars) {
+
+                // if one is found reomve that from the mapping
+                if (bbCopyAssignments.containsKey(globalVar)) {
+                    bbCopyAssignments.remove(globalVar);
+                }
+            }
+        }
+
+        // perform copy propagation until it converges
         boolean changed = true;
         while (changed) {
             // assume nothing changes at first
@@ -108,7 +125,7 @@ public class GlobalCP {
                 GlobalCP cp = new GlobalCP(copyAssignmentsIN.get(bb));
 
                 // if localCP does change one of the BasicBlocks, then has not reached convergence
-                if (!GlobalCP.performLocalCP(bb, cp)) {
+                if (!GlobalCP.performLocalCP(bb, cp, globalVars)) {
                     changed = true;
                 }
             }

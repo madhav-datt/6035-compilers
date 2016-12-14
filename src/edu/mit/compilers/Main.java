@@ -241,14 +241,14 @@ class Main {
 
 
             IrProgram program = listener.getGeneratedProgram();
-            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
+            HashSet<LlLocation> globalVars = program.getGlobalVariables();
             ArrayList<LlBuilder> buildersList = program.getBuilderList();
             for (LlBuilder builder : buildersList) {
                 CFG cfg = new CFG(builder);
-                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-                GlobalCP.performGlobalCP(cfg);
+                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVars);
                 System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
-                GlobalDCE.performGlobalDeadCodeElimination(cfg);
+                GlobalCP.performGlobalCP(cfg, globalVars);
+//                GlobalDCE.performGlobalDeadCodeElimination(cfg);
                 System.out.println(cfg.toString());
             }
 
