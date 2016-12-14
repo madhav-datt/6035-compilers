@@ -11,8 +11,10 @@ main:
      .cfi_offset 6, -16
      movq   %rsp, %rbp
 
-     subq   $(8*2), %rsp
+     subq   $(8*4), %rsp
      movq   %r12, -8(%rbp)
+     movq   %r13, -16(%rbp)
+     movq   %r14, -24(%rbp)
 main_entry:
      # generating code for #_t0 = 0
      # generating code for 0
@@ -28,17 +30,17 @@ main_entry:
 
      # generating code for #_t1 = foo()
      call   foo
-     movq   %rax, %r12
-     # generating code for #_t3 = printf(#str_t2,0,)
+     movq   %rax, %r13
+     # generating code for #_t3 = printf(#str_t2,x,)
      movq   $.STR_0, %rdi
-     # generating code for 0
-
-     movq   $0, %rsi
+     movq   x(%rip), %rsi
      movq   $0, %rax
      call   printf
-     movq   %rax, %r12
+     movq   %rax, %r14
 main_exit:
      movq   -8(%rbp), %r12
+     movq   -16(%rbp), %r13
+     movq   -24(%rbp), %r14
      leave   
      .cfi_def_cfa 7, 8
      ret     

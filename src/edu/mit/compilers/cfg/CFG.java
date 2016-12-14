@@ -506,4 +506,27 @@ public class CFG {
         return newBuilder;
     }
 
+    // =================== transform to BlockLabelPairs ==================
+
+    public HashMap<SymbolDef, HashSet<BlockLabelPair>> getDefsForUseAsBlockLabelPairs() {
+        HashMap<SymbolDef, ArrayList<Tuple>> useDefsWithTuples = this.buildUseDefChains();
+        HashMap<SymbolDef, HashSet<BlockLabelPair>> useDefsAsBlockLabelPairs = new HashMap<>();
+
+        // loop through each symbol used
+        for (SymbolDef symbolDef : useDefsWithTuples.keySet()) {
+            ArrayList<Tuple> defsArrayList = useDefsWithTuples.get(symbolDef);
+            useDefsAsBlockLabelPairs.put(symbolDef, new HashSet<>());
+
+            // add each def that corresponds that that symbol's use to that
+            // the BlockLabelPair HashSet
+            for (Tuple tuple : defsArrayList) {
+                BasicBlock bb = this.getLeadersToBBMap().get(tuple.blockName);
+                BlockLabelPair blockLabelPair = new BlockLabelPair(bb, tuple.label);
+                useDefsAsBlockLabelPairs.get(symbolDef).add(blockLabelPair);
+            }
+        }
+        return useDefsAsBlockLabelPairs;
+    }
+
+
 }

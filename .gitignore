@@ -28,3 +28,7 @@ classes/
 dist/
 src/edu/mit/compilers/grammar/DecafScanner.tokens
 /.idea/
+
+# anoying files to deal with
+tests/semantics/legal/custom-02.dcf
+src/edu/mit/compilers/Main.java
