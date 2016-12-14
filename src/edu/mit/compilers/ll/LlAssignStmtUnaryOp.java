@@ -59,32 +59,25 @@ public class LlAssignStmtUnaryOp extends LlAssignStmt{
 
     public String generateCode(AssemblyBuilder builder, StackFrame frame, LlSymbolTable symbolTable){
         // compute the value of the expression and figure out where it is stored
-        String copyFrom = "";
         builder.addComment("generating code for " + this.toString());
         String exprResultLocation = this.operand.generateCode(builder, frame, symbolTable);
 
-        if(isRegister(exprResultLocation)){
-            copyFrom = exprResultLocation;
-
-        }
-        else{
-            copyFrom = "%r10";
-            builder.addLinef("movq", exprResultLocation + ", %r10");
-        }
 
         String returnLocation;
+        builder.addLinef("movq", exprResultLocation + ", %r10");
+
         if(this.operator.equals("!")){
 
-            builder.addLinef("xorq", "$1, "+copyFrom);
+            builder.addLinef("xorq", "$1, %r10");
 
-            returnLocation = builder.optimizedStore(this.storeLocation, copyFrom, frame);
+            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
             builder.addLine();
             return returnLocation;
         }
         else if(this.operator.equals("-")){
-            builder.addLinef("movq", exprResultLocation + ", "+copyFrom);
+            builder.addLinef("movq", exprResultLocation + ", %r10");
             builder.addLinef("neg",  "%r10");
-            returnLocation = builder.optimizedStore(this.storeLocation, copyFrom, frame);
+            returnLocation = builder.optimizedStore(this.storeLocation, "%r10", frame);
             builder.addLine();
             return returnLocation;
         }

@@ -3,6 +3,7 @@ package edu.mit.compilers;
 import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
+import edu.mit.compilers.cfg.GlobalURE;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
 import edu.mit.compilers.opt.RegisterAllocation;
@@ -61,6 +62,7 @@ public class CodeGenerator {
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
             GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
             GlobalCP.performGlobalCP(cfg, globalVArs);
+            GlobalURE.performGlobalURE(cfg);
 //            System.out.println(cfg.toString());
 //            cfg.buildDefUseChains();
 
