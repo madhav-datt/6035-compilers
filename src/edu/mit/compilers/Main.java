@@ -236,7 +236,7 @@ class Main {
             ParseTreeWalker walker = new ParseTreeWalker();
             DecafListener listener = new DecafListener();
             walker.walk(listener, tree);
-            Trees.inspect(tree, parser);
+//            Trees.inspect(tree, parser);
 
 //            IrProgram program = listener.getGeneratedProgram();
 //            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
