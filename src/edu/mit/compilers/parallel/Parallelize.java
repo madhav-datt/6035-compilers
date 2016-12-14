@@ -211,8 +211,8 @@ public class Parallelize {
 
                 }
 
-                ArrayList<Long> first =
-                ArrayList<Long> second =
+                ArrayList<Long> first = null;
+                ArrayList<Long> second = null;
 
                 if (first == null || second == null)
                     return false;
