@@ -1,6 +1,6 @@
 package edu.mit.compilers;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
+
 import edu.mit.compilers.ll.LlLocation;
 import edu.mit.compilers.ll.LlLocationVar;
 
