@@ -125,8 +125,8 @@ public class LlMethodCallStmt extends LlStatement {
             builder.addLinef("push",  argPushStack.pop());
         }
         // take care of caller saving here
-        if(this.methodName.contains("printf") || this.methodName.contains("scanf"))
-            builder.addLinef("movq", "$0, %rax");
+
+        builder.addLinef("movq", "$0, %rax");
 
         builder.addLinef("call", this.methodName);
 
