@@ -1,6 +1,7 @@
 package edu.mit.compilers;
 
 import edu.mit.compilers.cfg.CFG;
+import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
@@ -58,9 +59,14 @@ public class CodeGenerator {
 
             CFG cfg = new CFG(builder);
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
-//            GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-//
+            GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//            cfg.buildDefUseChains();
+            GlobalCP.performGlobalCP(cfg);
+            System.out.println(cfg.toString());
+//            cfg.buildDefUseChains();
+
             LlBuilder reordered = cfg.reorderLables();
+            System.out.println(reordered.toString());
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();

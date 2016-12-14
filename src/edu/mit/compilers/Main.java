@@ -2,6 +2,7 @@ package edu.mit.compilers;
 
 
 import edu.mit.compilers.cfg.CFG;
+import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
@@ -245,16 +246,22 @@ class Main {
 //                CFG cfg = new CFG(builder);
 //                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
 //                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
-////                GlobalCP.performGlobalCP(cfg);
-////                System.out.println(cfg.toString());
+//                GlobalCP.performGlobalCP(cfg);
+//                System.out.println(cfg.toString());
 //            }
 
             IrProgram program = listener.getGeneratedProgram();
             ArrayList<LlBuilder> buildersList = program.getBuilderList();
+            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
             for (LlBuilder builder : buildersList) {
-               System.out.println(builder.toString());
+//               System.out.println(builder.toString());
 //               System.out.println();
                 CFG cfg = new CFG(builder);
+//                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//                System.out.println("==========cse================\n" + cfg.toString() + "\n===========cp===============\n");
+//                GlobalCP.performGlobalCP(cfg);
+//                System.out.println(cfg.toString());
+
 //               System.out.println(cfg.toString());
             }
 

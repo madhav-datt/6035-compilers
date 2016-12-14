@@ -105,7 +105,7 @@ public class RegisterAllocation {
                         break;
                     }
 
-                    int maxUseOtherVar = Collections.max(otherVarUseList) + 10;
+                    int maxUseOtherVar = Collections.max(otherVarUseList) + 19;
                     int minUseOtherVar = Collections.min(otherVarUseList);
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
@@ -121,7 +121,7 @@ public class RegisterAllocation {
                         break;
                     }
 
-                    int maxUseVar = Collections.max(duVar) + 10;
+                    int maxUseVar = Collections.max(duVar);
                     int minUseVar = Collections.min(duVar);
 
                     for (int otherVarDefUses : otherVarUseList) {
@@ -253,8 +253,8 @@ public class RegisterAllocation {
         }
 
         this.allocateRegisters();
-//        System.out.println();
-//        System.out.println(this.getVarRegisterAllocations());
-//        System.out.println();
+        System.out.println();
+        System.out.println(this.getVarRegisterAllocations());
+        System.out.println();
     }
 }
