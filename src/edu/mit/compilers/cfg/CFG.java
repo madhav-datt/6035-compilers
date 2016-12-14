@@ -276,8 +276,12 @@ public class CFG {
         }
 
         if (arg instanceof LlLocationArray) {
-            LlLocationVar indexArg = ((LlLocationArray) arg).getElementIndex();
-            this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+            LlLocationArray locationArrayArg = (LlLocationArray) arg;
+
+            if (locationArrayArg.getElementIndex() instanceof LlLocationVar) {
+                LlLocationVar indexArg = (LlLocationVar) locationArrayArg.getElementIndex();
+                this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+            }
         }
     }
 
@@ -307,8 +311,12 @@ public class CFG {
 
                     //Get index from array def call
                     if (returnLocation instanceof LlLocationArray) {
-                        LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
-                        this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                        LlLocationArray returnLocationArray = (LlLocationArray) returnLocation;
+
+                        if (returnLocationArray.getElementIndex() instanceof LlLocationVar) {
+                            LlLocationVar indexArg = (LlLocationVar) returnLocationArray.getElementIndex();
+                            this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                        }
                     }
                 }
 
@@ -345,8 +353,12 @@ public class CFG {
 
                 //Get index from array def call
                 if (returnLocation instanceof LlLocationArray) {
-                    LlLocationVar indexArg = ((LlLocationArray) returnLocation).getElementIndex();
-                    this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                    LlLocationArray returnLocationArray = (LlLocationArray) returnLocation;
+
+                    if (returnLocationArray.getElementIndex() instanceof LlLocationVar) {
+                        LlLocationVar indexArg = (LlLocationVar) returnLocationArray.getElementIndex();
+                        this.addUseArg(recentDef, indexArg, currentUseDefLocation);
+                    }
                 }
 
                 if (statement instanceof LlAssignStmtRegular) {
