@@ -235,14 +235,14 @@ public class CopyAssignments {
                 Quadruple that = (Quadruple) obj;
 
                 // two quadruples will be equal if they have equivalent u and v's
-                return this.u.equals(that.u);
+                return this.u.equals(that.u) && this.v.equals(that.v);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return this.u.hashCode();
+            return this.u.hashCode() * this.v.hashCode();
         }
     }
 }

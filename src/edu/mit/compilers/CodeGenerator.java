@@ -64,6 +64,7 @@ public class CodeGenerator {
             CFG cfg = new CFG(builder);
 
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
+
             if(options.contains("cse")){
                 System.out.println("in cse");
                 GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
