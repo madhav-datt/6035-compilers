@@ -2,9 +2,7 @@ package edu.mit.compilers;
 
 
 import edu.mit.compilers.cfg.CFG;
-import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
-import edu.mit.compilers.cfg.GlobalURE;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.ll.LlLocation;
@@ -240,26 +238,25 @@ class Main {
             walker.walk(listener, tree);
 //            Trees.inspect(tree, parser);
 
-            IrProgram program = listener.getGeneratedProgram();
-            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
-            ArrayList<LlBuilder> buildersList = program.getBuilderList();
-            for (LlBuilder builder : buildersList) {
-                CFG cfg = new CFG(builder);
-                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
-                GlobalCP.performGlobalCP(cfg);
-                GlobalURE.performGlobalURE(cfg);
-                System.out.println(cfg.toString());
-            }
-
 //            IrProgram program = listener.getGeneratedProgram();
+//            HashSet<LlLocation> globalVArs = program.getGlobalVariables();
 //            ArrayList<LlBuilder> buildersList = program.getBuilderList();
 //            for (LlBuilder builder : buildersList) {
-////               System.out.println(builder.toString());
-////               System.out.println();
 //                CFG cfg = new CFG(builder);
-////               System.out.println(cfg.toString());
+//                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+//                System.out.println("==========================\n" + cfg.toString() + "\n==========================\n");
+////                GlobalCP.performGlobalCP(cfg);
+////                System.out.println(cfg.toString());
 //            }
+
+            IrProgram program = listener.getGeneratedProgram();
+            ArrayList<LlBuilder> buildersList = program.getBuilderList();
+            for (LlBuilder builder : buildersList) {
+               System.out.println(builder.toString());
+//               System.out.println();
+                CFG cfg = new CFG(builder);
+//               System.out.println(cfg.toString());
+            }
 
             CodeGenerator cg = new CodeGenerator();
             String prog = cg.generateCode(program);
