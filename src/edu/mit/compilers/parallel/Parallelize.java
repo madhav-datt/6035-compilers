@@ -6,6 +6,7 @@ import edu.mit.compilers.ll.LlStatement;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 
 /**
  * Created by madhav on 12/10/16.
@@ -108,8 +109,8 @@ public class Parallelize {
         }
     }
 
-    //TODO
-    private ArrayList<IrExpr> getElementOrder(IrExpr arrayIndex) {
+
+    private ArrayList<IrExpr> getElementExpressionsList(IrExpr arrayIndex) {
         if(!((arrayIndex instanceof IrOperBinaryArith) || (arrayIndex instanceof IrLiteralInt) || (arrayIndex instanceof IrLocationVar))){
             return null;
         }
@@ -132,15 +133,38 @@ public class Parallelize {
         if((arrayIndex instanceof IrOperBinaryArith) && (((IrOperBinaryArith) arrayIndex).operation) == "+"){
             ArrayList<IrExpr> retExpr = new ArrayList<>();
             IrExpr leftExpr = ((IrOperBinaryArith)arrayIndex).leftOperand;
-            ArrayList<IrExpr> leftElementOrder = getElementOrder(leftExpr);
+            ArrayList<IrExpr> leftElementOrder = getElementExpressionsList(leftExpr);
             IrExpr rightExpr = ((IrOperBinaryArith)arrayIndex).rightOperand;
-            ArrayList<IrExpr> rightElementOrder = getElementOrder(rightExpr);
+            ArrayList<IrExpr> rightElementOrder = getElementExpressionsList(rightExpr);
             if((leftElementOrder == null)||(rightElementOrder == null)) return null;
             retExpr.addAll(rightElementOrder);
             retExpr.addAll(leftElementOrder);
             return retExpr;
         }
         return null;
+    }
+
+    private Hashtable<IrLocationVar, Long> getElementOrder(IrExpr indexExpr, ArrayList<IrLocationVar> locationVars){
+        Hashtable<IrLocationVar, Long> returnInt = new Hashtable<>();
+        ArrayList<IrExpr> exprList = getElementExpressionsList(indexExpr);
+        if(exprList == null) return null;
+        for(IrExpr expr : exprList){
+            if(expr instanceof IrOperBinaryArith){
+                if(((IrOperBinaryArith) expr).leftOperand instanceof IrLiteralInt){
+                    returnInt.put(((IrLocationVar) ((IrOperBinaryArith) expr).rightOperand), ((IrLiteralInt) ((IrOperBinaryArith) expr).leftOperand).getValue());
+                }
+                else if(((IrOperBinaryArith) expr).rightOperand instanceof IrLiteralInt){
+                    returnInt.put(((IrLocationVar) ((IrOperBinaryArith) expr).leftOperand), ((IrLiteralInt) ((IrOperBinaryArith) expr).rightOperand).getValue());
+                }
+                else{
+                    return null;
+                }
+            }
+            else if(expr instanceof IrLiteralInt){
+                returnInt.put(new IrLocationVar(new IrIdent("#_C", 0, 0), 0, 0), ((IrLiteralInt) expr).getValue() );
+            }
+        }
+        return returnInt;
     }
 
     //Check dependencies between passed loop statements to check for conflicts in dependencies
@@ -179,8 +203,8 @@ public class Parallelize {
 
         for (int i = 0; i < elementIndices.size(); i++) {
             for (int j = i + 1; j < elementIndices.size(); j++) {
-                ArrayList<Integer> first = this.getElementOrder(elementIndices.get(i), loopVarList);
-                ArrayList<Integer> second = this.getElementOrder(elementIndices.get(j), loopVarList);
+                ArrayList<Long> first = this.getElementOrder(elementIndices.get(i));
+                ArrayList<Long> second = this.getElementOrder(elementIndices.get(j));
 
                 if (first == null || second == null)
                     return false;
