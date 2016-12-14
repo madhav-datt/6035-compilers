@@ -7,6 +7,7 @@ import edu.mit.compilers.ll.LlStatement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * Created by madhav on 12/10/16.
@@ -203,8 +204,15 @@ public class Parallelize {
 
         for (int i = 0; i < elementIndices.size(); i++) {
             for (int j = i + 1; j < elementIndices.size(); j++) {
-                ArrayList<Long> first = this.getElementOrder(elementIndices.get(i));
-                ArrayList<Long> second = this.getElementOrder(elementIndices.get(j));
+                Hashtable<IrLocationVar, Long> firstTable = this.getElementOrder(elementIndices.get(i), loopVarList);
+                Hashtable<IrLocationVar, Long> secondTable = this.getElementOrder(elementIndices.get(j), loopVarList);
+
+                for (Map.Entry<IrLocationVar, Long> line : firstTable.entrySet()) {
+
+                }
+
+                ArrayList<Long> first =
+                ArrayList<Long> second =
 
                 if (first == null || second == null)
                     return false;
