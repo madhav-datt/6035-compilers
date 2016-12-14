@@ -41,7 +41,7 @@ public class AssemblyBuilder {
 
     public void addLine(){
 
-            this.append("");
+//            this.append("");
 
     }
 
@@ -51,7 +51,7 @@ public class AssemblyBuilder {
         this.addLine(st);
     }
     public void addComment(String comment){
-        this.addLine("# " + comment);
+//        this.addLine("# " + comment);
     }
 
     public int getEnterLine(String methodName){

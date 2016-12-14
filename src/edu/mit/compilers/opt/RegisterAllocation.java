@@ -105,8 +105,8 @@ public class RegisterAllocation {
                         break;
                     }
 
-                    int maxUseOtherVar = Collections.max(otherVarUseList);
-                    int minUseOtherVar = Collections.min(otherVarUseList);
+                    int maxUseOtherVar = Collections.max(otherVarUseList) + 10;
+                    int minUseOtherVar = Collections.min(otherVarUseList) - 1;
 
                     //Check if any use/def of var lies on a def-use chain of otherVar
                     for (int varDefUses : duVar) {
@@ -121,8 +121,8 @@ public class RegisterAllocation {
                         break;
                     }
 
-                    int maxUseVar = Collections.max(duVar);
-                    int minUseVar = Collections.min(duVar);
+                    int maxUseVar = Collections.max(duVar) + 10;
+                    int minUseVar = Collections.min(duVar) - 1;
 
                     for (int otherVarDefUses : otherVarUseList) {
                         if (otherVarDefUses >= minUseVar && otherVarDefUses <= maxUseVar) {
