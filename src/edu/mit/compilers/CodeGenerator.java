@@ -62,11 +62,11 @@ public class CodeGenerator {
             GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
 //            cfg.buildDefUseChains();
             GlobalCP.performGlobalCP(cfg);
-            System.out.println(cfg.toString());
+//            System.out.println(cfg.toString());
 //            cfg.buildDefUseChains();
 
             LlBuilder reordered = cfg.reorderLables();
-            System.out.println(reordered.toString());
+//            System.out.println(reordered.toString());
             RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
