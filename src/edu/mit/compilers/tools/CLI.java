@@ -1,5 +1,6 @@
 package edu.mit.compilers.tools;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -103,6 +104,8 @@ public class CLI {
     extras = new Vector<String>();
   }
 
+  public static ArrayList<String> options = new ArrayList<>();
+
   /**
    * Parse the command-line arguments.  Sets all of the result fields
    * accordingly. <BR>
@@ -165,13 +168,16 @@ public class CLI {
         }
         for (int j = 0; j < optsList.length; j++) {
           if (optsList[j].equals("all")) {
+            options.add("all");
             for (int k = 0; k < opts.length; k++) {
               opts[k] = true;
+
             }
           } else {
             for (int k = 0; k < optnames.length; k++) {
               if (optsList[j].equals(optnames[k])) {
                 opts[j] = true;
+                options.add(optnames[k]);
               } else if (optsList[j].charAt(0) == '-' || 
                          optsList[j].substring(1).equals(optnames[k])) {
                 opts[j] = false;
@@ -179,6 +185,8 @@ public class CLI {
             }
           }
         }
+        if(optsList.length > 0 && options.size() ==0 )
+          printUsage("'"+optsList[0] + "' is not a known option!");
       } else {
         extras.addElement(args[i]);
       }

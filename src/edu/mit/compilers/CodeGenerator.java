@@ -4,9 +4,11 @@ import edu.mit.compilers.cfg.CFG;
 import edu.mit.compilers.cfg.GlobalCP;
 import edu.mit.compilers.cfg.GlobalCSE;
 import edu.mit.compilers.cfg.GlobalURE;
+import edu.mit.compilers.cfg.*;
 import edu.mit.compilers.ir.IrProgram;
 import edu.mit.compilers.ll.*;
 import edu.mit.compilers.opt.RegisterAllocation;
+import edu.mit.compilers.parallel.Parallelize;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -19,20 +21,18 @@ import java.util.HashSet;
 public class CodeGenerator {
 
     // get the High Level Ir Program
-    public String generateCode(IrProgram program){
+    public String generateCode(IrProgram program, ArrayList<String> options){
         String assembled = "";
         LlBuildersList buildersList = program.getLlBuilders();
 
-        HashMap<String, ArrayList<LlLocationVar>> methodParams = program.getMethodArgs();
-        // prepatch the strings and stuff
-
-        // registers to use for allocation
-        String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
-//        String registers[] = {};
         ArrayList<String> givenRegisters = new ArrayList<>();
-        for (String reg : registers){
-            givenRegisters.add(reg);
-        }
+        HashMap<String, ArrayList<LlLocationVar>> methodParams = program.getMethodArgs();
+
+        String registers[] = {"%r12", "%r13", "%r14", "%r15", "%rbx"};
+        String empty[] = {};
+
+
+
 
 
         AssemblyBuilder assemblyBuilder = new AssemblyBuilder();
@@ -57,19 +57,64 @@ public class CodeGenerator {
         }
 
         for(LlBuilder builder : buildersList.getBuilders()){
-
             CFG cfg = new CFG(builder);
+
             HashSet<LlLocation> globalVArs = program.getGlobalVariables();
-            GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
-            GlobalCP.performGlobalCP(cfg, globalVArs);
-            GlobalURE.performGlobalURE(cfg);
-//            System.out.println(cfg.toString());
-//            cfg.buildDefUseChains();
+
+            if(options.contains("reg")){
+
+                for (String reg : registers){
+                    givenRegisters.add(reg);
+                }
+
+            }
+            else{
+                for (String reg : empty){
+                    givenRegisters.add(reg);
+                }
+            }
+            if(options.contains("cse")){
+
+                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+            }
+
+            if(options.contains("cp")){
+
+                GlobalCP.performGlobalCP(cfg, globalVArs);
+            }
+
+            if(options.contains("dce")){
+
+                GlobalDCE.performGlobalDeadCodeElimination(cfg);
+            }
+
+            if(options.contains("ure")){
+
+                GlobalURE.performGlobalURE(cfg);
+            }
+
+            if(options.contains("as")){
+
+                AlgebraicSimplifications.performAlgebraicSimplifications(cfg);
+            }
+            if(options.contains("par")){
+                (new Parallelize(program)).getProgram();
+            }
+
+            if(options.contains("all")){
+                for (String reg : registers){
+                    givenRegisters.add(reg);
+                }
+
+                GlobalCSE.performGlobalCommonSubexpressionEliminationOnCFG(cfg, globalVArs);
+                GlobalCP.performGlobalCP(cfg, globalVArs);
+                GlobalURE.performGlobalURE(cfg);
+            }
+
 
             LlBuilder reordered = cfg.reorderLables();
-//            System.out.println(reordered.toString());
-            RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
 
+            RegisterAllocation registerAllocation = new RegisterAllocation(givenRegisters, cfg);
             HashMap<LlLocation, String> varRegAllocs = registerAllocation.getVarRegisterAllocations();
 
             assemblyBuilder.updateRegisterAllocationTable(varRegAllocs);
@@ -83,10 +128,10 @@ public class CodeGenerator {
             String currentMethodName = "";
             assemblyBuilder.addLine("");
             StackFrame frame = new StackFrame();;
-            // get the method name
+
             currentMethodName = builder.getName();
 
-            // then get the params list
+
             if(!currentMethodName.equals("")) {
 
                 assemblyBuilder.addLabel(currentMethodName);
@@ -139,7 +184,7 @@ public class CodeGenerator {
 
         }
         assembled += assemblyBuilder.assemble();
-//        System.out.println(assemblyBuilder.assemble());
+
         return assembled;
     }
 
@@ -152,17 +197,12 @@ public class CodeGenerator {
           // put it in the stack
             if(builder.getAllocatedReg(locations.get(i))!=null){
                 if(i<6){
-
                     String storageLoc = paramRegs[i];
                     builder.addLinef("movq", storageLoc + ", " + builder.getAllocatedReg(locations.get(i)));
-
-
                 }
                 else{
                     String storageLoc =  Integer.toString(16 + (i-6)*8);
                     builder.addLinef("movq", storageLoc + "(%rbp)" + ", " + builder.getAllocatedReg(locations.get(i)));
-
-
                 }
             }
             else{
