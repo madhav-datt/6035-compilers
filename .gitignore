@@ -32,3 +32,36 @@ src/edu/mit/compilers/grammar/DecafScanner.tokens
 # anoying files to deal with
 tests/semantics/legal/custom-02.dcf
 src/edu/mit/compilers/Main.java
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
