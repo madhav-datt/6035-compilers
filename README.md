@@ -1,3 +1,4 @@
 # MIT 6.035 Compilers
-Antidaephobiax private directory for compilers 6.035
+Decaf (Simplified C) Compiler for MIT 6.035.
+
 
